@@ -14,7 +14,6 @@ import '../controllers/khata_book_controller.dart';
 
 class KhataBookView extends GetView<KhataBookController> {
   const KhataBookView({super.key});
-
   @override
   Widget build(BuildContext context) {
     Get.put(KhataBookController()); // Single controller initialization
@@ -343,28 +342,27 @@ class KhataBookView extends GetView<KhataBookController> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: CustomGradientButton(
-                        height: 35,
-                        borderRadius: 5,
-                        text: 'Request Money',
-                        onPressed: () {},
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    SizedBox(
-                      width: 50,
-                      child: CustomGradientButton(
-                        height: 35,
-                        borderRadius: 5,
-                        text: 'Pay',
-                        onPressed: () {},
-                      ),
-                    ),
-                  ],
+                CustomGradientButton(
+                  height: 35,
+                  borderRadius: 5,
+                  text: 'Pay Money',
+                  onPressed: () {},
                 ),
+                // Row(
+                //   children: [
+
+                //     const SizedBox(width: 5),
+                //     SizedBox(
+                //       width: 50,
+                //       child: CustomGradientButton(
+                //         height: 35,
+                //         borderRadius: 5,
+                //         text: 'Pay',
+                //         onPressed: () {},
+                //       ),
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           ),
@@ -568,7 +566,7 @@ class KhataBookView extends GetView<KhataBookController> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'View Report',
+                              'Reminder',
                               style: GoogleFonts.montserrat(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
