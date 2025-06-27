@@ -83,6 +83,7 @@ class OtpView extends GetView {
                             width: 50,
                             height: 50,
                             child: TextFormField(
+                              cursorColor: AppColors.primaryGradinatMixColor,
                               controller: otpController.OTPcontrollers[index],
                               focusNode: otpController.focusNodes[index],
                               textAlign: TextAlign.center,
@@ -176,8 +177,8 @@ class OtpView extends GetView {
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: [
-                                        AppColors.primaryFirstGradiant,
-                              AppColors.primarySecondGradiant,
+                                    AppColors.primaryFirstGradiant,
+                                    AppColors.primarySecondGradiant,
                                   ],
                                 ),
                                 onPressed: () {
@@ -200,8 +201,8 @@ class OtpView extends GetView {
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: [
-                                      AppColors.primaryFirstGradiant,
-                              AppColors.primarySecondGradiant,
+                                    AppColors.primaryFirstGradiant,
+                                    AppColors.primarySecondGradiant,
                                   ],
                                 ),
                                 onPressed: () {

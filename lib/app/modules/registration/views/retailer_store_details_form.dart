@@ -388,6 +388,18 @@ class RetailerStoreDetailsFrom extends StatelessWidget {
                   },
                 ),
                 SizedBox(height: 10),
+                CustomTextFormField(
+                  hintText: 'Store Owner ',
+                  keyboardType: TextInputType.text,
+                  controller: retailerStoreDetailsFormController.storeOwner,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please Enter Store Name';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 10),
                 Obx(
                   () => CustomDropdown<String>(
                     hint: 'Store Channel',
@@ -494,16 +506,16 @@ class RetailerStoreDetailsFrom extends StatelessWidget {
               ),
             ),
             GestureDetector(
-              onTap: () {
-                previousPageGridTitle == 'Expert'
-                    ? Get.toNamed(
-                      '/kyc-documents',
-                      arguments: previousPageGridTitle,
-                    )
-                    : Get.to(() => RentalKyc());
-              },
+              // onTap: () {
+              //   previousPageGridTitle == 'Expert'
+              //       ? Get.toNamed(
+              //         '/kyc-documents',
+              //         arguments: previousPageGridTitle,
+              //       )
+              //       : Get.to(() => RentalKyc());
+              // },
               child: Text(
-                'Skip for now!',
+                 "You Can’t Skip this step",
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,

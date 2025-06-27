@@ -119,7 +119,9 @@ class CustomerDetailController extends GetxController {
   void toggleAll(bool? value) {
     allSelected.value = value ?? false;
     selectedList.value = List.filled(transectionlist.length, allSelected.value);
-    allSelected.value == true ? isShowCheckbox.value = true : isShowCheckbox.value = false; 
+    allSelected.value == true
+        ? isShowCheckbox.value = true
+        : isShowCheckbox.value = false;
   }
 
   void toggleIndividual(int index, bool? value) {
@@ -172,4 +174,24 @@ class CustomerDetailController extends GetxController {
           'status': 'Pay',
         },
       ].obs;
+
+  var checkBoxList = List.generate(5, (index) => false.obs).obs;
+
+  void toggleCheckbox(int index, bool value) {
+    checkBoxList[index].value = value;
+  }
+
+  final TextEditingController totalBillAmount = TextEditingController();
+  final int totalAmount = 800; // Initial amount
+  var remainingAmount = 800.obs; // Observable value
+
+  void updateRemainingAmount(String value) {
+    int enteredAmount = int.tryParse(value) ?? 0;
+    remainingAmount.value = totalAmount - enteredAmount;
+  }
+
+  var giveAmount = TextEditingController();
+  var givepurpose = TextEditingController();
+  var givedate = TextEditingController();
+  RxString selectedMethod = 'Cash'.obs;
 }

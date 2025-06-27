@@ -20,8 +20,8 @@ class AppointmentDetailsController extends GetxController {
   void increment() => count.value++;
 
   List<String> cropImage = [
-    'assets/images/damage_leaves_01.jpg',
-    'assets/images/damage_leaves_02.jpg',
-    'assets/images/damage_leaves_03.jpg',
+    'assets/images/placeholder.jpg',
+    'assets/images/placeholder.jpg',
+    'assets/images/placeholder.jpg',
   ];
 }

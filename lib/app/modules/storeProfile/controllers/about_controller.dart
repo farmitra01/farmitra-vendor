@@ -59,4 +59,6 @@ class AboutController extends GetxController {
       selectedAmenities.add(item);
     }
   }
+
+  
 }

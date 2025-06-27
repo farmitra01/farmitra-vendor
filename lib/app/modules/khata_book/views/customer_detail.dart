@@ -6,8 +6,8 @@ import 'package:farmitra/app/modules/khata_book/views/customer_profile.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -19,6 +19,17 @@ class CustomerDetail extends StatelessWidget {
     final CustomerDetailController customerDetailController = Get.put(
       CustomerDetailController(),
     );
+    final customerName = Get.arguments as String? ?? 'Unknown User';
+    final words =
+        customerName.split(' ').where((word) => word.isNotEmpty).toList();
+    final initials =
+        words.length > 1
+            ? '${words[0][0]}${words[1][0]}'
+            : words.isNotEmpty
+            ? words[0][0]
+            : '';
+    final displayInitials = initials.toUpperCase();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.appBarColor,
@@ -37,7 +48,7 @@ class CustomerDetail extends StatelessWidget {
                 child: CircleAvatar(
                   backgroundColor: AppColors.white,
                   child: Text(
-                    'SR',
+                    displayInitials,
                     style: GoogleFonts.montserrat(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
@@ -53,7 +64,7 @@ class CustomerDetail extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        'Shankar Rane',
+                        customerName,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.montserrat(
                           fontSize: 16,
@@ -84,7 +95,7 @@ class CustomerDetail extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () {
-                  Get.to(TextSupportView());
+                  Get.to(() => TextSupportView());
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -197,7 +208,6 @@ class CustomerDetail extends StatelessWidget {
                               flex: 1,
                               child: CustomGradientButton(
                                 height: 40,
-
                                 borderRadius: 10,
                                 text: 'Pay',
                                 onPressed: () {
@@ -219,7 +229,12 @@ class CustomerDetail extends StatelessWidget {
                           hintText: 'Date',
                           keyboardType: TextInputType.none,
                           controller: customerDetailController.date,
-                          validator: (p0) {},
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Date is required';
+                            }
+                            return null;
+                          },
                           suffixWidget: GestureDetector(
                             onTap:
                                 () =>
@@ -446,11 +461,11 @@ class CustomerDetail extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 5),
-                  customerDetailController.isShowCheckbox.value == true
-                      ? Text('${customerDetailController.selectedList.length}')
-                      : Text(
-                        '${customerDetailController.transectionlist.length}',
-                      ),
+                  Text(
+                    customerDetailController.isShowCheckbox.value
+                        ? '${customerDetailController.selectedList.length}'
+                        : '${customerDetailController.transectionlist.length}',
+                  ),
                 ],
               ),
             ),
@@ -460,162 +475,158 @@ class CustomerDetail extends StatelessWidget {
               itemCount: customerDetailController.transectionlist.length,
               itemBuilder: (context, index) {
                 try {
-                  print('Rendering transaction at index $index');
                   final item = customerDetailController.transectionlist[index];
-                  return Obx(
-                    () => Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        customerDetailController.isShowCheckbox.value == true
-                            ? Checkbox(
-                              activeColor: AppColors.primaryGradinatMixColor,
-                              value:
-                                  customerDetailController.selectedList[index],
-                              onChanged:
-                                  (val) => customerDetailController
-                                      .toggleIndividual(index, val),
-                            )
-                            : SizedBox.shrink(),
-                        Expanded(
-                          child: Card(
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (customerDetailController.isShowCheckbox.value)
+                        Checkbox(
+                          activeColor: AppColors.primaryGradinatMixColor,
+                          value: customerDetailController.selectedList[index],
+                          onChanged:
+                              (val) => customerDetailController
+                                  .toggleIndividual(index, val),
+                        ),
+                      Expanded(
+                        child: Card(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: 8,
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 15,
-                                vertical: 8,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Row(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          item['orderid']?.toString() ??
+                                              'You Give',
+                                          style: GoogleFonts.montserrat(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.black87,
+                                          ),
+                                        ),
+                                        SizedBox(width: 5),
+                                        Text(
+                                          item['purpose']?.toString() ??
+                                              'Purpose',
+                                          style: GoogleFonts.montserrat(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      '- ₹${item['dueAmount']?.toString() ?? '0'}',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color:
+                                            item['status'] == 'Pay'
+                                                ? AppColors
+                                                    .primaryGradinatMixColor
+                                                : AppColors.error,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      item['date&time']?.toString() ??
+                                          'Date not set',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        if (item['status'] == 'Pay') {
+                                          Get.to(() => WalletView());
+                                        } else {
+                                          const phoneNumber = '9721854225';
+                                          final message =
+                                              'Hello Dear, your due is ₹${item['dueAmount']?.toString() ?? '0'}. Pay ASAP.';
+                                          final encodedMessage =
+                                              Uri.encodeComponent(message);
+                                          final uri = Uri.parse(
+                                            'whatsapp://send?phone=$phoneNumber&text=$encodedMessage',
+                                          );
+                                          try {
+                                            if (await canLaunchUrl(uri)) {
+                                              await launchUrl(
+                                                uri,
+                                                mode:
+                                                    LaunchMode
+                                                        .externalApplication,
+                                              );
+                                            } else {
+                                              final webUri = Uri.parse(
+                                                'https://api.whatsapp.com/send?phone=$phoneNumber&text=$encodedMessage',
+                                              );
+                                              await launchUrl(
+                                                webUri,
+                                                mode:
+                                                    LaunchMode
+                                                        .externalNonBrowserApplication,
+                                              );
+                                            }
+                                          } catch (e) {
+                                            Get.snackbar(
+                                              'Error',
+                                              'Failed to open WhatsApp. Make sure WhatsApp is installed.',
+                                              snackPosition:
+                                                  SnackPosition.BOTTOM,
+                                            );
+                                          }
+                                        }
+                                      },
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
                                         children: [
                                           Text(
-                                            item['orderid'] ?? 'You Give',
+                                            item['status']?.toString() ??
+                                                'Reminder',
                                             style: GoogleFonts.montserrat(
-                                              fontSize: 20,
+                                              fontSize: 12,
                                               fontWeight: FontWeight.w500,
-                                              color: Colors.black87,
+                                              color: Colors.blue,
                                             ),
                                           ),
-                                          SizedBox(width: 5),
-                                          Text(
-                                            item['purpose'] ?? 'Purpose',
-                                            style: GoogleFonts.montserrat(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.green,
-                                            ),
+                                          Icon(
+                                            Icons.arrow_forward_ios,
+                                            color: Colors.blue,
+                                            size: 12,
                                           ),
                                         ],
                                       ),
-                                      Text(
-                                        '- ₹${item['dueAmount'] ?? '0'}',
-                                        style: GoogleFonts.montserrat(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color:
-                                              item['status'] == 'Pay'
-                                                  ? AppColors
-                                                      .primaryGradinatMixColor
-                                                  : AppColors.error,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 10),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        item['date&time'] ?? 'Date not set',
-                                        style: GoogleFonts.montserrat(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () async {
-                                          if (item['status'] == 'Pay') {
-                                            // Route to Wallet page
-                                            Get.to(() => WalletView());
-                                          } else {
-                                            // Route to WhatsApp
-                                            const phoneNumber = '9721854225';
-                                            final message =
-                                                'Hello Dear, your due is ₹${item['dueAmount'] ?? '0'}. Pay ASAP.';
-                                            final encodedMessage =
-                                                Uri.encodeComponent(message);
-                                            final uri = Uri.parse(
-                                              'whatsapp://send?phone=$phoneNumber&text=$encodedMessage',
-                                            );
-
-                                            try {
-                                              if (await canLaunchUrl(uri)) {
-                                                await launchUrl(
-                                                  uri,
-                                                  mode:
-                                                      LaunchMode
-                                                          .externalApplication,
-                                                );
-                                              } else {
-                                                final webUri = Uri.parse(
-                                                  'https://api.whatsapp.com/send?phone=$phoneNumber&text=$encodedMessage',
-                                                );
-                                                await launchUrl(
-                                                  webUri,
-                                                  mode:
-                                                      LaunchMode
-                                                          .externalNonBrowserApplication,
-                                                );
-                                              }
-                                            } catch (e) {
-                                              Get.snackbar(
-                                                'Error',
-                                                'Failed to open WhatsApp. Make sure WhatsApp is installed.',
-                                                snackPosition:
-                                                    SnackPosition.BOTTOM,
-                                              );
-                                            }
-                                          }
-                                        },
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              item['status'] ?? 'Reminder',
-                                              style: GoogleFonts.montserrat(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.blue,
-                                              ),
-                                            ),
-                                            Icon(
-                                              Icons.arrow_forward_ios,
-                                              color: Colors.blue,
-                                              size: 12,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                    ),
+                                  ],
+                                ),
+                              ],          
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   );
                 } catch (e) {
                   print('Error rendering transaction at index $index: $e');
@@ -626,7 +637,6 @@ class CustomerDetail extends StatelessWidget {
           ),
         ],
       ),
-
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
@@ -636,7 +646,7 @@ class CustomerDetail extends StatelessWidget {
                 gradientColors: [AppColors.error, AppColors.error],
                 text: 'You Give',
                 onPressed: () {
-                  Get.to(WalletView());
+                  Get.bottomSheet(buildyouGive());
                 },
               ),
             ),
@@ -645,7 +655,7 @@ class CustomerDetail extends StatelessWidget {
               child: CustomGradientButton(
                 text: 'You Receive',
                 onPressed: () {
-                  Get.bottomSheet(buildRequestMoney(context));
+                  Get.bottomSheet(buildyouReceive());
                 },
               ),
             ),
@@ -736,6 +746,309 @@ Widget buildRequestMoney(BuildContext context) {
             SizedBox(height: 20),
           ],
         ),
+      ),
+    ),
+  );
+}
+
+Widget buildyouGive() {
+  final CustomerDetailController customerDetailController = Get.put(
+    CustomerDetailController(),
+  );
+  return SingleChildScrollView(
+    child: Container(
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
+        color: AppColors.white,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            'Give Money',
+            style: GoogleFonts.montserrat(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primaryGradinatMixColor,
+            ),
+          ),
+          SizedBox(height: 10),
+          CustomTextFormField(
+            hintText: 'Enter Giving Amount',
+            keyboardType: TextInputType.number,
+            controller: customerDetailController.giveAmount,
+            validator: (p0) {},
+            inputFormatters: [LengthLimitingTextInputFormatter(5)],
+          ),
+          SizedBox(height: 10),
+          CustomTextFormField(
+            hintText: 'Enter Giving Purpose',
+            keyboardType: TextInputType.number,
+            controller: customerDetailController.givepurpose,
+            validator: (p0) {},
+            inputFormatters: [LengthLimitingTextInputFormatter(5)],
+          ),
+          SizedBox(height: 10),
+          CustomTextFormField(
+            hintText: 'Enter Giving Date',
+            keyboardType: TextInputType.number,
+            controller: customerDetailController.givedate,
+            validator: (p0) {},
+            inputFormatters: [LengthLimitingTextInputFormatter(5)],
+          ),
+          SizedBox(height: 10),
+          Obx(
+            () => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Radio<String>(
+                  activeColor: AppColors.primaryGradinatMixColor,
+
+                  value: 'Cash',
+                  groupValue: customerDetailController.selectedMethod.value,
+                  onChanged: (value) {
+                    customerDetailController.selectedMethod.value = value!;
+                  },
+                ),
+                Text('Cash'),
+                SizedBox(width: 35),
+
+                Radio<String>(
+                  activeColor: AppColors.primaryGradinatMixColor,
+                  value: 'Online',
+                  groupValue: customerDetailController.selectedMethod.value,
+                  onChanged: (value) {
+                    customerDetailController.selectedMethod.value = value!;
+                  },
+                ),
+                Text('Online'),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          CustomGradientButton(text: 'Submit & Pay ', onPressed: () {}),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget buildyouReceive() {
+  final CustomerDetailController customerDetailController = Get.put(
+    CustomerDetailController(),
+  );
+  return SingleChildScrollView(
+    child: Container(
+      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
+        color: AppColors.white,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            'Give Receive',
+            style: GoogleFonts.montserrat(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primaryGradinatMixColor,
+            ),
+          ),
+          SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5),
+              boxShadow: const [
+                BoxShadow(
+                  blurRadius: 0.1,
+                  color: Colors.grey,
+                  offset: Offset(0, 1),
+                ),
+              ],
+            ),
+            child: ExpansionTile(
+              shape: Border.all(color: Colors.transparent),
+              iconColor: AppColors.primaryGradinatMixColor,
+              internalAddSemanticForOnTap: true,
+              children: [
+                Container(
+                  height: 100,
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 2.5),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: 2,
+                    itemBuilder: (context, index) {
+                      return Column(
+                        children: [
+                          SizedBox(height: 2.5),
+                          Row(
+                            children: [
+                              Text(
+                                'orderid - #987532',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              Spacer(),
+                              Text(
+                                '₹400',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              Obx(
+                                () => Checkbox(
+                                  activeColor:
+                                      AppColors.primaryGradinatMixColor,
+                                  value:
+                                      customerDetailController
+                                          .checkBoxList[index]
+                                          .value,
+                                  onChanged:
+                                      (value) => customerDetailController
+                                          .toggleCheckbox(index, value!),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ],
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Previous Dues (2-Orders)',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    '+₹800',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.green,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                'Net Amount Receive:',
+                style: GoogleFonts.montserrat(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+          CustomTextFormField(
+            hintText: '  Enter Amount',
+            keyboardType: TextInputType.text,
+            controller: customerDetailController.totalBillAmount,
+            validator: (p0) {},
+            suffixIcon: Icons.cancel_outlined,
+            onChanged: (value) {
+              customerDetailController.updateRemainingAmount(value);
+            },
+          ),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Obx(
+                () => Text(
+                  'Remaining Amount: ₹ ${customerDetailController.remainingAmount.value}',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.error,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+          CustomTextFormField(
+            hintText: 'Enter Receiving Amount',
+            keyboardType: TextInputType.number,
+            controller: customerDetailController.giveAmount,
+            validator: (p0) {},
+            inputFormatters: [LengthLimitingTextInputFormatter(5)],
+          ),
+          SizedBox(height: 10),
+          CustomTextFormField(
+            hintText: 'Enter Receiving Purpose',
+            keyboardType: TextInputType.number,
+            controller: customerDetailController.givepurpose,
+            validator: (p0) {},
+            inputFormatters: [LengthLimitingTextInputFormatter(5)],
+          ),
+          SizedBox(height: 10),
+          CustomTextFormField(
+            hintText: 'Enter Receiving Date',
+            keyboardType: TextInputType.number,
+            controller: customerDetailController.givedate,
+            validator: (p0) {},
+            inputFormatters: [LengthLimitingTextInputFormatter(5)],
+          ),
+          SizedBox(height: 10),
+          Obx(
+            () => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Radio<String>(
+                  activeColor: AppColors.primaryGradinatMixColor,
+
+                  value: 'Cash',
+                  groupValue: customerDetailController.selectedMethod.value,
+                  onChanged: (value) {
+                    customerDetailController.selectedMethod.value = value!;
+                  },
+                ),
+                Text('Cash'),
+                SizedBox(width: 35),
+
+                Radio<String>(
+                  activeColor: AppColors.primaryGradinatMixColor,
+                  value: 'Online',
+                  groupValue: customerDetailController.selectedMethod.value,
+                  onChanged: (value) {
+                    customerDetailController.selectedMethod.value = value!;
+                  },
+                ),
+                Text('Online'),
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+          CustomGradientButton(text: 'Submit & Pay ', onPressed: () {}),
+        ],
       ),
     ),
   );

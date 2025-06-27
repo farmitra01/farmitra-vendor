@@ -14,28 +14,33 @@ import '../controllers/khata_book_controller.dart';
 
 class KhataBookView extends GetView<KhataBookController> {
   const KhataBookView({super.key});
+
   @override
   Widget build(BuildContext context) {
     Get.put(KhataBookController()); // Single controller initialization
+    final Map<String, dynamic>? customerData = Get.arguments;
+
+    if (customerData == null) {
+      print("No customer data found!");
+    } else {
+      print('Added Customer Data $customerData');
+    }
 
     return Scaffold(
       appBar: VendorAppBar(title: 'My Khata'),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildTabBar(),
-            SizedBox(
-              height:
-                  MediaQuery.of(context).size.height -
-                  kToolbarHeight -
-                  50, // Adjust for app bar and padding
-              child: TabBarView(
-                controller: controller.tabController,
-                children: [_buildCustomerSection(), _buildCustomerSection()],
-              ),
+      body: Column(
+        children: [
+          _buildTabBar(),
+          Expanded(
+            child: TabBarView(
+              controller: controller.tabController,
+              children: [
+                _buildCustomerSection(customerData),
+                _buildCustomerSection(customerData),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButton: SizedBox(
         width: 150,
@@ -46,7 +51,7 @@ class KhataBookView extends GetView<KhataBookController> {
             Get.to(
               () => AddCustomer(),
               arguments: controller.currentTabIndex.value,
-            ); // Update for Suppliers if needed
+            );
           },
           child: Container(
             decoration: BoxDecoration(
@@ -54,10 +59,7 @@ class KhataBookView extends GetView<KhataBookController> {
               color: AppColors.white,
             ),
             child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 8,
-              ), // Reduced horizontal padding
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 color: AppColors.primaryGradinatMixColor.withOpacity(0.2),
@@ -80,7 +82,7 @@ class KhataBookView extends GetView<KhataBookController> {
                           fontWeight: FontWeight.w500,
                           color: AppColors.primaryGradinatMixColor,
                         ),
-                        overflow: TextOverflow.ellipsis, // Handle long text
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ),
@@ -136,11 +138,11 @@ class KhataBookView extends GetView<KhataBookController> {
     );
   }
 
-  Widget _buildCustomerSection() {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Container(
+  Widget _buildCustomerSection(Map<String, dynamic>? customerData) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 15),
             child: Column(
               children: [
@@ -154,9 +156,9 @@ class KhataBookView extends GetView<KhataBookController> {
               ],
             ),
           ),
-        ),
-        _buildDetailList(),
-      ],
+          _buildDetailList(customerData),
+        ],
+      ),
     );
   }
 
@@ -348,21 +350,6 @@ class KhataBookView extends GetView<KhataBookController> {
                   text: 'Pay Money',
                   onPressed: () {},
                 ),
-                // Row(
-                //   children: [
-
-                //     const SizedBox(width: 5),
-                //     SizedBox(
-                //       width: 50,
-                //       child: CustomGradientButton(
-                //         height: 35,
-                //         borderRadius: 5,
-                //         text: 'Pay',
-                //         onPressed: () {},
-                //       ),
-                //     ),
-                //   ],
-                // ),
               ],
             ),
           ),
@@ -487,109 +474,152 @@ class KhataBookView extends GetView<KhataBookController> {
     );
   }
 
-  Widget _buildDetailList() {
-    final random = Random(); // Create a Random instance
+  Widget _buildDetailList(Map<String, dynamic>? data) {
+    final random = Random();
 
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          // Generate random color for each item
-          final randomColor = Color.fromRGBO(
-            random.nextInt(256), // Random red (0-255)
-            random.nextInt(256), // Random green (0-255)
-            random.nextInt(256), // Random blue (0-255)
-            0.2, // Fixed opacity to match your original
-          );
+    // List of all cards to render
+    final List<Map<String, dynamic>> customerList = [];
 
-          return GestureDetector(
-            onTap: () {
-              Get.to(CustomerDetail());
-            },
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 8,
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: randomColor, // Use random color
-                      child: Text(
-                        'SR',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.primaryGradinatMixColor,
-                        ),
+    // Add argument data at the beginning if available
+    if (data != null && data.isNotEmpty) {
+      customerList.add(data);
+    }
+
+    // Add 2 default dummy cards with date and time
+    customerList.addAll([
+      {
+        'name': 'Shankar Rane',
+        'money': 4532,
+        'date': '05/05/2025',
+        'time': '14:30',
+      },
+      {
+        'name': 'Pooja Mehta',
+        'money': 2321,
+        'date': '05/05/2025',
+        'time': '09:15',
+      },
+    ]);
+
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: customerList.length,
+      itemBuilder: (context, index) {
+        final item = customerList[index];
+        final name = item['name'].toString();
+
+        // Generate initials from the first letter of each word
+        final words = name.split(' ').where((word) => word.isNotEmpty).toList();
+        final initials =
+            words.length > 1
+                ? '${words[0][0]}${words[1][0]}'
+                : words.isNotEmpty
+                ? words[0][0]
+                : '';
+        final displayInitials = initials.toUpperCase();
+
+        // Generate random color
+        final randomColor = Color.fromRGBO(
+          random.nextInt(256),
+          random.nextInt(256),
+          random.nextInt(256),
+          0.2,
+        );
+
+        // Use provided date and time, or generate current date and time
+        final date =
+            item['date'] ??
+            "${DateTime.now().day.toString().padLeft(2, '0')}/${DateTime.now().month.toString().padLeft(2, '0')}/${DateTime.now().year}";
+        final time =
+            item['time'] ??
+            "${DateTime.now().hour}:${DateTime.now().minute.toString().padLeft(2, '0')}";
+        final dateTime = "$date $time";
+
+        return GestureDetector(
+          onTap: () {
+            Get.to(() => CustomerDetail(), arguments:item['name'] );
+          },
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: randomColor,
+                    child: Text(
+                      displayInitials,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primaryGradinatMixColor,
                       ),
                     ),
-                    const SizedBox(width: 5),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Shankar Rane',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.primaryGradinatMixColor,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            '4 Days Ago',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    Column(
+                  ),
+                  const SizedBox(width: 5),
+                  Expanded(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '₹4532',
+                          item['name'],
                           style: GoogleFonts.montserrat(
-                            fontSize: 13,
+                            fontSize: 15,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.error,
+                            color: AppColors.primaryGradinatMixColor,
                           ),
                         ),
-                        const SizedBox(height: 10),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Reminder',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.primaryGradinatMixColor,
-                              ),
-                            ),
-                            const Icon(
-                              Icons.arrow_forward_ios,
-                              color: AppColors.primaryGradinatMixColor,
-                              size: 10,
-                            ),
-                          ],
+                        const SizedBox(height: 5),
+                        Text(
+                          dateTime,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 5),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '₹${item['money'] ?? 0}',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.error,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Reminder',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.primaryGradinatMixColor,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            color: AppColors.primaryGradinatMixColor,
+                            size: 10,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          );
-        },
-        childCount: 15, // Adjust based on your data
-      ),
+          ),
+        );
+      },
     );
   }
 }

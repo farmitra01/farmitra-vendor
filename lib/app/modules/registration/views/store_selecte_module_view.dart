@@ -11,10 +11,28 @@ class StoreSelectedModuleView extends GetView<StoreSelectedModuleController> {
 
   @override
   Widget build(BuildContext context) {
-    // Instantiate the controller
-    Get.put(StoreSelectedModuleController());
+    final StoreSelectedModuleController storeSelectedModuleController = Get.put(
+      StoreSelectedModuleController(),
+    );
+    // Avoid instantiating controller in build; assume it's injected via GetX dependency injection
+    final previousSelectedValue = Get.arguments as String?;
+    debugPrint(
+      'StoreSelectedModuleView => Controller: ${controller.hashCode}, PreviousSelectedValue: $previousSelectedValue',
+    );
 
-    final previousSelectedValue = Get.arguments;
+    // Extract categoryId and categoryName from arguments
+    String? categoryId;
+    String? categoryName;
+    if (previousSelectedValue != null) {
+      final parts = previousSelectedValue.split(',');
+      for (var part in parts) {
+        if (part.startsWith('id:')) {
+          categoryId = part.split(':')[1];
+        } else if (part.startsWith('name:')) {
+          categoryName = part.split(':')[1];
+        }
+      }
+    }
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -30,7 +48,10 @@ class StoreSelectedModuleView extends GetView<StoreSelectedModuleController> {
             Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 20,
+                  ),
                   child: Container(
                     height: 50,
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -41,11 +62,11 @@ class StoreSelectedModuleView extends GetView<StoreSelectedModuleController> {
                     child: Row(
                       children: [
                         Text(
-                          '$previousSelectedValue',
+                          categoryName ?? 'Unknown',
                           style: GoogleFonts.montserrat(
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.secondary,
+                            color: AppColors.textSecondary,
                           ),
                         ),
                         const Spacer(),
@@ -54,8 +75,9 @@ class StoreSelectedModuleView extends GetView<StoreSelectedModuleController> {
                           child: Text(
                             'Edit     ',
                             style: GoogleFonts.montserrat(
-                              color: AppColors.primaryGradinatMixColor,
                               fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.primaryGradinatMixColor,
                             ),
                           ),
                         ),
@@ -68,7 +90,7 @@ class StoreSelectedModuleView extends GetView<StoreSelectedModuleController> {
                   bottom: 45,
                   child: Container(
                     padding: const EdgeInsets.all(2.0),
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
@@ -99,14 +121,12 @@ class StoreSelectedModuleView extends GetView<StoreSelectedModuleController> {
                             ),
                           ),
                           child: const CircleAvatar(
-                            child: Center(
-                              child: Icon(
-                                Icons.check,
-                                size: 15,
-                                color: Colors.white,
-                              ),
-                            ),
                             backgroundColor: Colors.transparent,
+                            child: Icon(
+                              Icons.check,
+                              size: 15,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
@@ -116,7 +136,7 @@ class StoreSelectedModuleView extends GetView<StoreSelectedModuleController> {
               ],
             ),
             Text(
-              'Select a module-',
+              'Select a module',
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -133,86 +153,115 @@ class StoreSelectedModuleView extends GetView<StoreSelectedModuleController> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                ),
-                itemCount: previousSelectedValue == 'As a Retailer'
-                    ? controller.retailerList.length
-                    : controller.gridText.length,
-                itemBuilder: (context, index) {
-                  if (index >= controller.colors.length) {
-                    return const SizedBox();
-                  }
-                  return GestureDetector(
-                    onTap: () => controller.selectItem(index),
-                    child: Obx(
-                      () => Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              AppColors.white,
-                              controller.colors[index].withOpacity(0.2),
-                            ],
-                            stops: const [0.40, 1.0],
-                          ),
-                          border: Border.all(
-                            color: controller.selectedIndex.value == index
-                                ? AppColors.primaryGradinatMixColor
-                                : Colors.transparent,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                const SizedBox(width: 10),
-                                SizedBox(
-                                  width: 15,
-                                  child: Radio<int>(
-                                    value: index,
-                                    groupValue: controller.selectedIndex.value,
-                                    activeColor: AppColors.primaryGradinatMixColor,
-                                    onChanged: (int? value) {
-                                      if (value != null) {
-                                        controller.selectItem(value);
-                                      }
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: RichText(
-                                    textAlign: TextAlign.left,
-                                    text: TextSpan(
-                                      text: previousSelectedValue == 'As a Retailer'
-                                          ? controller.retailerList[index]
-                                          : controller.gridText[index],
-                                      style: GoogleFonts.montserrat(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: controller.colors[index],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 15),
-                          ],
+              child: Obx(() {
+                debugPrint(
+                  'Building Grid => isLoading: ${controller.isLoading.value}, '
+                  'Items Count: ${controller.items3.length}',
+                );
+
+                return Stack(
+                  children: [
+                    if (controller.isLoading.value)
+                      const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryGradinatMixColor,
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
+
+                    if (!controller.isLoading.value &&
+                        controller.items3.isEmpty)
+                      const Center(child: Text('No modules available.')),
+
+                    if (!controller.isLoading.value &&
+                        controller.items3.isNotEmpty)
+                      GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                              childAspectRatio: 1.2,
+                            ),
+                        itemCount: controller.items3.length,
+                        itemBuilder: (context, index) {
+                          final item = controller.items3[index];
+
+                          return Obx(
+                            () => GestureDetector(
+                              onTap: () {
+                                controller.selectItem(index);
+                                debugPrint(
+                                  'Selected Item: ${item.name}, Index: $index',
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      AppColors.white,
+                                      controller
+                                          .colors[index %
+                                              controller.colors.length]
+                                          .withOpacity(0.2),
+                                    ],
+                                    stops: const [0.4, 1.0],
+                                  ),
+                                  border: Border.all(
+                                    color:
+                                        controller.selectedIndex.value == index
+                                            ? AppColors.primaryGradinatMixColor
+                                            : Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Radio<int>(
+                                          value: index,
+                                          groupValue:
+                                              controller.selectedIndex.value,
+                                          activeColor:
+                                              AppColors.primaryGradinatMixColor,
+                                          onChanged: (value) {
+                                            if (value != null) {
+                                              controller.selectItem(value);
+                                              debugPrint(
+                                                'Radio Selected: $value',
+                                              );
+                                            }
+                                          },
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            item.name ?? "",
+                                            style: GoogleFonts.montserrat(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color:
+                                                  controller.colors[index %
+                                                      controller.colors.length],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 15),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                  ],
+                );
+              }),
             ),
           ],
         ),
@@ -222,17 +271,19 @@ class StoreSelectedModuleView extends GetView<StoreSelectedModuleController> {
         child: CustomGradientButton(
           text: 'Proceed',
           onPressed: () {
-            if (controller.gridTitle.value.isNotEmpty) {
+            if (controller.items3.value.isNotEmpty) {
+              debugPrint(
+                'Proceeding to /store_category with Title: ${controller.gridTitle.value}, Controller: ${controller.hashCode}',
+              );
               Get.toNamed(
                 '/store_category',
                 arguments: controller.gridTitle.value,
               );
             } else {
               Get.snackbar(
-                'Please',
-                'Select Any Module',
+                'Error',
+                'Please select a module',
                 snackPosition: SnackPosition.TOP,
-                backgroundColor: AppColors.primaryGradinatMixColor,
                 colorText: AppColors.white,
               );
             }

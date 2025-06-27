@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:farmitra/app/constants/app_colors.dart';
+import 'package:farmitra/app/modules/Help_Center/controllers/faq_controller.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -12,9 +13,12 @@ class FaqGridPagesView extends GetView {
 
   @override
   Widget build(BuildContext context) {
+    final FaqController faqController = Get.put(FaqController());
+    final String selectedTitle = Get.arguments['title'];
+    final faqs = faqController.faqMap[selectedTitle] ?? [];
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xff373A60),
+        backgroundColor: AppColors.appBarColor,
         leadingWidth: double.tryParse('175'),
         leading: Padding(
           padding: const EdgeInsets.only(left: 10, top: 10, bottom: 10),
@@ -31,22 +35,20 @@ class FaqGridPagesView extends GetView {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
+                  const Icon(Icons.arrow_back, color: Colors.white),
+                  SizedBox(width: 5),
                   Text(
-                    Get.arguments['title'],
+                    selectedTitle.capitalize ?? '',
+                    softWrap: true,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 5,
                     style: GoogleFonts.montserrat(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: Color(0xffDADADA),
                     ),
-                  )
-                ],
+                  ),
+                ],   
               ),
             ),
           ),
@@ -64,35 +66,64 @@ class FaqGridPagesView extends GetView {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(
-              height: 5,
-            ),
+            SizedBox(height: 5),
             Expanded(
-              child: ListView.builder(
-                itemCount: 15,
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: ExpansionTile(
-                      collapsedIconColor: Colors.grey.shade800,
-                      iconColor: Colors.grey.shade800,
-                      title: Text("Coming Soon..."),
-                      children: <Widget>[
-                        ListTile(
-                          title: Text("Coming Soon..."),
-                        ),
-                        ListTile(
-                          title: Text("Coming Soon..."),
-                        )
-                      ],
-                      shape: RoundedRectangleBorder(
-                        side: BorderSide.none,
-                      ),
-                      collapsedShape:
-                          RoundedRectangleBorder(side: BorderSide.none),
+              child: Obx(() {
+                if (faqController.isLoading.value) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryFirstGradiant,
                     ),
                   );
-                },
-              ),
+                }
+                if (faqController.faqMap.isEmpty) {
+                  return const Center(child: Text("No FAQs available."));
+                }
+                return ListView.builder(
+                  itemCount: faqs.length,
+                  itemBuilder: (context, index) {
+                    final faq = faqs[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      semanticContainer: false,
+                      child: ExpansionTile(
+                        iconColor: AppColors.primaryGradinatMixColor,
+                        collapsedIconColor: AppColors.primaryGradinatMixColor,
+                        shape: Border.all(color: Colors.transparent),
+                        title: Text(
+                          'Question:-   ${faq.question}',
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        children: [
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              child: Text(
+                                'Answer:- ${faq.answer}',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }),
             ),
           ],
         ),

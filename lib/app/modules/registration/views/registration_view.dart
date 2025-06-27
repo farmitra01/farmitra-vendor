@@ -53,9 +53,9 @@ class RegistrationView extends GetView<RegistrationController> {
                       ),
                     ),
                     items: [
-                      'assets/elephant.webp',
-                      'assets/elephant.webp',
-                      'assets/elephant.webp',
+                      'assets/images/registration_banner_01.jpg',
+                      'assets/images/registration_banner_02.jpg',
+                      'assets/images/registration_banner_03.avif',
                     ].map(
                       (imagePath) {
                         return Builder(

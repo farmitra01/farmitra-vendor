@@ -38,23 +38,26 @@ class ExpertprofileController extends GetxController {
       {'icon': Icons.calendar_month_outlined, 'details': 'My Appointments'},
       {
         'icon': Icons.business_center,
-        'details': storeCategoryController.previousPageGridTitle == 'Expert'
-            ? 'Expert Profile'
-            : storeCategoryController.previousPageGridTitle == 'Rental'
+        'details':
+            storeCategoryController.previousPageGridTitle == 'Expert'
+                ? 'Business Profile'
+                : storeCategoryController.previousPageGridTitle == 'Rental'
                 ? 'Rental Profile'
-                : ''
+                : 'Business Profile',
       },
       {
         'icon': Icons.assignment_add,
-        'details': storeCategoryController.previousPageGridTitle == 'Expert'
-            ? 'Expert KYC'
-            : storeCategoryController.previousPageGridTitle == 'Rental'
+        'details':
+            storeCategoryController.previousPageGridTitle == 'Expert'
+                ? 'Expert KYC'
+                : storeCategoryController.previousPageGridTitle == 'Rental'
                 ? 'Rental KYC'
-                : ''
+                : 'Expert KYC',
       },
       {'icon': Icons.payments, 'details': 'My Payment'},
       {'icon': Icons.event_note, 'details': 'Manage Appointment'},
       {'icon': Icons.shopping_cart, 'details': 'My Shopping Cart'},
       {'icon': Icons.settings, 'details': 'Settings'},
     ];
-}}
+  }
+}

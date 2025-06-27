@@ -1,5 +1,6 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:farmitra/app/constants/app_colors.dart';
+import 'package:farmitra/app/utils/global_widgets/custom_dropdown.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_image_picker_widget.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_text_form_field.dart';
@@ -13,6 +14,7 @@ import 'package:flutter_svg/svg.dart';
 
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../controllers/owner_profile_controller.dart';
 
@@ -58,7 +60,7 @@ class OwnerProfileView extends GetView<OwnerProfileController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                height: 225,
+                // height: 250,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -355,6 +357,7 @@ class OwnerProfileView extends GetView<OwnerProfileController> {
                         ),
                       ),
                       SizedBox(height: 10),
+
                       CustomTextFormField(
                         hintText: 'Full Name',
                         keyboardType: TextInputType.text,
@@ -363,6 +366,7 @@ class OwnerProfileView extends GetView<OwnerProfileController> {
                         validator: (p0) {},
                       ),
                       SizedBox(height: 10),
+
                       CustomTextFormField(
                         hintText: '+91',
                         keyboardType: TextInputType.number,
@@ -429,6 +433,125 @@ class OwnerProfileView extends GetView<OwnerProfileController> {
                   ),
                 ),
               ),
+              SizedBox(height: 10),
+              Obx(
+                () => Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Radio<String>(
+                      activeColor: AppColors.primaryGradinatMixColor,
+                      value: 'Male',
+                      groupValue: ownerProfileController.selectedGender.value,
+                      onChanged:
+                          (value) =>
+                              ownerProfileController.changeGender(value!),
+                    ),
+                    Text('Male'),
+                    SizedBox(width: 20),
+                    Radio<String>(
+                      activeColor: AppColors.primaryGradinatMixColor,
+                      value: 'Female',
+                      groupValue: ownerProfileController.selectedGender.value,
+                      onChanged:
+                          (value) =>
+                              ownerProfileController.changeGender(value!),
+                    ),
+                    Text('Female'),
+                    SizedBox(width: 20),
+                    Radio<String>(
+                      activeColor: AppColors.primaryGradinatMixColor,
+                      value: 'Other',
+                      groupValue: ownerProfileController.selectedGender.value,
+                      onChanged:
+                          (value) =>
+                              ownerProfileController.changeGender(value!),
+                    ),
+                    Text('Other'),
+                  ],
+                ),
+              ),
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  Text('Select language'),
+                  Icon(Icons.arrow_forward_ios_outlined, size: 15),
+                ],
+              ),
+              SizedBox(
+                height: 50,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  scrollDirection: Axis.horizontal,
+                  itemCount: ownerProfileController.languages.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap:
+                          () => ownerProfileController.toggleSelection(index),
+                      child: Obx(() {
+                        bool isSelected = ownerProfileController.isSelected(
+                          index,
+                        );
+                        return Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 8,
+                          ),
+                          margin: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                isSelected
+                                    ? AppColors.primaryGradinatMixColor
+                                    : Colors.transparent,
+                            border: Border.all(
+                              color:
+                                  isSelected
+                                      ? Colors.transparent
+                                      : AppColors.border,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            ownerProfileController.languages[index],
+                            style: GoogleFonts.montserrat(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+
+                              color:
+                                  isSelected
+                                      ? AppColors.white
+                                      : AppColors.textPrimary,
+                            ),
+                          ),
+                        );
+                      }),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 10),
+              CustomTextFormField(
+                hintText:
+                    // storeCategoryController.previousPageGridTitle == 'Expert'
+                    //     ? 'About Expert'
+                    //     : storeCategoryController.previousPageGridTitle ==
+                    //         'Rental'
+                    //     ? 'About Rental Item'
+                    //     :
+                    'About Drone',
+                borderRadius: 10,
+                keyboardType: TextInputType.text,
+                controller: ownerProfileController.About,
+                maxLines: 3,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please Enter About Rental Item';
+                  }
+                  return null;
+                },
+              ),
               SizedBox(height: 20),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
@@ -440,7 +563,295 @@ class OwnerProfileView extends GetView<OwnerProfileController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'B. Owner’s KYC:',
+                      'B. Profession Details',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'Please Select The Experties of Expert',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Obx(
+                      () => CustomDropdown<String>(
+                        hint: 'Area of Experties',
+                        items:
+                            ownerProfileController
+                                .storeChannelList, // Keep it as List<String>
+                        selectedItem:
+                            ownerProfileController.selectedItem.value.isEmpty
+                                ? null
+                                : ownerProfileController.selectedItem.value,
+                        onChanged: (value) {
+                          ownerProfileController.updatedSelectedValue(
+                            value ?? '',
+                          );
+                        },
+                        itemBuilder: (item) => item, // Correct item mapping
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    CustomTextFormField(
+                      hintText: 'Other Experties',
+                      keyboardType: TextInputType.text,
+                      controller: ownerProfileController.specialization,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please Enter Other Experties';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 10),
+
+                    Text(
+                      'Highest Qualification',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+
+                    Obx(
+                      () => CustomDropdown<String>(
+                        hint: 'Choose Highest Qualification',
+                        items:
+                            ownerProfileController
+                                .qualification, // Keep it as List<String>
+                        selectedItem:
+                            ownerProfileController
+                                    .selectedItemQualification
+                                    .value
+                                    .isEmpty
+                                ? null
+                                : ownerProfileController
+                                    .selectedItemQualification
+                                    .value,
+                        onChanged: (value) {
+                          ownerProfileController
+                              .updatedSelectedValueQualification(value ?? '');
+                        },
+                        itemBuilder: (item) => item, // Correct item mapping
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    CustomTextFormField(
+                      hintText: 'Specialization',
+                      keyboardType: TextInputType.text,
+                      controller: ownerProfileController.specialization,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please Enter Expert Name';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 10),
+                    Center(
+                      child: Text(
+                        'Upload your Certificate here ',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primaryGradinatMixColor,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColors.primaryGradinatMixColor,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+
+                    GestureDetector(
+                      onTap: () {
+                        _uploadCertificateDialog(); // Show image source dialog on tap
+                      },
+                      child: Center(
+                        child: DottedBorder(
+                          color: AppColors.border,
+                          dashPattern: [6, 3],
+                          borderType: BorderType.RRect,
+                          radius: Radius.circular(10),
+                          child: Container(
+                            height: 150,
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: AppColors.white,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Obx(
+                                  () =>
+                                      ownerProfileController
+                                                  .selectedImage
+                                                  .value !=
+                                              null
+                                          ? Image.file(
+                                            ownerProfileController
+                                                .selectedImage
+                                                .value!,
+                                            height: 100,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                          )
+                                          : SvgPicture.asset(
+                                            'assets/icons/uploadicon.svg',
+                                          ),
+                                ),
+                                Text(
+                                  'Upload Certificate',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                Text(
+                                  'JPEG, PNG less than 5MB',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w400,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppColors.border),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(6.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Certificate Must show:',
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                SizedBox(height: 10),
+                                Row(
+                                  children: [
+                                    Icon(Icons.check, size: 20),
+                                    Text('  Registration number'),
+                                  ],
+                                ),
+                                SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    Icon(Icons.check, size: 20),
+                                    Text('  Certificate number'),
+                                  ],
+                                ),
+                                SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    Icon(Icons.check, size: 20),
+                                    Text('  Experties Area'),
+                                  ],
+                                ),
+                                SizedBox(height: 5),
+                              ],
+                            ),
+                            SizedBox(width: 10),
+                            GestureDetector(
+                              onTap: () {
+                                Get.defaultDialog(
+                                  title: 'Sample',
+                                  titlePadding: EdgeInsets.only(
+                                    top: 10,
+                                    left: 10,
+                                    right: 10,
+                                    bottom: 0,
+                                  ),
+                                  titleStyle: GoogleFonts.montserrat(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 18,
+                                    color: AppColors.primaryGradinatMixColor,
+                                  ),
+                                  content: Image.asset(
+                                    'assets/images/certificate Sample Image.jpg',
+                                    fit: BoxFit.cover,
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                height: 120,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 15,
+                                  vertical: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: AppColors.border),
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                      'assets/images/certificate Sample Image.jpg',
+                                    ),
+                                    fit: BoxFit.fill,
+                                    opacity: 0.2,
+                                  ),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.visibility),
+                                    Text(
+                                      'View Sample',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 20),
+
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: AppColors.background,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'C. Owner’s KYC:',
                       style: GoogleFonts.montserrat(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -1483,4 +1894,67 @@ class OwnerProfileView extends GetView<OwnerProfileController> {
       ),
     );
   }
+}
+
+void _uploadCertificateDialog() {
+  final OwnerProfileController ownerProfileController = Get.put(
+    OwnerProfileController(),
+  );
+  showDialog(
+    context: Get.context!, // Since you're using GetX
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(
+          'Select Image:-',
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: AppColors.primaryGradinatMixColor,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min, // To avoid the dialog being too large
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // If you need to add additional content here
+          ],
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () {
+                  Get.back(); // Close dialog
+                  ownerProfileController.pickImage(ImageSource.camera);
+                },
+                child: Text(
+                  'Camera',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.primaryGradinatMixColor,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Get.back(); // Close dialog
+                  ownerProfileController.pickImage(ImageSource.gallery);
+                },
+                child: Text(
+                  'Gallery',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.primaryGradinatMixColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    },
+  );
 }

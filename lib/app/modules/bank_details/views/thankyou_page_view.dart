@@ -50,7 +50,7 @@ class ThankyouPageView extends GetView {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Text(
-                  'Thank you for\nBecome Farmitra Vendor.',
+                  'Thank you for\nBecome Farmitra Expert.',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.montserrat(
                     fontWeight: FontWeight.w600,

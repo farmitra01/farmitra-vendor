@@ -217,7 +217,6 @@ class StoreDetailsFormView extends GetView {
                         ),
                       ],
                     ),
-
                     const SizedBox(width: 10),
 
                     /// Banner Upload Section
@@ -371,7 +370,7 @@ class StoreDetailsFormView extends GetView {
                       ),
                       Text(
                         " If you don't have Profile & banner\n Use Farmitra Templates",
-                        style: GoogleFonts.montserrat(     
+                        style: GoogleFonts.montserrat(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: AppColors.primaryGradinatMixColor,
@@ -458,17 +457,18 @@ class StoreDetailsFormView extends GetView {
                 //     ),
                 //   ),
                 CustomTextFormField(
-                  hintText: ' Whats app number',
+                  hintText: 'WhatsApp number',
                   keyboardType: TextInputType.number,
                   controller: storeDetailsFormController.whatsAppNumber,
                   inputFormatters: [LengthLimitingTextInputFormatter(10)],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Please Enter What's App Number";
-                    } else if (value.length < 10) {
-                      return 'Enter 10 Digit Valid Number';
+                      return null; // Field is optional, so empty is valid
                     }
-                    return null;
+                    if (value.length < 10) {
+                      return "Please enter a 10-digit WhatsApp number";
+                    }
+                    return null; // Valid input
                   },
                 ),
                 SizedBox(height: 10),
@@ -556,17 +556,18 @@ class StoreDetailsFormView extends GetView {
                   keyboardType: TextInputType.text,
                   controller: storeDetailsFormController.About,
                   maxLines: 3,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please Enter About Rental Item';
-                    }
-                    return null;
-                  },
+                  validator: (p0) {},
+                  // (value) {
+                  //   if (value == null || value.isEmpty) {
+                  //     return 'Please Enter About Rental Item';
+                  //   }
+                  //   return null;
+                  // },
                 ),
                 SizedBox(height: 10),
                 Row(
                   children: [
-                    Text('Select language'),
+                    Text('Language Spoken'),
                     Icon(Icons.arrow_forward_ios_outlined, size: 15),
                   ],
                 ),
@@ -638,8 +639,10 @@ class StoreDetailsFormView extends GetView {
               child: CustomGradientButton(
                 text: 'Next',
                 onPressed: () {
-                  if (formkey.currentState!.validate() &&
-                      storeDetailsFormController.validateForm()) {
+                  if (formkey.currentState!.validate()
+                  //  &&
+                  //     storeDetailsFormController.validateForm()
+                  ) {
                     // If both form fields and image validation pass, close the form or proceed
                     storeCategoryController.previousPageGridTitle == 'Rental' ||
                             storeCategoryController.previousPageGridTitle ==
@@ -667,17 +670,17 @@ class StoreDetailsFormView extends GetView {
               ),
             ),
             GestureDetector(
-              onTap: () {
-                previousPageGridTitle == 'Rental' ||
-                        previousPageGridTitle == 'Drone'
-                    ? Get.to(() => RentalKyc())
-                    : Get.toNamed(
-                      '/kyc-documents',
-                      arguments: previousPageGridTitle,
-                    );
-              },
+              // onTap: () {
+              //   previousPageGridTitle == 'Rental' ||
+              //           previousPageGridTitle == 'Drone'
+              //       ? Get.to(() => RentalKyc())
+              //       : Get.toNamed(
+              //         '/kyc-documents',
+              //         arguments: previousPageGridTitle,
+              //       );
+              // },
               child: Text(
-                'Skip for now!',
+                "You Can’t Skip this step",
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,

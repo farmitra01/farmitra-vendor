@@ -28,7 +28,7 @@ class WalletView extends GetView<WalletController> {
                 children: [
                   Expanded(
                     child: Container(
-                      height: 160,
+                      // height: 160,
                       padding: EdgeInsets.symmetric(
                         horizontal: 15,
                         vertical: 20,
@@ -73,11 +73,11 @@ class WalletView extends GetView<WalletController> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          height: 75,
+                          // height: 75,
                           width: double.infinity,
                           padding: EdgeInsets.symmetric(
                             horizontal: 15,
-                            vertical: 8,
+                            vertical: 6,
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
@@ -110,10 +110,10 @@ class WalletView extends GetView<WalletController> {
                         SizedBox(height: 10),
                         Container(
                           width: double.infinity,
-                          height: 75,
+                          // height: 75,
                           padding: EdgeInsets.symmetric(
                             horizontal: 15,
-                            vertical: 8,
+                            vertical: 6,
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),

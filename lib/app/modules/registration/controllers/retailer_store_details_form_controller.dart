@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 
 class RetailerStoreDetailsFormController {
   final TextEditingController storeName = TextEditingController();
+  final TextEditingController storeOwner = TextEditingController();
   final TextEditingController whatsAppNumber = TextEditingController();
   final TextEditingController location = TextEditingController();
   final TextEditingController email = TextEditingController();

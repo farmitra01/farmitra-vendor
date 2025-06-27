@@ -1,10 +1,31 @@
-import 'package:farmitra/app/data/models/store_category_model/store_category_model.dart';
+import 'package:farmitra/app/ApiModels/getModuleSubCategory.dart';
+import 'package:farmitra/app/services/network_services.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class StoreCategoryController extends GetxController {
-  var selectedItems = <int>{}.obs;
-  var previousPageGridTitle = Get.arguments;
+  // Reactive variables
+  final RxSet<int> selectedItems = <int>{}.obs;
+  final RxList<ModuleSubCategory> gridContent = <ModuleSubCategory>[].obs;
+  final RxList<ModuleSubCategory> subCategories = <ModuleSubCategory>[].obs;
+  final RxBool isLoading = false.obs;
+  final RxInt selectedIndex = 0.obs;
+  final TextEditingController customeCategory = TextEditingController();
+
+  // API service
+  final ApiService _apiService = ApiService();
+
+  // Get arguments from previous screen
+  final dynamic previousPageGridTitle = Get.arguments;
+
+  @override
+  void onInit() {
+    super.onInit();
+    debugPrint(
+      'StoreCategoryController: onInit called, instance=$hashCode, previousSelectedValue=$previousPageGridTitle',
+    );
+    _parseAndFetch();
+  }
 
   // Toggle selection status of an item
   void toggleSelection(int index) {
@@ -13,229 +34,118 @@ class StoreCategoryController extends GetxController {
     } else {
       selectedItems.add(index);
     }
+    debugPrint('Selected items: ${selectedItems.toList()}');
   }
 
-  // Function to add new item to the grid
-
-  void addGridItem(StoreCategoryModel newItem) {
+  // Add new item to the grid
+  void addGridItem(ModuleSubCategory newItem) {
     gridContent.add(newItem);
+    debugPrint('Added new item: ${newItem.name}');
   }
 
-  List<StoreCategoryModel> gridContent =
-      [
-        StoreCategoryModel(
-          text: "Field Consulting",
-          Imagepath: 'assets/svgs/field_consultation.svg',
-        ),
-        StoreCategoryModel(
-          text: 'Digital Consulting\n',
-          Imagepath: 'assets/svgs/digital_consultation.svg',
-        ),
-        StoreCategoryModel(
-          text: 'Training\nWork Shop\n',
-          Imagepath: 'assets/svgs/work_shop.svg',
-        ),
-        StoreCategoryModel(
-          text: "Agriculture\nSolution\n",
-          Imagepath: 'assets/svgs/agriculture_solution.svg',
-        ),
-        // StoreCategoryModel(
-        //     text: "\n",
-        //     Imagepath: 'assets/icons/store_category_grid_icons/computers.svg'),
-        // StoreCategoryModel(
-        //     text: "Toys\n", Imagepath: 'assets/icons/store_category_grid_icons/toys.svg'),
-        // StoreCategoryModel(
-        //     text: "Footwear\n", Imagepath: 'assets/icons/store_category_grid_icons/footwear.svg'),
-        // StoreCategoryModel(
-        //     text: "Electronics\n",
-        //     Imagepath: 'assets/icons/store_category_grid_icons/electronics.svg'),
-        // StoreCategoryModel(
-        //     text: "Stationary\n",
-        //     Imagepath: 'assets/icons/store_category_grid_icons/stationary.svg'),
-        // StoreCategoryModel(
-        //     text: "Tools\n", Imagepath: 'assets/icons/store_category_grid_icons/tools.svg'),
-        // StoreCategoryModel(
-        //     text: "Sports & Fitness", Imagepath: 'assets/icons/store_category_grid_icons/sports.svg'),
-        // StoreCategoryModel(
-        //     text: "Pet Care\n", Imagepath: 'assets/icons/store_category_grid_icons/sports.svg'),
-      ].obs;
+  // Parse arguments and fetch data
+  void _parseAndFetch() {
+    int? categoryId;
+    String? categoryName;
 
-  // Add custom Category ---------
+    if (previousPageGridTitle is String) {
+      final parts = previousPageGridTitle.split(',');
+      for (var part in parts) {
+        if (part.startsWith('id:')) {
+          categoryId = int.tryParse(part.split(':')[1]);
+        } else if (part.startsWith('name:')) {
+          categoryName = part.split(':')[1];
+        }
+      }
+    }
 
-  // List<StoreCategoryModel> retailerContent =
-  //     [
-  //       StoreCategoryModel(
-  //         text: "Grocery & General",
-  //         Imagepath:
-  //             'assets/icons/store_category_grid_icons/grocery&general.svg',
-  //       ),
-  //       StoreCategoryModel(
-  //         text: 'Gifts\n',
-  //         Imagepath: 'assets/icons/store_category_grid_icons/gifts.svg',
-  //       ),
-  //       StoreCategoryModel(
-  //         text: 'Fruits\n',
-  //         Imagepath: 'assets/icons/store_category_grid_icons/fruits.svg',
-  //       ),
-  //       StoreCategoryModel(
-  //         text: "Vegetables\n",
-  //         Imagepath: 'assets/icons/store_category_grid_icons/vegitable.svg',
-  //       ),
-  //       StoreCategoryModel(
-  //         text: "Computers\n",
-  //         Imagepath: 'assets/icons/store_category_grid_icons/computers.svg',
-  //       ),
-  //       StoreCategoryModel(
-  //         text: "Toys\n",
-  //         Imagepath: 'assets/icons/store_category_grid_icons/toys.svg',
-  //       ),
-  //       StoreCategoryModel(
-  //         text: "Footwear\n",
-  //         Imagepath: 'assets/icons/store_category_grid_icons/footwear.svg',
-  //       ),
-  //       StoreCategoryModel(
-  //         text: "Electronics\n",
-  //         Imagepath: 'assets/icons/store_category_grid_icons/electronics.svg',
-  //       ),
-  //       StoreCategoryModel(
-  //         text: "Stationary\n",
-  //         Imagepath: 'assets/icons/store_category_grid_icons/stationary.svg',
-  //       ),
-  //       StoreCategoryModel(
-  //         text: "Tools\n",
-  //         Imagepath: 'assets/icons/store_category_grid_icons/tools.svg',
-  //       ),
-  //       StoreCategoryModel(
-  //         text: "Sports & Fitness",
-  //         Imagepath: 'assets/icons/store_category_grid_icons/sports.svg',
-  //       ),
-  //       StoreCategoryModel(
-  //         text: "Pet Care\n",
-  //         Imagepath: 'assets/icons/store_category_grid_icons/sports.svg',
-  //       ),
-  //     ].obs;
+    if (categoryId != null) {
+      fetchModuleSubCategory(categoryId, name: categoryName);
+    } else {
+      debugPrint('❌ Missing ID: fallback triggered, instance=$hashCode');
+      Get.snackbar(
+        'Error',
+        'Invalid category selection.',
+        snackPosition: SnackPosition.TOP,
+      );
+    }
+  }
 
-  List<StoreCategoryModel> inputSuppliesCategoriesList =
-      [
-        StoreCategoryModel(text: "Seeds", Imagepath: 'assets/svgs/seed.svg'),
-        StoreCategoryModel(
-          text: 'Fertilizers\n',
-          Imagepath: 'assets/svgs/fertilizer.svg',
-        ),
-        StoreCategoryModel(
-          text: 'Pesticides\n',
-          Imagepath: 'assets/svgs/Pesticides.svg',
-        ),
-        StoreCategoryModel(
-          text: "Soil Conditioners\n",
-          Imagepath: 'assets/svgs/plant-root-icon.svg',
-        ),
-      ].obs;
+  // Fetch subcategories from API
+  Future<void> fetchModuleSubCategory(int id, {String? name}) async {
+    try {
+      isLoading.value = true;
 
-  List<StoreCategoryModel> farmEquipmentMachinaryCategoriesList =
-      [
-        StoreCategoryModel(
-          text: "Tractors & Implements",
-          Imagepath: 'assets/svgs/tractor.svg',
-        ),
-        StoreCategoryModel(
-          text: 'Sprayers\n',
-          Imagepath: 'assets/svgs/Sprayers.svg',
-        ),
-        StoreCategoryModel(
-          text: 'Irrigation Equipment\n',
-          Imagepath: 'assets/svgs/irrigation Equipment.svg',
-        ),
-        StoreCategoryModel(
-          text: "Harvesting Equipment\n",
-          Imagepath: 'assets/svgs/harvesting_equipment.svg',
-        ),
-      ].obs;
+      final endpointUrl = '/module-subcategory/$id';
+      debugPrint('Requesting API: $endpointUrl');
 
-  List<StoreCategoryModel> farmToolsCategoriesList =
-      [
-        StoreCategoryModel(
-          text: "Manual Tools",
-          Imagepath: 'assets/svgs/manual_tool.svg',
-        ),
-        StoreCategoryModel(
-          text: 'Protective Gear\n',
-          Imagepath: 'assets/svgs/protective_gear.svg',
-        ),
-      ].obs;
+      final response = await _apiService.callApi(
+        endpoint: endpointUrl,
+        method: 'GET',
+      );
 
-  List<StoreCategoryModel> agriServicesInfrastructureCategoriesList =
-      [
-        StoreCategoryModel(
-          text: "Storage & Post-Harvest",
-          Imagepath: 'assets/svgs/storage.svg',
-        ),
-        StoreCategoryModel(
-          text: 'Packaging Materials\n',
-          Imagepath: 'assets/svgs/Package.svg',
-        ),
-        StoreCategoryModel(
-          text: 'Polyhouse/Greenhouse Materials\n',
-          Imagepath: 'assets/svgs/greenhouse.svg',
-        ),
-        StoreCategoryModel(
-          text: 'Fencing & Enclosures\n',
-          Imagepath: 'assets/svgs/fencingenclosures.svg',
-        ),
-      ].obs;
+      debugPrint('Raw API Response: ${response.toString()}');
 
-  List<StoreCategoryModel> animalHusbandryCategoriesList =
-      [
-        StoreCategoryModel(
-          text: "Feed & Fodder",
-          Imagepath: 'assets/svgs/feed.svg',
-        ),
-        StoreCategoryModel(
-          text: 'Veterinary Supplies\n',
-          Imagepath: 'assets/svgs/veterinarySupplies.svg',
-        ),
-        StoreCategoryModel(
-          text: 'Livestock Equipment\n',
-          Imagepath: 'assets/svgs/stock_equipment.svg',
-        ),
-      ].obs;
+      final List<dynamic>? dataList =
+          response['data']?['data'] ?? response['data'];
+      if (dataList != null && dataList.isNotEmpty) {
+        final parsedList =
+            dataList.map((item) => ModuleSubCategory.fromJson(item)).toList();
 
-  List<StoreCategoryModel> organicNaturalFarmingCategoriesList =
-      [
-        StoreCategoryModel(
-          text: "Organic Inputs",
-          Imagepath: 'assets/svgs/organicInputs.svg',
-        ),
-        StoreCategoryModel(
-          text: 'Compost Units\n',
-          Imagepath: 'assets/svgs/compostUnits.svg',
-        ),
-      ].obs;
+        subCategories.value = parsedList;
+        gridContent.value = parsedList; // Populate gridContent with API data
 
-  List<StoreCategoryModel> ValueAdditionFoodProcessingCategoriesList =
-      [
-        StoreCategoryModel(
-          text: "Small Processing Units",
-          Imagepath: 'assets/svgs/small_process_Unit.svg',
-        ),
-        StoreCategoryModel(
-          text: 'Agricultural Packaging Machines\n',
-          Imagepath: 'assets/svgs/agriculture_machine.svg',
-        ),
-      ].obs;
+        // Automatically select index 0 if data exists
+        if (subCategories.isNotEmpty) {
+          selectItem(0); // Select the first item by default
+          _sendDefaultArgument();
+        }
 
-  List<Map<String, dynamic>> rentalCategoriesList = [
-    {'Icon': Icons.agriculture, 'name': 'Tractor'},
-    {'Icon': Icons.attractions, 'name': 'Harvestor'},
-    {'Icon': Icons.heat_pump, 'name': 'Pump Machinary'},
-  ];
-  List<Map<String, dynamic>> droneCategoryList = [
-    {'svgImaga': 'assets/svgs/drone-1.svg', 'name': 'Drone- 1'},
-    {'svgImaga': 'assets/svgs/drone-2.svg', 'name': 'Drone- 2'},
-    {'svgImaga': 'assets/svgs/drone-3.svg', 'name': 'Drone- 3'},
-    {'svgImaga': 'assets/svgs/drone-4.svg', 'name': 'Drone- 4'},
-    {'svgImaga': 'assets/svgs/drone-5.svg', 'name': 'Drone- 5'},
-  ];
+        debugPrint('Parsed ${subCategories.length} module subcategories');
+      } else {
+        subCategories.clear();
+        gridContent.clear();
+        debugPrint('No subcategories found.');
+      }
+    } catch (e) {
+      debugPrint('Exception during fetchModuleSubCategory: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to fetch subcategories.',
+        snackPosition: SnackPosition.TOP,
+      );
+    } finally {
+      isLoading.value = false;
+      debugPrint(
+        'Fetch completed: ${subCategories.length} items, instance=$hashCode',
+      );
+    }
+  }
 
-  final customeCategory = TextEditingController();
+  // Select an item and update selectedIndex
+  void selectItem(int index) {
+    if (index >= 0 && index < subCategories.length) {
+      selectedIndex.value = index;
+      debugPrint(
+        '✅ Selected Item: Index=$index, ID=${subCategories[index].id}, Name=${subCategories[index].name}, instance=$hashCode',
+      );
+    }
+  }
+
+  // Send the default argument (index 0 data)
+  void _sendDefaultArgument() {
+    if (subCategories.isNotEmpty) {
+      final defaultData =
+          'id:${subCategories[0].id},name:${subCategories[0].name ?? 'Unknown'}';
+      debugPrint('Sending default argument: $defaultData');
+      // Example: Navigate to another screen with the default argument
+      // Get.to(() => NextScreen(), arguments: defaultData);
+    }
+  }
+
+  @override
+  void onClose() {
+    customeCategory.dispose();
+    super.onClose();
+  }
 }

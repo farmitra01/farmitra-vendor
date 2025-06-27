@@ -4,15 +4,12 @@ import 'package:farmitra/app/modules/bank_details/controllers/bank_details_form_
 import 'package:farmitra/app/utils/global_widgets/custom_dropdown.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_text_form_field.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
-
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-
 class BankDetailsFormView extends GetView {
   BankDetailsFormView({super.key});
   final BankDetailsFormController bankDetailsFormController = Get.put(

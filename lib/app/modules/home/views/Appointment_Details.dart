@@ -1,13 +1,11 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:farmitra/app/constants/app_colors.dart';
-import 'package:farmitra/app/modules/home/controllers/Appointment_Details_Controller.dart';
 import 'package:farmitra/app/modules/home/controllers/appointment_controller.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/vendor_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/get_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -16,386 +14,449 @@ class AppointmentDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AppointmentDetailsController appointmentDetailsController = Get.put(
-      AppointmentDetailsController(),
-    );
-    final AppointmentController appointmentController = Get.put(
-      AppointmentController(),
-    );
+    final AppointmentController appointmentController =
+        Get.find<AppointmentController>();
+    final Map<String, dynamic> arguments = Get.arguments ?? {};
+    final Map<String, dynamic> appointmentData = arguments['appointment'] ?? {};
+    final int globalIndex = arguments['globalIndex'] ?? -1;
+    final int tabIndex = arguments['tabIndex'] ?? -1;
 
-    final RxInt tabIndex = Get.arguments;
-    print('Selected Tab index = ${tabIndex}');
+    // Debug print to check incoming arguments
+    debugPrint('AppointmentDetails: Arguments = $arguments');
+
+    // Check for valid data
+    if (appointmentData.isEmpty || globalIndex < 0) {
+      return const Scaffold(
+        appBar: VendorAppBar(title: 'Appointment Details'),
+        body: Center(child: Text('No appointment data available')),
+      );
+    }
+
+    // Extract data with null safety
+    final cropImages = List<String>.from(appointmentData['queryimage'] ?? []);
+    final userName =
+        appointmentData['farmer_details']?['name'] as String? ?? 'Unknown';
+    final cropName =
+        appointmentData['crop_details']?['name'] as String? ?? 'Unknown';
+    final location =
+        appointmentData['location'] as String? ?? 'Unknown Location';
+    final dateTime =
+        appointmentData['appointment_date'] as String? ?? 'Unknown Date';
+    final description =
+        appointmentData['query'] as String? ?? 'No description available';
+    final isFree = appointmentData['isFree'] == true ? 'Free' : 'Paid';
+    final phone =
+        appointmentData['phone'] as String? ??
+        '9277103055'; // Consider validating this default
+
+    // Debug print to check appointment data
+    debugPrint('AppointmentDetails: Appointment Data = $appointmentData');
+
+    // Map status integer to display string
+    String getStatusString(dynamic apiStatus) {
+      if (apiStatus is int) {
+        switch (globalIndex) {
+          case 1:
+            return 'Pending';
+          case 2:
+            return 'Accepted';
+          case 3:
+            return 'Confirmed';
+          default:
+            return 'Unknown';
+        }
+      }
+      return apiStatus?.toString() ?? 'Unknown';
+    }
+
+    // Determine status for display and logic
+    final displayStatus = appointmentData['query_status'];
+    final int status =
+        int.tryParse(appointmentData['status']?.toString() ?? '0') ?? 0;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: VendorAppBar(title: 'Appointment Details'),
+      appBar: const VendorAppBar(title: 'Appointment Details'),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              // Reduced vertical padding
-              color: AppColors.background,
-              child: Column(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+              child: Row(
                 children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                    child: Row(
+                  const CircleAvatar(
+                    backgroundColor: AppColors.green,
+                    radius: 30,
+                    child: Icon(Icons.person, color: Colors.white, size: 30),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CircleAvatar(
-                          backgroundColor: AppColors.primaryGradinatMixColor,
-                          radius: 20,
-                          child: Icon(Icons.person, color: AppColors.white),
+                        Text(
+                          userName,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
-                        SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'Amit Singh',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.primaryGradinatMixColor,
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                Text(
-                                  'Free',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.yellow,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text(
-                              '1.0 KM • Sector 4L',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.primaryGradinatMixColor,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          isFree,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.green,
+                          ),
                         ),
-                        Spacer(),
-                        Icon(
-                          Icons.message,
-                          color: AppColors.primaryGradinatMixColor,
-                        ),
-                        SizedBox(width: 20),
-                        GestureDetector(
-                          onTap: () async {
-                            final Uri phoneUri = Uri(
-                              scheme: 'tel',
-                              path: '9277103055',
-                            );
-                            if (await canLaunchUrl(phoneUri)) {
-                              await launchUrl(phoneUri);
-                            } else {
-                              // Optionally show an error
-                              print('Could not launch dialer');
-                            }
-                          },
-                          child: Icon(Icons.call, color: AppColors.yellow),
+                        Text(
+                          location,
+                          style: GoogleFonts.montserrat(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  Divider(color: AppColors.primaryGradinatMixColor),
+                  IconButton(
+                    icon: const Icon(Icons.message, color: AppColors.green),
+                    onPressed:
+                        () => Get.toNamed(
+                          '/reply',
+                          arguments: {
+                            'appointment': appointmentData,
+                            'globalIndex': globalIndex,
+                            'tabIndex': tabIndex,
+                          },
+                        ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.call, color: AppColors.yellow),
+                    onPressed: () async {
+                      final phoneUri = Uri(scheme: 'tel', path: phone);
+                      try {
+                        if (await canLaunchUrl(phoneUri)) {
+                          await launchUrl(phoneUri);
+                        } else {
+                          Get.snackbar('Error', 'Could not launch dialer');
+                        }
+                      } catch (e) {
+                        Get.snackbar('Error', 'Failed to launch dialer: $e');
+                      }
+                    },
+                  ),
                 ],
               ),
             ),
+            const Divider(color: AppColors.primaryGradinatMixColor),
+            const SizedBox(height: 10),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Wheat',
+                    'Crop: $cropName',
                     style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  // SizedBox(width:  0.5),
+                  const Spacer(),
                   Text(
-                    '01 Apr 25, 13:09', // Adjust this if you have location data
+                    'Date & Time: $dateTime',
                     style: GoogleFonts.montserrat(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
                       color: AppColors.primaryGradinatMixColor,
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 10),
-            GestureDetector(
-              onTap: () {
-                // Get.dialog(buildImagePopUp(index));
-              },
-              child: CarouselSlider(
-                options: CarouselOptions(
-                  height: 200, // Adjust height
-                  autoPlay: true, // Auto-slide
-                  enlargeCenterPage: true, // Zoom effect on center image
-                  aspectRatio: 16 / 9,
-                  viewportFraction: 0.8, // Show partial next/previous image
-                ),
-                items:
-                    appointmentDetailsController.cropImage.map((imagePath) {
-                      return InteractiveViewer(
-                        maxScale: 1.4,
-                        minScale: 1.4,
-                        child: ClipRRect(
+            const SizedBox(height: 10),
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 200,
+                enlargeCenterPage: true,
+                aspectRatio: 16 / 9,
+                viewportFraction: 0.8,
+              ),
+              items:
+                  cropImages.isEmpty
+                      ? [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            color: Colors.grey[300],
+                            width: double.infinity,
+                            height: 200,
+                            child: Image.asset(
+                              'assets/images/Null_ticket.png',
+                              fit: BoxFit.fill,
+                            ),
+                          ),
+                        ),
+                      ]
+                      : cropImages.map((imagePath) {
+                        // Check if imagePath is a network URL
+                        if (imagePath.startsWith('http') ||
+                            imagePath.startsWith('https')) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(
+                              imagePath,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder:
+                                  (context, error, stackTrace) => Container(
+                                    color: Colors.grey[300],
+                                    width: double.infinity,
+                                    height: 200,
+                                    child: const Center(
+                                      child: Text(
+                                        'No Image',
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
+                                    ),
+                                  ),
+                            ),
+                          );
+                        }
+                        // Fallback to asset for local paths
+                        return ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: Image.asset(
                             imagePath,
                             fit: BoxFit.cover,
                             width: double.infinity,
+                            errorBuilder:
+                                (context, error, stackTrace) => Container(
+                                  color: Colors.grey[300],
+                                  width: double.infinity,
+                                  height: 200,
+                                  child: const Center(
+                                    child: Text(
+                                      'No Image',
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  ),
+                                ),
                           ),
-                        ),
-                      );
-                    }).toList(),
+                        );
+                      }).toList(),
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Text(
+                    'Description',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    'Status: $displayStatus',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: Text('Details'),
-            ),
+            const SizedBox(height: 10),
             Container(
-              padding: EdgeInsets.all(8),
-              margin: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: AppColors.lightGrey,
               ),
-              child: Center(
-                child: Text(
-                  '''Reddish-brown pustules on a wheat stem are a common symptom of stem rust, a serious fungal disease caused by *Puccinia graminis f. sp. tritici*. These pustules often appear elongated and slightly raised, breaking through the surface of the stem, leaf sheaths, and even leaf blades. Initially, potentially carrying over to the next crop cycle. The presence of these black pustules can weaken the plant structure, making the stem brittle and prone to lodging (falling over), which can result in significant yield loss. Stem rust thrives in warm, moist environments and can spread rapidly under favorable conditions. Its historical impact on wheat production has been devastating in many parts of the world. Therefore, timely identification and management of the disease are crucial. Resistant wheat varieties, crop rotation, and fungicidal sprays are commonly used strategies to control its spread and protect wheat crops from severe damage.''',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
+              child: Text(
+                description,
+                style: GoogleFonts.montserrat(fontSize: 14),
+                maxLines: 10,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
       bottomNavigationBar: Container(
-        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-        child: Row(
-          children: [
-            Obx(() {
-              return tabIndex.value == 2
-                  ? SizedBox.shrink()
-                  : Expanded(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        height: 75,
+        child: Builder(
+          builder: (_) {
+            debugPrint(
+              'AppointmentDetails: query_status = ${appointmentData['query_status']}, displayStatus = $displayStatus',
+            );
+            debugPrint(
+              'AppointmentDetails: status = $status, type = ${appointmentData['status'].runtimeType}',
+            );
+            if (tabIndex == 1) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
                     child: CustomGradientButton(
-                      text: tabIndex.value == 0 ? 'Reject' : 'Solved',
-                      onPressed: () {
-                        Get.dialog(buildCaution());
-                      },
                       gradientColors: [AppColors.yellow, AppColors.yellow],
                       borderRadius: 10,
+                      text: 'Reject',
+                      onPressed:
+                          () => Get.dialog(
+                            buildCaution(globalIndex, appointmentController),
+                          ),
                     ),
-                  );
-            }),
-            SizedBox(width: 10),
-            Expanded(
-              child: Obx(
-                () => CustomGradientButton(
-                  text:
-                      tabIndex.value == 0
-                          ? 'Accept'
-                          : tabIndex.value == 1
-                          ? 'Processing'
-                          : tabIndex.value == 2
-                          ? 'Completed'
-                          : 'Accept',
-                  onPressed: () {},
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: CustomGradientButton(
+                      borderRadius: 10,
+                      text: 'Accept',
+                      onPressed: () {
+                        appointmentController.acceptAppointment(globalIndex);
+                        Get.toNamed(
+                          '/reply',
+                          arguments: {
+                            'appointment': appointmentData,
+                            'globalIndex': globalIndex,
+                            'tabIndex': tabIndex,
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            } else if (tabIndex == 2) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: CustomGradientButton(
+                      gradientColors: [AppColors.yellow, AppColors.yellow],
+                      borderRadius: 10,
+                      text: 'Mark Solved',
+                      onPressed: () {
+                        appointmentController.markAsSolved(globalIndex);
+                        Get.back();
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: CustomGradientButton(
+                      borderRadius: 10,
+                      text: 'Reply',
+                      onPressed:
+                          () => Get.toNamed(
+                            '/reply',
+                            arguments: {
+                              'appointment': appointmentData,
+                              'globalIndex': globalIndex,
+                              'tabIndex': tabIndex,
+                            },
+                          ),
+                    ),
+                  ),
+                ],
+              );
+            } else if (tabIndex == 3) {
+              return Center(
+                child: CustomGradientButton(
                   borderRadius: 10,
+                  text: 'Mark Completed',
+                  onPressed: () {
+                    appointmentController.markAsCompleted(globalIndex);
+                    Get.back();
+                  },
                 ),
-              ),
-            ),
-          ],
+              );
+            } else {
+              return Center(
+                child: Text(
+                  'No actions available (Status: $displayStatus)',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              );
+            }
+          },
         ),
       ),
     );
   }
 }
-
-Widget buildCaution() {
-  final AppointmentController appointmentController =
-      Get.find<AppointmentController>();
-  return Container(
-    height: 150,
-    child: AlertDialog(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          GestureDetector(
-            onTap: () {
-              Get.back();
-            },
-            child: Icon(Icons.close, color: AppColors.error),
-          ),
-        ],
-      ),
-      content: SizedBox(
-        height: 100,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              'assets/svgs/alert_triangel.svg',
-              color: AppColors.error,
-            ),
-            // SizedBox(height: 10),
-            Text('Are You sure want to reject'),
-          ],
-        ),
-      ),
-      actions: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: CustomGradientButton(
-                gradientColors: [AppColors.green, AppColors.green],
-                height: 35,
-                borderRadius: 10,
-                text: 'Cancel',
-                onPressed: () {
-                  // appointmentController.removeAppointment(index);
-                  Get.back();
-                },
-              ),
-            ),
-            SizedBox(width: 10),
-            Expanded(
-              child: CustomGradientButton(
-                gradientColors: [AppColors.error, AppColors.error],
-                text: 'Reject',
-                onPressed: () {
-                  // appointmentController.removeAppointment(index);.
-                  Get.back();
-                },
-                height: 35,
-                borderRadius: 10,
-              ),
-            ),
-          ],
+Widget buildCaution(int globalIndex, AppointmentController controller) {
+  return AlertDialog(
+    title: Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.close, color: AppColors.error),
+          onPressed: () => Get.back(),
         ),
       ],
     ),
-  );
-}
-
-Widget buildImagePopUp(int index) {
-  final AppointmentController appointmentController =
-      Get.find<AppointmentController>();
-
-  return Obx(() {
-    if (appointmentController.apointment.isEmpty ||
-        index >= appointmentController.apointment.length) {
-      return SizedBox(); // Handle case where index is out of bounds
-    }
-
-    var appointmentData = appointmentController.apointment[index];
-
-    List<String> cropImages = List<String>.from(
-      appointmentData['cropimage'] ?? [],
-    );
-    return AlertDialog(
-      backgroundColor: AppColors.lightGrey.withOpacity(0.8),
-      contentPadding: EdgeInsets.all(0),
-      content: SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Get.back();
-                    },
-                    child: Icon(Icons.close, color: AppColors.error),
-                  ),
-                ],
-              ),
-              CarouselSlider(
-                options: CarouselOptions(
-                  height: 350,
-                  enlargeCenterPage: true,
-                  aspectRatio: 16 / 9,
-                  viewportFraction: 0.8,
-                ),
-                items:
-                    cropImages.map((imagePath) {
-                      return GestureDetector(
-                        onTap: () {
-                          Get.dialog(
-                            Dialog(
-                              backgroundColor: Colors.black,
-                              insetPadding: EdgeInsets.all(0),
-                              child: Stack(
-                                children: [
-                                  InteractiveViewer(
-                                    panEnabled: true,
-                                    minScale: 1.0,
-                                    maxScale: 4.0,
-                                    child: Center(
-                                      child: Image.asset(
-                                        imagePath,
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: 30,
-                                    right: 20,
-                                    child: IconButton(
-                                      icon: Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                      ),
-                                      onPressed: () => Get.back(),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(
-                            imagePath,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-              ),
-            ],
+    content: const SizedBox(
+      height: 100,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(height: 10),
+          Text(
+            'Are you sure you want to reject?',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              fontFamily: 'Montserrat',
+            ),
           ),
-        ),
+        ],
       ),
-    );
-  });
+    ),
+    actions: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: CustomGradientButton(
+              gradientColors: [AppColors.green, AppColors.green],
+              height: 35,
+              borderRadius: 10,
+              text: 'Cancel',
+              onPressed: () => Get.back(),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: CustomGradientButton(
+              gradientColors: [AppColors.error, AppColors.error],
+              height: 35,
+              borderRadius: 10,
+              text: 'Reject',
+              onPressed: () {
+                controller.removeAppointment(globalIndex);
+                Get.back();
+              },
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
 }

@@ -487,7 +487,6 @@ class OwnerUploadDoc extends StatelessWidget {
         ),
       ),
     );
-    ;
   }
 }
 

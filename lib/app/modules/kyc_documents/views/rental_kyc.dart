@@ -15,7 +15,7 @@ class RentalKyc extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final RentalKycController rentalKycController = Get.put(
-      RentalKycController(),
+      RentalKycController(), 
     );
     var previousPageGridTitle = Get.arguments;
 
@@ -26,7 +26,7 @@ class RentalKyc extends StatelessWidget {
           Get.toNamed('/help-center');
         },
         onTranslateTap: () {
-          Get.toNamed('/add');
+          Get.toNamed('/add'); 
         },
       ),
       body: SingleChildScrollView(

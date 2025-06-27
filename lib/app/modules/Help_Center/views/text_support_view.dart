@@ -5,21 +5,21 @@ import 'package:farmitra/app/utils/global_widgets/custom_dropdown.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_text_form_field.dart';
 import 'package:farmitra/app/utils/global_widgets/vendor_app_bar.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 class TextSupportView extends GetView {
   const TextSupportView({super.key});
+
   @override
   Widget build(BuildContext context) {
     final TextSupportController textSupportController = Get.put(
       TextSupportController(),
     );
+
     return Scaffold(
       appBar: VendorAppBar(
         title: 'Chat',
@@ -27,26 +27,26 @@ class TextSupportView extends GetView {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: GestureDetector(
-              onTap: () {
-                Get.toNamed('/ticket');
-              },
+              onTap: () => Get.toNamed('/ticket'),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
+                  border: Border.all(color: AppColors.white),
                   borderRadius: BorderRadius.circular(25),
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // SvgPicture.asset('assets/svgs/Ticket.svg'),
-                    SizedBox(width: 5),
+                    // Optional SVG icon can be added here
+                    const SizedBox(width: 5),
                     Text(
                       'My Ticket',
                       style: GoogleFonts.montserrat(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xffDADADA),
+                        color: AppColors.white,
                       ),
                     ),
                   ],
@@ -56,122 +56,158 @@ class TextSupportView extends GetView {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Please Select the issue from given categories',
-                style: GoogleFonts.montserrat(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
+      body: Obx(() {
+        if (textSupportController.isLoading.value) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: AppColors.primaryGradinatMixColor,
+            ),
+          );
+        }
+
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Please Select the issue from given categories',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-              SizedBox(height: 10),
-              Obx(
-                () => CustomDropdown<String>(
-                  hint: 'Categories',
-                  items:
-                      textSupportController
-                          .categoriesList, // Keep it as List<String>
-                  selectedItem:
-                      textSupportController.selectedItem.value.isEmpty
-                          ? null
-                          : textSupportController.selectedItem.value,
-                  onChanged: (value) {
-                    textSupportController.updatedSelectedValue(value ?? '');
-                  },
-                  itemBuilder: (item) => item, // Correct item mapping
+                const SizedBox(height: 10),
+                Obx(
+                  () => CustomDropdown<String>(
+                    hint: 'Categories',
+                    items:
+                        textSupportController.grievancesCategoryList
+                            .map((category) => category.name)
+                            .toList(),
+                    selectedItem:
+                        textSupportController.selectedItem.value.isEmpty
+                            ? null
+                            : textSupportController.selectedItem.value,
+                    onChanged: (value) {
+                      textSupportController.updatedSelectedValue(value ?? '');
+                    },
+                    itemBuilder: (item) => item,
+                  ),
                 ),
-              ),
-              SizedBox(height: 10),
-              CustomTextFormField(
-                borderRadius: 5,
-                hintText: 'Enter Text Here...',
-                keyboardType: TextInputType.text,
-                controller: textSupportController.entertext,
-                maxLines: 5,
-                maxLength: 200,
-                validator: (p0) {},
-              ),
-              SizedBox(height: 10),
-              GestureDetector(
-                onTap: () {
-                  _showImagePickerDialog(); // Show image source dialog on tap
-                },
-                child: Center(
-                  child: DottedBorder(
-                    color: AppColors.border,
-                    dashPattern: [6, 3],
-                    borderType: BorderType.RRect,
-                    radius: Radius.circular(10),
-                    child: Container(
-                      height: 150,
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: AppColors.white,
+                const SizedBox(height: 10),
+                CustomTextFormField(
+                  borderRadius: 5,
+                  hintText: 'Enter Text Here...',
+                  keyboardType: TextInputType.text,
+                  controller: textSupportController.entertext,
+                  maxLines: 5,
+                  maxLength: 200,
+                  validator: (value) {},
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Obx(
+                      () => Text(
+                        '${textSupportController.wordCount.value}/250',
+
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.primaryGradinatMixColor,
+                        ),
                       ),
-                      child: Obx(
-                        () => Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            textSupportController.selectedImage.value != null
-                                ? Image.file(
-                                  textSupportController.selectedImage.value!,
-                                  height: 100,
-                                  width: 125,
-                                  fit: BoxFit.fill,
-                                )
-                                : SvgPicture.asset(
-                                  'assets/icons/uploadicon.svg',
-                                ),
-                            textSupportController.selectedImage.value == null
-                                ? Text(
-                                  'Upload Document',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                GestureDetector(
+                  onTap: () => _showImagePickerDialog(),
+                  child: Center(
+                    child: DottedBorder(
+                      color: AppColors.border,
+                      dashPattern: [6, 3],
+                      borderType: BorderType.RRect,
+                      radius: const Radius.circular(10),
+                      child: Container(
+                        height: 150,
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: AppColors.white,
+                        ),
+                        child: Obx(
+                          () => Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              textSupportController.selectedImage.value != null
+                                  ? Image.file(
+                                    textSupportController.selectedImage.value!,
+                                    height: 100,
+                                    width: 125,
+                                    fit: BoxFit.fill,
+                                  )
+                                  : SvgPicture.asset(
+                                    'assets/icons/uploadicon.svg',
                                   ),
-                                )
-                                : SizedBox.shrink(),
-                            SizedBox(height: 10),
-                            textSupportController.selectedImage.value == null
-                                ? Text(
-                                  'JPEG, PNG less than 5MB',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.textSecondary,
-                                  ),
-                                )
-                                : SizedBox.shrink(),
-                          ],
+                              textSupportController.selectedImage.value == null
+                                  ? Column(
+                                    children: [
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        'Upload Document',
+                                        style: GoogleFonts.montserrat(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        'JPEG, PNG less than 5MB',
+                                        style: GoogleFonts.montserrat(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w400,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                  : const SizedBox.shrink(),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
-      bottomNavigationBar: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-          child: Column(
-            children: [
-              CustomGradientButton(
-                text: 'Submit',
-                onPressed: () {
-                  Get.toNamed('/ticket');
-                },
-              ),
-            ],
-          ),
+        );
+      }),
+      bottomSheet: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+        child: CustomGradientButton(
+          text: 'Submit',
+          onPressed: () {
+            if (textSupportController.validateDropdown() &&
+                textSupportController.entertext.text.trim().isNotEmpty) {
+              textSupportController.submitGrievance();
+              if (textSupportController.isLoading.value == true) {
+                textSupportController.selectedItem.value = '';
+                textSupportController.entertext.clear();
+                textSupportController.selectedImage.value = null;
+              }
+            } else {
+              Get.snackbar(
+                'Validation Error',
+                'Please fill all required fields',
+              );
+            }
+          },
         ),
       ),
     );
@@ -179,11 +215,10 @@ class TextSupportView extends GetView {
 }
 
 void _showImagePickerDialog() {
-  final TextSupportController textSupportController = Get.put(
-    TextSupportController(),
-  );
+  final TextSupportController textSupportController = Get.find();
+
   showDialog(
-    context: Get.context!, // Since you're using GetX
+    context: Get.context!,
     builder: (BuildContext context) {
       return AlertDialog(
         title: Text(
@@ -194,20 +229,13 @@ void _showImagePickerDialog() {
             color: AppColors.primaryGradinatMixColor,
           ),
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min, // To avoid the dialog being too large
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // If you need to add additional content here
-          ],
-        ),
         actions: [
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
+                  Get.back();
                   textSupportController.pickImage(ImageSource.camera);
                 },
                 child: Text(
@@ -221,7 +249,7 @@ void _showImagePickerDialog() {
               ),
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
+                  Get.back();
                   textSupportController.pickImage(ImageSource.gallery);
                 },
                 child: Text(

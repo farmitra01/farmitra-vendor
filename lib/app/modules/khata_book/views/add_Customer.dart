@@ -1,5 +1,6 @@
 import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:farmitra/app/modules/khata_book/controllers/Add_customer_controller.dart';
+import 'package:farmitra/app/modules/khata_book/views/khata_book_view.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_text_form_field.dart';
 import 'package:farmitra/app/utils/global_widgets/vendor_app_bar.dart';
@@ -121,7 +122,34 @@ class AddCustomer extends StatelessWidget {
             children: [
               CustomGradientButton(
                 text: tabindex == 0 ? 'Add Customer' : 'Add Supplier',
-                onPressed: () {},
+                onPressed: () {
+                  final name = addCustomerController.name.text;
+                  final number = addCustomerController.number.text;
+                  final gst = addCustomerController.gst.text;
+                  final role = addCustomerController.selectedRole.value;
+
+                  // Optional: basic check without trimming
+                  if (name.isEmpty || number.isEmpty) {
+                    Get.snackbar(
+                      "Missing Info",
+                      "Please enter name and number",
+                    );
+                    return;
+                  }
+
+                  final data = {
+                    'name': name,
+                    'number': number,
+                    'role': role,
+                    'money': 0,
+                    if (gst.isNotEmpty) 'gst': gst,
+                  };
+
+                  Get.to(KhataBookView(), arguments: data);
+                  addCustomerController.name.clear();
+                  addCustomerController.number.clear();
+                  addCustomerController.gst.clear();
+                },
               ),
             ],
           ),

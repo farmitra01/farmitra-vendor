@@ -50,21 +50,23 @@ class HomeController extends GetxController {
   List<QuickAccessModel> quickAccessGridItem = [
     QuickAccessModel(
       gridItemText: 'Appointment',
-      gridItemIcon: Icons.storefront_outlined,
+      gridItemIcon: Icons.calendar_month_outlined,
     ),
-    QuickAccessModel(gridItemText: 'Feed', gridItemIcon: Icons.receipt_long),
+    QuickAccessModel(gridItemText: 'Feed', gridItemIcon: Icons.layers_outlined),
     QuickAccessModel(
-      gridItemText: 'Ledger',
+      gridItemText: 'Khata Book',
       gridItemIcon: Icons.contact_mail_outlined,
     ),
     QuickAccessModel(
-      gridItemText: 'Khata Book',
+      gridItemText: 'Online Store',
       gridItemIcon: Icons.shopify_sharp,
     ),
+
     QuickAccessModel(
-      gridItemText: 'Blog vs Govt Schem',
-      gridItemIcon: Icons.hourglass_top_outlined,
+      gridItemText: 'Wallet',
+      gridItemIcon: Icons.account_balance_wallet_outlined,
     ),
+
     QuickAccessModel(
       gridItemText: 'Chat',
       gridItemIcon: Icons.receipt_outlined,
@@ -77,19 +79,33 @@ class HomeController extends GetxController {
       gridItemText: 'My Subscription',
       gridItemIcon: Icons.local_shipping_outlined,
     ),
-
+    QuickAccessModel(
+      gridItemText: 'Blog vs Govt Schem',
+      gridItemIcon: Icons.hourglass_top_outlined,
+    ),
     QuickAccessModel(
       gridItemText: 'Report',
       gridItemIcon: Icons.pie_chart_outline,
     ),
     QuickAccessModel(
+      gridItemText: 'Ledger',
+      gridItemIcon: Icons.receipt_long_sharp,
+    ),
+    QuickAccessModel(
       gridItemText: 'Analytics',
       gridItemIcon: Icons.analytics_outlined,
     ),
+
+    QuickAccessModel(
+      gridItemText: 'Coupons',
+      gridItemIcon: Icons.confirmation_number_outlined,
+    ),
+    QuickAccessModel(gridItemText: 'Ads', gridItemIcon: Icons.campaign),
     QuickAccessModel(
       gridItemText: 'Business Card',
       gridItemIcon: Icons.credit_card_outlined,
     ),
+
     QuickAccessModel(
       gridItemText: 'Greetings',
       gridItemIcon: Icons.card_membership_sharp,
@@ -244,7 +260,7 @@ class HomeController extends GetxController {
       gridItemText: 'Business Card',
       gridItemIcon: Icons.credit_card_outlined,
     ),
-    QuickAccessModel(  
+    QuickAccessModel(
       gridItemText: 'Greetings',
       gridItemIcon: Icons.card_membership_sharp,
     ),

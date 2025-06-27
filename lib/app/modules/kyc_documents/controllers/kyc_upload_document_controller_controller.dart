@@ -24,10 +24,12 @@ class KycUploadDocumentControllerController extends GetxController {
   }
 
   void increment() => count.value++;
+
   final TextEditingController documentIdNo = TextEditingController();
 
-  var selectedImage =
-      Rx<File?>(null); // Reactive variable to track selected image
+  var selectedImage = Rx<File?>(
+    null,
+  ); // Reactive variable to track selected image
 
   final ImagePicker _picker = ImagePicker();
 

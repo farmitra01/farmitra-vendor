@@ -1,5 +1,6 @@
 import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:farmitra/app/modules/home/controllers/manage_appointment._controller.dart';
+import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_text_form_field.dart';
 import 'package:farmitra/app/utils/global_widgets/vendor_app_bar.dart';
 import 'package:flutter/material.dart';
@@ -131,30 +132,35 @@ class ManageAppointmant extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: Container(
-        width: 150,
-        height: 50,
-        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(30),
-          color: AppColors.error,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Save',
-              style: GoogleFonts.montserrat(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: AppColors.white,
-              ),
-            ),
-            Spacer(),
-            Icon(Icons.arrow_forward_ios_rounded, color: AppColors.white),
-            SizedBox(width: 10),
-          ],
-        ),
+      // floatingActionButton: Container(
+      //   width: 150,
+      //   height: 50,
+      //   padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+      //   decoration: BoxDecoration(
+      //     borderRadius: BorderRadius.circular(30),
+      //     color: AppColors.error,
+      //   ),
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.center,
+      //     children: [
+      //       Text(
+      //         'Save',
+      //         style: GoogleFonts.montserrat(
+      //           fontSize: 18,
+      //           fontWeight: FontWeight.w600,
+      //           color: AppColors.white,
+      //         ),
+      //       ),
+      //       Spacer(),
+      //       Icon(Icons.arrow_forward_ios_rounded, color: AppColors.white),
+      //       SizedBox(width: 10),
+      //     ],
+      //   ),
+      // ),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+
+        child: CustomGradientButton(text: 'Save', onPressed: () {}),
       ),
     );
   }
@@ -307,7 +313,6 @@ Widget buildOnlineTab(BuildContext context) {
               },
             ),
           ),
-
           SizedBox(height: 20),
           Text(
             'Session Time',
@@ -392,6 +397,7 @@ Widget buildOnlineTab(BuildContext context) {
               ),
             ),
           ),
+          SizedBox(height: 10),
         ],
       ),
     ),
@@ -574,7 +580,7 @@ Widget buildOfflineTab(BuildContext context) {
                     padding: const EdgeInsets.symmetric(vertical: 5),
                     child: Row(
                       children: [
-                        // First Time Picker
+                        // First Time Picker 
                         Expanded(
                           child: TextFormField(
                             controller:
@@ -638,13 +644,12 @@ Widget buildOfflineTab(BuildContext context) {
               ),
             ),
           ),
-          SizedBox(height: 50),
+          SizedBox(height: 10),
         ],
       ),
     ),
   );
 }
-
 Widget buildBlockData() {
   return AlertDialog(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

@@ -105,13 +105,13 @@ class StoreDetailsFormController extends GetxController {
   }
 
   // Method to validate the entire form
-  bool validateForm() {
-    // bool areImagesValid = validateImages();
-    bool isDropdownValid = validateDropdown();
-    return
-    // areImagesValid &&
-    isDropdownValid;
-  }
+  // bool validateForm() {
+  //   bool areImagesValid = validateImages();
+  //   bool isDropdownValid = validateDropdown();
+  //   return
+  //   areImagesValid &&
+  //   isDropdownValid;
+  // }
 
   String? validateEmail(String? email) {
     print(email);

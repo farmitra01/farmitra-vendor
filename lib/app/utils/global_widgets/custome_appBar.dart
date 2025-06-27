@@ -29,7 +29,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           automaticallyImplyLeading == true
               ? Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 7),
-                child: GestureDetector(
+                child: InkWell(
                   onTap: () {
                     Get.back();
                   },
@@ -52,7 +52,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       titleSpacing: 10,
       title: SizedBox(
         height: 75,
-        width: 90 ,
+        width: 90,
         child: SvgPicture.asset('assets/svgs/AppbarLogoFarmitra.svg'),
       ),
       actions: [

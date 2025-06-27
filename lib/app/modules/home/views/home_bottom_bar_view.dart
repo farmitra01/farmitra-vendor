@@ -25,7 +25,7 @@ class HomeBottomBarView extends GetView<HomeBottomBarController> {
   @override
   Widget build(BuildContext context) {
     print(
-      'previous page content = ${storeSelectedModuleController.PreviousSelectedValue}',
+      'previous page content = ${storeSelectedModuleController.previousSelectedValue}',
     );
     return Scaffold(
       body: Obx(() {
@@ -34,13 +34,13 @@ class HomeBottomBarView extends GetView<HomeBottomBarController> {
       }),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          storeSelectedModuleController.PreviousSelectedValue == 'As a Retailer'
+          storeSelectedModuleController.previousSelectedValue == 'As a Retailer'
               ? Get.toNamed('/pos')
               : Get.to(() => Appointment());
           print("Floating Action Button Pressed");
         },
         child:
-            storeSelectedModuleController.PreviousSelectedValue ==
+            storeSelectedModuleController.previousSelectedValue ==
                     'As a Retailer'
                 ? Icon(Icons.storefront, color: AppColors.white)
                 : Icon(Icons.calendar_month, color: AppColors.white),
@@ -103,7 +103,7 @@ class HomeBottomBarView extends GetView<HomeBottomBarController> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          storeSelectedModuleController.PreviousSelectedValue ==
+                          storeSelectedModuleController.previousSelectedValue ==
                                   'As a Retailer'
                               ? Icons.file_download_outlined
                               : Icons.layers_outlined,
@@ -114,7 +114,7 @@ class HomeBottomBarView extends GetView<HomeBottomBarController> {
                         ),
                         SizedBox(height: 5),
                         Text(
-                          storeSelectedModuleController.PreviousSelectedValue ==
+                          storeSelectedModuleController.previousSelectedValue ==
                                   'As a Retailer'
                               ? 'Order'
                               : 'Feed',
@@ -137,7 +137,7 @@ class HomeBottomBarView extends GetView<HomeBottomBarController> {
                 Padding(
                   padding: const EdgeInsets.only(top: 15),
                   child: Text(
-                    storeSelectedModuleController.PreviousSelectedValue ==
+                    storeSelectedModuleController.previousSelectedValue ==
                             'As a Retailer'
                         ? 'POS'
                         : 'Appointment',

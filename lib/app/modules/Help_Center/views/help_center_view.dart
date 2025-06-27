@@ -25,7 +25,7 @@ class HelpCenterView extends GetView<HelpCenterController> {
         child: Column(
           children: [
             Text(
-              'Contact us for help with your Firstfind account, billing, or service issues.',
+              'Contact us for help with your Farmitra account, billing, or service issues.',
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,

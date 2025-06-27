@@ -29,7 +29,7 @@ class HomeAppbarView extends GetView implements PreferredSizeWidget {
         children: [
           SizedBox(
             height: 20,
-            width: 250, // Set your desired width
+            width: 100, // Set your desired width
             child: Marquee(
               text:
                   storeCategoryController.previousPageGridTitle == 'Rental' ||

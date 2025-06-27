@@ -44,6 +44,9 @@ abstract class Routes {
   static const INVENTRY = _Paths.INVENTRY;
   static const WALLET = _Paths.WALLET;
   static const KHATA_BOOK = _Paths.KHATA_BOOK;
+  static const ADD_COUPONS = _Paths.ADD_COUPONS;
+  static const ADVERTISEMENT = _Paths.ADVERTISEMENT;
+  static const SPLASH_PAGE = _Paths.SPLASH_PAGE;
 }
 
 abstract class _Paths {
@@ -88,4 +91,7 @@ abstract class _Paths {
   static const INVENTRY = '/inventry';
   static const WALLET = '/wallet';
   static const KHATA_BOOK = '/khata-book';
+  static const ADD_COUPONS = '/add-coupons';
+  static const ADVERTISEMENT = '/advertisement';
+  static const SPLASH_PAGE = '/splash-page';
 }

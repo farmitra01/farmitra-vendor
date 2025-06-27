@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:farmitra/app/modules/home/controllers/appointment_controller.dart';
+import 'package:farmitra/app/modules/home/services/home_service.dart';
 import 'package:farmitra/app/modules/home/views/Appointment_Details.dart';
 import 'package:farmitra/app/modules/home/views/reply.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
@@ -8,9 +9,9 @@ import 'package:farmitra/app/utils/global_widgets/vendor_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
-import 'package:get/instance_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
+import 'package:http/http.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Appointment extends StatelessWidget {
@@ -18,33 +19,33 @@ class Appointment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize controller once
     final AppointmentController appointmentController = Get.put(
-      AppointmentController(),
+      AppointmentController(apiService: HomeService()),
     );
+
     return Scaffold(
-      appBar: VendorAppBar(title: 'Appointment'),
+      appBar: const VendorAppBar(title: 'Appointment'),
       body: Column(
         children: [
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
             decoration: BoxDecoration(
               color: AppColors.lightGrey,
               borderRadius: BorderRadius.circular(25),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
-                  blurRadius: 1,
+                  blurRadius: 2,
                   color: AppColors.border,
                   offset: Offset(0, 1),
-                  spreadRadius: 1,
+                  spreadRadius: 0.5,
                 ),
               ],
             ),
             child: TabBar(
-              isScrollable: false,
-              physics: NeverScrollableScrollPhysics(),
               controller: appointmentController.tabController,
               indicatorSize: TabBarIndicatorSize.tab,
-              indicatorPadding: EdgeInsets.symmetric(
+              indicatorPadding: const EdgeInsets.symmetric(
                 horizontal: 5,
                 vertical: 5,
               ),
@@ -59,24 +60,16 @@ class Appointment extends StatelessWidget {
                 fontSize: 12,
               ),
               unselectedLabelColor: AppColors.textSecondary,
-              tabs: [
+              tabs: const [
                 Tab(text: 'Online Consultation'),
                 Tab(text: 'Farm Visit'),
-                // Tab(text: 'Completed'),
               ],
             ),
           ),
           Expanded(
             child: TabBarView(
               controller: appointmentController.tabController,
-              children: [
-                buildOnlineConsultationTab(),
-                buildFarmAdvisoryTab(1),
-                // buildOnlineConsultationTab(),
-                // buildPendingTab(),
-                // buildProcessingTab(),
-                // builConfirmedTab(),
-              ],
+              children: [buildOnlineConsultationTab(), buildFarmVisitTab(1)],
             ),
           ),
         ],
@@ -86,393 +79,201 @@ class Appointment extends StatelessWidget {
 }
 
 Widget buildOnlineConsultationTab() {
-  final AppointmentController appointmentController = Get.put(
-    AppointmentController(),
-  );
-  return Container(
-    child: Column(
-      children: [
-        SizedBox(height: 5),
-        TabBar(
+  final AppointmentController appointmentController =
+      Get.find<AppointmentController>();
+  return Column(
+    children: [
+      const SizedBox(height: 8),
+      TabBar(
+        controller: appointmentController.consultationTabController,
+        dividerColor: Colors.transparent,
+        indicatorColor: Colors.transparent,
+        labelColor: AppColors.primaryGradinatMixColor,
+        unselectedLabelColor: AppColors.textSecondary,
+        labelPadding: const EdgeInsets.symmetric(horizontal: 5),
+        tabs: [
+          Obx(
+            () => buildTabContainer(
+              'Appointment',
+              'assets/svgs/Package.svg',
+              appointmentController.getTabCount(1, 'Appointment').toString(),
+            ),
+          ),
+          Obx(
+            () => buildTabContainer(
+              'Disease',
+              'assets/svgs/Package.svg',
+              appointmentController.getTabCount(2, 'Disease').toString(),
+            ),
+          ),
+          Obx(
+            () => buildTabContainer(
+              'Farm Advisory',
+              'assets/svgs/Package.svg',
+              appointmentController.getTabCount(3, 'Farm Advisory').toString(),
+            ),
+          ),
+        ],
+      ),
+      Expanded(
+        child: TabBarView(
           controller: appointmentController.consultationTabController,
+          children: [
+            buildSubTabView(1),
+            buildSubTabView(2),
+            buildSubTabView(3),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+Widget buildFarmVisitTab(int tabIndex) {
+  final AppointmentController appointmentController =
+      Get.find<AppointmentController>();
+  return Column(
+    children: [
+      const SizedBox(height: 8),
+      Container(
+        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.lightGrey,
+          borderRadius: BorderRadius.circular(25),
+          boxShadow: const [
+            BoxShadow(
+              blurRadius: 2,
+              color: AppColors.border,
+              offset: Offset(0, 1),
+              // spreadWeight: 0.5,
+            ),
+          ],
+        ),
+
+        child: TabBar(
+          controller: appointmentController.farmVisitTabController,
+          indicatorSize: TabBarIndicatorSize.tab,
+          indicatorPadding: const EdgeInsets.symmetric(
+            horizontal: 5,
+            vertical: 5,
+          ),
+          dividerHeight: 0,
+          indicator: BoxDecoration(
+            borderRadius: BorderRadius.circular(25),
+            color: AppColors.primaryGradinatMixColor,
+          ),
+          labelColor: AppColors.white,
+          labelStyle: GoogleFonts.montserrat(
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+          ),
+          unselectedLabelColor: AppColors.textSecondary,
           dividerColor: Colors.transparent,
           indicatorColor: Colors.transparent,
-          labelColor: AppColors.primaryGradinatMixColor,
-          unselectedLabelColor: AppColors.textSecondary,
-          labelPadding: EdgeInsets.all(0),
-          tabs: [
-            Container(
-              height: 60,
-              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
 
-              color: Colors.transparent,
-              child: Tab(
-                child: Container(
-                  height: 100,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: AppColors.background,
-                    boxShadow: [
-                      BoxShadow(
-                        spreadRadius: 1,
-                        blurRadius: 2.5,
-                        color: AppColors.containerShadowColor,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/svgs/Package.svg',
-                            height: 20,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            '15',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 5),
-                      Text('Appointment'),
-                    ],
-                  ),
-                ),
-              ),
+          labelPadding: const EdgeInsets.symmetric(horizontal: 5),
+          tabs: const [
+            Tab(text: 'Pending'),
+            Tab(text: 'Accepted'),
+            Tab(text: 'Confirmed'),
+          ],
+        ),
+      ),
+
+      Expanded(
+        child: TabBarView(
+          controller: appointmentController.farmVisitTabController,
+          children: [
+            buildPendingTab(tabIndex),
+            buildAcceptedTab(tabIndex),
+            buildConfirmedTab(tabIndex),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+Widget buildTabContainer(String title, String iconPath, String count) {
+  return Container(
+    height: 60,
+    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
+    child: Tab(
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(5),
+          color: AppColors.background,
+          boxShadow: const [
+            BoxShadow(
+              spreadRadius: 1,
+              blurRadius: 2.5,
+              color: AppColors.containerShadowColor,
             ),
-
-            Container(
-              height: 60,
-              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-
-              color: Colors.transparent,
-              child: Tab(
-                child: Container(
-                  height: 100,
-
-                  // width: 80,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: AppColors.background,
-                    boxShadow: [
-                      BoxShadow(
-                        spreadRadius: 1,
-                        blurRadius: 2.5,
-                        color: AppColors.containerShadowColor,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/svgs/Package.svg',
-                            height: 20,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            '15',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 5),
-                      Text('Disease'),
-                    ],
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SvgPicture.asset(
+                  iconPath,
+                  height: 20,
+                  color: AppColors.textPrimary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  count,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
                   ),
                 ),
-              ),
+              ],
             ),
-            Container(
-              height: 60,
-              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-
-              color: Colors.transparent,
-              child: Tab(
-                child: Container(
-                  height: 100,
-                  // width: 80,
-
-                  // padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: AppColors.background,
-                    boxShadow: [
-                      BoxShadow(
-                        spreadRadius: 1,
-                        blurRadius: 2.5,
-                        color: AppColors.containerShadowColor,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/svgs/Package.svg',
-                            height: 20,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            '15',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 5),
-                      Text('Farm Advisory'),
-                    ],
-                  ),
-                ),
+            const SizedBox(height: 4),
+            Text(
+              title,
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
-        Expanded(
-          child: TabBarView(
-            controller: appointmentController.consultationTabController,
-            children: [
-              buildAppointmentTab(1),
-              buildDiseaseTab(2),
-              buildFarmAdvisoryTab(3),
-            ],
-          ),
-        ),
-      ],
+      ),
     ),
   );
 }
 
-Widget buildFarmVisit() {
-  final AppointmentController appointmentController = Get.put(
-    AppointmentController(),
-  );
-  return Container(
-    child: Column(
-      children: [
-        SizedBox(height: 5),
-        TabBar(
-          controller: appointmentController.consultationTabController,
-          dividerColor: Colors.transparent,
-          indicatorColor: Colors.transparent,
-          labelColor: AppColors.primaryGradinatMixColor,
-          unselectedLabelColor: AppColors.textSecondary,
-          labelPadding: EdgeInsets.all(0),
-          tabs: [
-            Container(
-              height: 60,
-              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-
-              color: Colors.transparent,
-              child: Tab(
-                child: Container(
-                  height: 100,
-                  // width: 80,
-                  // padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: AppColors.background,
-                    boxShadow: [
-                      BoxShadow(
-                        spreadRadius: 1,
-                        blurRadius: 2.5,
-                        color: AppColors.containerShadowColor,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/svgs/Package.svg',
-                            height: 20,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            '15',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 5),
-                      Text('Appointment'),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            Container(
-              height: 60,
-              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-
-              color: Colors.transparent,
-              child: Tab(
-                child: Container(
-                  height: 100,
-
-                  // width: 80,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: AppColors.background,
-                    boxShadow: [
-                      BoxShadow(
-                        spreadRadius: 1,
-                        blurRadius: 2.5,
-                        color: AppColors.containerShadowColor,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/svgs/Package.svg',
-                            height: 20,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            '15',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 5),
-                      Text('Disease'),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Container(
-              height: 60,
-              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2.5),
-
-              color: Colors.transparent,
-              child: Tab(
-                child: Container(
-                  height: 100,
-                  // width: 80,
-
-                  // padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: AppColors.background,
-                    boxShadow: [
-                      BoxShadow(
-                        spreadRadius: 1,
-                        blurRadius: 2.5,
-                        color: AppColors.containerShadowColor,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            'assets/svgs/Package.svg',
-                            height: 20,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            '15',
-                            style: GoogleFonts.montserrat(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 5),
-                      Text('Farm Advisory'),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        Expanded(
-          child: TabBarView(
-            controller: appointmentController.consultationTabController,
-            children: [
-              buildPendingTab(1),
-              buildProcessingTab(),
-              builConfirmedTab(),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-Widget buildAppointmentTab(int Tabindex) {
-  final AppointmentController appointmentController = Get.put(
-    AppointmentController(),
-  );
+Widget buildSubTabView(int tabIndex) {
+  final AppointmentController appointmentController =
+      Get.find<AppointmentController>();
   return Column(
     children: [
       Container(
-        margin: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
         decoration: BoxDecoration(
           color: AppColors.lightGrey,
           borderRadius: BorderRadius.circular(25),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
-              blurRadius: 1,
+              blurRadius: 2,
               color: AppColors.border,
               offset: Offset(0, 1),
-              spreadRadius: 1,
+              // spreadWeight: 0.5,
             ),
           ],
         ),
         child: TabBar(
-          isScrollable: false,
-          physics: NeverScrollableScrollPhysics(),
           controller: appointmentController.threeTabController,
           indicatorSize: TabBarIndicatorSize.tab,
-          indicatorPadding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+          indicatorPadding: const EdgeInsets.symmetric(
+            horizontal: 5,
+            vertical: 5,
+          ),
           dividerHeight: 0,
           indicator: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
@@ -484,10 +285,10 @@ Widget buildAppointmentTab(int Tabindex) {
             fontSize: 12,
           ),
           unselectedLabelColor: AppColors.textSecondary,
-          tabs: [
+          tabs: const [
             Tab(text: 'Pending'),
-            Tab(text: 'In Process'),
-            Tab(text: 'Completed'),
+            Tab(text: 'Accepted'),
+            Tab(text: 'Confirmed'),
           ],
         ),
       ),
@@ -495,9 +296,9 @@ Widget buildAppointmentTab(int Tabindex) {
         child: TabBarView(
           controller: appointmentController.threeTabController,
           children: [
-            buildPendingTab(Tabindex),
-            buildProcessingTab(),
-            builConfirmedTab(),
+            buildPendingTab(tabIndex),
+            buildAcceptedTab(tabIndex),
+            buildConfirmedTab(tabIndex),
           ],
         ),
       ),
@@ -505,175 +306,86 @@ Widget buildAppointmentTab(int Tabindex) {
   );
 }
 
-Widget buildDiseaseTab(int Tabindex) {
-  final AppointmentController appointmentController = Get.put(
-    AppointmentController(),
-  );
-  // print('Tab index in desease ${Tabindex}')
-  return Column(
-    children: [
-      Container(
-        margin: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppColors.lightGrey,
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 1,
-              color: AppColors.border,
-              offset: Offset(0, 1),
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: TabBar(
-          isScrollable: false,
-          physics: NeverScrollableScrollPhysics(),
-          controller: appointmentController.threeTabController,
-          indicatorSize: TabBarIndicatorSize.tab,
-          indicatorPadding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-          dividerHeight: 0,
-          indicator: BoxDecoration(
-            borderRadius: BorderRadius.circular(25),
-            color: AppColors.primaryGradinatMixColor,
-          ),
-          labelColor: AppColors.white,
-          labelStyle: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
-          ),
-          unselectedLabelColor: AppColors.textSecondary,
-          tabs: [
-            Tab(text: 'Pending'),
-            Tab(text: 'In Process'),
-            Tab(text: 'Completed'),
-          ],
-        ),
-      ),
-      Expanded(
-        child: TabBarView(
-          controller: appointmentController.threeTabController,
-          children: [
-            buildPendingTab(Tabindex),
-            buildProcessingTab(),
-            builConfirmedTab(),
-          ],
-        ),
-      ),
-    ],
-  );
-}
-
-Widget buildFarmAdvisoryTab(int Tabindex) {
-  final AppointmentController appointmentController = Get.put(
-    AppointmentController(),
-  );
-  return Column(
-    children: [
-      Container(
-        margin: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-        decoration: BoxDecoration(
-          color: AppColors.lightGrey,
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 1,
-              color: AppColors.border,
-              offset: Offset(0, 1),
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: TabBar(
-          isScrollable: false,
-          physics: NeverScrollableScrollPhysics(),
-          controller: appointmentController.threeTabController,
-          indicatorSize: TabBarIndicatorSize.tab,
-          indicatorPadding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-          dividerHeight: 0,
-          indicator: BoxDecoration(
-            borderRadius: BorderRadius.circular(25),
-            color: AppColors.primaryGradinatMixColor,
-          ),
-          labelColor: AppColors.white,
-          labelStyle: GoogleFonts.montserrat(
-            fontWeight: FontWeight.w600,
-            fontSize: 12,
-          ),
-          unselectedLabelColor: AppColors.textSecondary,
-          tabs: [
-            Tab(text: 'Pending'),
-            Tab(text: 'In Process'),
-            Tab(text: 'Completed'),
-          ],
-        ),
-      ),
-      Expanded(
-        child: TabBarView(
-          controller: appointmentController.threeTabController,
-          children: [
-            buildPendingTab(Tabindex),
-            buildProcessingTab(),
-            builConfirmedTab(),
-          ],
-        ),
-      ),
-    ],
-  );
-}
-
-Widget buildPendingTab(int Tabindex) {
-  // print(' this is index for tab' + Tabindex.toString());
-  final AppointmentController appointmentController = Get.put(
-    AppointmentController(),
-  );
-  final RxInt currentIndex = 0.obs;
-
+Widget buildPendingTab(int tabIndex) {
+  final AppointmentController appointmentController =
+      Get.find<AppointmentController>();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (appointmentController.pendingQueries.isEmpty &&
+        !appointmentController.isLoading.value) {
+      appointmentController.fetchQueries();
+    }
+  });
   return Obx(() {
+    // Check if pendingQuery data is loading or empty
+    if (appointmentController.isLoading.value) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (appointmentController.pendingQueries.isEmpty) {
+      return const Center(child: Text('No pending appointments'));
+    }
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: appointmentController.apointment.length,
+      itemCount: appointmentController.pendingQueries.length,
       itemBuilder: (context, index) {
-        var appointmentData = appointmentController.apointment[index];
-        // Get the crop images for the current appointment
-        List<String> cropImages = List<String>.from(
-          appointmentData['cropimage'],
+        final globalIndex = index; // Since we're directly using pendingQueries
+        final cropImages = List<String>.from(
+          appointmentController.pendingQueries[index]['queryimage'] ?? [],
         );
-        String userName = appointmentData['user'];
-        String cropName = appointmentData['cropName'];
-        print(
-          'on press button accepted value =  ${appointmentController.isaccepted}',
-        );
+        final userName =
+            appointmentController
+                .pendingQueries[index]['farmer_details']?['name'] ??
+            'Unknown';
+        final cropName =
+            appointmentController
+                .pendingQueries[index]['crop_details']?['name'] ??
+            'Unknown Crop';
+        final location =
+            appointmentController.pendingQueries[index]['location'] ??
+            'Unknown Location';
+        final dateTime =
+            appointmentController.pendingQueries[index]['appointment_date'] ??
+            'Unknown Date';
+        final description =
+            appointmentController.pendingQueries[index]['query'] ??
+            'No description available';
         return GestureDetector(
           onTap: () {
-            Get.to(() => AppointmentDetails(), arguments: currentIndex);
+            Get.to(
+              AppointmentDetails(),
+              arguments: {
+                'appointment': appointmentController.pendingQueries[index],
+                'globalIndex': globalIndex,
+                'tabIndex': tabIndex,
+              },
+            );
           },
           child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             decoration: BoxDecoration(
               color: AppColors.background,
-              boxShadow: [
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: const [
                 BoxShadow(
                   spreadRadius: 1,
                   blurRadius: 2.5,
-                  offset: Offset(0, 2), // Natural shadow
+                  offset: Offset(0, 2),
                   color: AppColors.containerShadowColor,
                 ),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min, // Prevents Expanded issues
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       backgroundColor: AppColors.green,
-                      radius: 20, // Ensuring proper avatar size
+                      radius: 20,
                       child: Icon(Icons.person, color: Colors.white),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -687,10 +399,15 @@ Widget buildPendingTab(int Tabindex) {
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textPrimary,
                                 ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               Text(
-                                'Free', // You can adjust this based on your data
+                                appointmentController
+                                            .pendingQueries[index]['isFree'] ==
+                                        true
+                                    ? 'Free'
+                                    : 'Paid',
                                 style: GoogleFonts.montserrat(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
@@ -699,9 +416,8 @@ Widget buildPendingTab(int Tabindex) {
                               ),
                             ],
                           ),
-                          // SizedBox(height: 1.5),
                           Text(
-                            '1.0 KM • Sector 4L', // Adjust this if you have location data
+                            location,
                             style: GoogleFonts.montserrat(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -712,66 +428,131 @@ Widget buildPendingTab(int Tabindex) {
                       ),
                     ),
                     Icon(Icons.message, color: AppColors.green),
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     GestureDetector(
                       onTap: () async {
-                        final Uri phoneUri = Uri(
+                        final phoneUri = Uri(
                           scheme: 'tel',
-                          path: '9277103055',
+                          path:
+                              appointmentController
+                                  .pendingQueries[index]['phone'] ??
+                              '',
                         );
                         if (await canLaunchUrl(phoneUri)) {
                           await launchUrl(phoneUri);
                         } else {
-                          // Optionally show an error
-                          print('Could not launch dialer');
+                          Get.snackbar('Error', 'Could not launch dialer');
                         }
                       },
-                      child: Icon(Icons.call, color: AppColors.yellow),
+                      child: const Icon(Icons.call, color: AppColors.yellow),
                     ),
                   ],
                 ),
-                Divider(color: AppColors.primaryGradinatMixColor),
+                const Divider(color: AppColors.primaryGradinatMixColor),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      height: 130,
-                      width: 80,
-                      child: GestureDetector(
-                        onTap: () {
-                          Get.dialog(buildImagePopUp(index));
-                        },
+                    GestureDetector(
+                      onTap: () {
+                        Get.dialog(buildImagePopUp(globalIndex));
+                      },
+                      child: SizedBox(
+                        width: 80,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            SizedBox(height: 15),
+                            const SizedBox(height: 10),
                             CarouselSlider(
                               options: CarouselOptions(
-                                height: 90, // Adjust height
-                                autoPlay: true, // Auto-slide
-                                enlargeCenterPage:
-                                    true, // Zoom effect on center image
+                                height: 90,
+                                autoPlay: cropImages.length > 1,
+                                enlargeCenterPage: true,
                                 aspectRatio: 16 / 9,
-                                viewportFraction:
-                                    0.8, // Show partial next/previous image
+                                viewportFraction: 0.8,
                               ),
                               items:
-                                  cropImages.map((imagePath) {
-                                    return ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.asset(
-                                        imagePath,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                      ),
-                                    );
-                                  }).toList(),
+                                  cropImages.isEmpty
+                                      ? [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          child: Container(
+                                            color: Colors.grey[300],
+                                            width: double.infinity,
+                                            height: 90,
+                                            child: Image.asset(
+                                              'assets/images/Null_ticket.png',
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ),
+                                        ),
+                                      ]
+                                      : cropImages.map((imagePath) {
+                                        // Check if imagePath is a URL (network image)
+                                        if (imagePath.startsWith('http') ||
+                                            imagePath.startsWith('https')) {
+                                          return ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                            child: Image.network(
+                                              imagePath,
+                                              fit: BoxFit.cover,
+                                              width: double.infinity,
+                                              errorBuilder:
+                                                  (
+                                                    context,
+                                                    error,
+                                                    stackTrace,
+                                                  ) => Container(
+                                                    color: Colors.grey[300],
+                                                    width: double.infinity,
+                                                    height: 90,
+                                                    child: const Center(
+                                                      child: Text(
+                                                        'No Image',
+                                                        style: TextStyle(
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                            ),
+                                          );
+                                        }
+                                        // Fallback to asset if not a URL
+                                        return ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          child: Image.asset(
+                                            imagePath,
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    Container(
+                                                      color: Colors.grey[300],
+                                                      width: double.infinity,
+                                                      height: 90,
+                                                      child: const Center(
+                                                        child: Text(
+                                                          'No Image',
+                                                          style: TextStyle(
+                                                            color: Colors.grey,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                          ),
+                                        );
+                                      }).toList(),
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 8),
                             GestureDetector(
-                              onTap: () {
-                                Get.dialog(buildImagePopUp(index));
-                              },
+                              onTap:
+                                  () =>
+                                      Get.dialog(buildImagePopUp(globalIndex)),
                               child: Text(
                                 'View All',
                                 style: GoogleFonts.montserrat(
@@ -785,6 +566,7 @@ Widget buildPendingTab(int Tabindex) {
                         ),
                       ),
                     ),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -792,40 +574,42 @@ Widget buildPendingTab(int Tabindex) {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                cropName,
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                              Flexible(
+                                child: Text(
+                                  cropName,
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              // SizedBox(width:  0.5),
                               Text(
-                                '01 Apr 25, 13:09', // Adjust this if you have location data
+                                dateTime,
                                 style: GoogleFonts.montserrat(
-                                  fontSize: 13,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.primaryGradinatMixColor,
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 8),
                           Container(
-                            padding: EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               color: AppColors.lightGrey,
                             ),
-                            child: Center(
-                              child: Text(
-                                'Reddish - brown pustules on a wheat stem will turn black as it decays',
-                                style: GoogleFonts.montserrat(fontSize: 12),
-                              ),
+                            child: Text(
+                              description,
+                              style: GoogleFonts.montserrat(fontSize: 12),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          SizedBox(height: 15),
+                          const SizedBox(height: 12),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -839,45 +623,32 @@ Widget buildPendingTab(int Tabindex) {
                                   ],
                                   borderRadius: 10,
                                   text: 'Reject',
-                                  onPressed: () {
-                                    // Remove the current appointment
-                                    // appointmentController.removeAppointment(
-                                    //   index,
-                                    // );
-                                    Get.dialog(buildCaution());
-                                    // appointmentController.rejected_index.value = [index];
-                                  },
+                                  onPressed:
+                                      () =>
+                                          Get.dialog(buildCaution(globalIndex)),
                                 ),
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               SizedBox(
                                 height: 40,
                                 width: 95,
                                 child: CustomGradientButton(
                                   borderRadius: 10,
-                                  text:
-                                      Tabindex == 1 ||
-                                              appointmentController
-                                                      .isaccepted
-                                                      .value ==
-                                                  false
-                                          ? 'Accept'
-                                          : Tabindex == 2
-                                          ? 'Reply'
-                                          : "Advise",
+                                  text: 'Accept',
                                   onPressed: () {
-                                    appointmentController.isaccepted.value =
-                                        true;
-                                    // !appointmentController.isaccepted.value;
-                                    Tabindex != 1
-                                        ? Get.to(
-                                          () => Reply(),
-                                          arguments: currentIndex,
-                                        )
-                                        : '';
-                                    // print(
-                                    //   'on press button accepted value =  ${appointmentController.isaccepted}',
-                                    // );
+                                    appointmentController.acceptAppointment(
+                                      globalIndex,
+                                    );
+                                    Get.toNamed(
+                                      '/reply',
+                                      arguments: {
+                                        'appointment':
+                                            appointmentController
+                                                .pendingQueries[index],
+                                        'globalIndex': globalIndex,
+                                        'tabIndex': tabIndex,
+                                      },
+                                    );
                                   },
                                 ),
                               ),
@@ -897,56 +668,75 @@ Widget buildPendingTab(int Tabindex) {
   });
 }
 
-Widget buildProcessingTab() {
-  final AppointmentController appointmentController = Get.put(
-    AppointmentController(),
-  );
-  final RxInt currentIndex = 1.obs;
+Widget buildAcceptedTab(int tabIndex) {
+  final AppointmentController appointmentController =
+      Get.find<AppointmentController>();
 
   return Obx(() {
+    final filteredAppointments = appointmentController.getAppointmentsByStatus(
+      tabIndex,
+      'Accepted',
+    );
+    if (filteredAppointments.isEmpty) {
+      return const Center(child: Text('No accepted appointments'));
+    }
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: appointmentController.apointment.length,
+      itemCount: filteredAppointments.length,
       itemBuilder: (context, index) {
-        var appointmentData = appointmentController.apointment[index];
-
-        // Get the crop images for the current appointment
-        List<String> cropImages = List<String>.from(
-          appointmentData['cropimage'],
+        final appointmentData = filteredAppointments[index];
+        final globalIndex = appointmentController.appointments.indexWhere(
+          (appt) => appt['id'] == appointmentData['id'],
         );
-        String userName = appointmentData['user'];
-        String cropName = appointmentData['cropName'];
+        final cropImages = List<String>.from(
+          appointmentData['cropimage'] ?? [],
+        );
+        final userName = appointmentData['user'] ?? 'Unknown';
+        final cropName = appointmentData['cropName'] ?? 'Unknown Crop';
+        final location = appointmentData['location'] ?? '1.0 KM • Sector 4L';
+        final dateTime = appointmentData['dateTime'] ?? '01 Apr 25, 13:09';
+        final description =
+            appointmentData['description'] ??
+            'Reddish - brown pustules on a wheat stem will turn black as it decays';
 
         return GestureDetector(
           onTap: () {
-            Get.to(() => AppointmentDetails(), arguments: currentIndex);
+            Get.to(
+              () => AppointmentDetails(),
+              arguments: {
+                'appointment': appointmentData,
+                'globalIndex': globalIndex,
+                'tabIndex': tabIndex,
+              },
+            );
           },
           child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             decoration: BoxDecoration(
               color: AppColors.background,
-              boxShadow: [
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: const [
                 BoxShadow(
                   spreadRadius: 1,
                   blurRadius: 2.5,
-                  offset: Offset(0, 2), // Natural shadow
+                  offset: Offset(0, 2),
                   color: AppColors.containerShadowColor,
                 ),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min, // Prevents Expanded issues
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       backgroundColor: AppColors.green,
-                      radius: 20, // Ensuring proper avatar size
+                      radius: 20,
                       child: Icon(Icons.person, color: Colors.white),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -960,10 +750,13 @@ Widget buildProcessingTab() {
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textPrimary,
                                 ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               Text(
-                                'Free', // You can adjust this based on your data
+                                appointmentData['isFree'] == true
+                                    ? 'Free'
+                                    : 'Paid',
                                 style: GoogleFonts.montserrat(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
@@ -972,9 +765,8 @@ Widget buildProcessingTab() {
                               ),
                             ],
                           ),
-                          // SizedBox(height: 1.5),
                           Text(
-                            '1.0 KM • Sector 4L', // Adjust this if you have location data
+                            location,
                             style: GoogleFonts.montserrat(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -985,63 +777,82 @@ Widget buildProcessingTab() {
                       ),
                     ),
                     Icon(Icons.message, color: AppColors.green),
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     GestureDetector(
                       onTap: () async {
-                        final Uri phoneUri = Uri(
+                        final phoneUri = Uri(
                           scheme: 'tel',
-                          path: '9277103055',
+                          path: appointmentData['phone'] ?? '9277103055',
                         );
                         if (await canLaunchUrl(phoneUri)) {
                           await launchUrl(phoneUri);
                         } else {
-                          // Optionally show an error
-                          print('Could not launch dialer');
+                          Get.snackbar('Error', 'Could not launch dialer');
                         }
                       },
-                      child: Icon(Icons.call, color: AppColors.yellow),
+                      child: const Icon(Icons.call, color: AppColors.yellow),
                     ),
                   ],
                 ),
-                Divider(color: AppColors.primaryGradinatMixColor),
-
+                const Divider(color: AppColors.primaryGradinatMixColor),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      height: 130,
-                      width: 80,
-                      child: GestureDetector(
-                        onTap: () {
-                          Get.dialog(buildImagePopUp(index));
-                        },
+                    GestureDetector(
+                      onTap: () {
+                        Get.dialog(buildImagePopUp(globalIndex));
+                      },
+                      child: SizedBox(
+                        width: 80,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            SizedBox(height: 15),
+                            const SizedBox(height: 10),
                             CarouselSlider(
                               options: CarouselOptions(
-                                height: 90, // Adjust height
-                                autoPlay: true, // Auto-slide
-                                enlargeCenterPage:
-                                    true, // Zoom effect on center image
+                                height: 90,
+                                autoPlay: cropImages.length > 1,
+                                enlargeCenterPage: true,
                                 aspectRatio: 16 / 9,
-                                viewportFraction:
-                                    0.8, // Show partial next/previous image
+                                viewportFraction: 0.8,
                               ),
                               items:
-                                  cropImages.map((imagePath) {
-                                    return ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.asset(
-                                        imagePath,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                      ),
-                                    );
-                                  }).toList(),
+                                  cropImages.isEmpty
+                                      ? [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          child: Image.asset(
+                                            'assets/images/placeholder.jpg',
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                          ),
+                                        ),
+                                      ]
+                                      : cropImages
+                                          .map(
+                                            (imagePath) => ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              child: Image.asset(
+                                                imagePath,
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                                errorBuilder:
+                                                    (
+                                                      context,
+                                                      error,
+                                                      stackTrace,
+                                                    ) => Image.asset(
+                                                      'assets/images/placeholder.jpg',
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                              ),
+                                            ),
+                                          )
+                                          .toList(),
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 8),
                             Text(
                               'View All',
                               style: GoogleFonts.montserrat(
@@ -1054,6 +865,7 @@ Widget buildProcessingTab() {
                         ),
                       ),
                     ),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1061,40 +873,42 @@ Widget buildProcessingTab() {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                cropName,
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                              Flexible(
+                                child: Text(
+                                  cropName,
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              // SizedBox(width:  0.5),
                               Text(
-                                '01 Apr 25, 13:09', // Adjust this if you have location data
+                                dateTime,
                                 style: GoogleFonts.montserrat(
-                                  fontSize: 13,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.primaryGradinatMixColor,
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 8),
                           Container(
-                            padding: EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               color: AppColors.lightGrey,
                             ),
-                            child: Center(
-                              child: Text(
-                                'Reddish - brown pustules on a wheat stem will turn black as it decays',
-                                style: GoogleFonts.montserrat(fontSize: 12),
-                              ),
+                            child: Text(
+                              description,
+                              style: GoogleFonts.montserrat(fontSize: 12),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          SizedBox(height: 15),
+                          const SizedBox(height: 12),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -1107,22 +921,30 @@ Widget buildProcessingTab() {
                                     AppColors.yellow,
                                   ],
                                   borderRadius: 10,
-                                  text: 'Solved',
+                                  text: 'Mark Solved',
                                   onPressed: () {
-                                    appointmentController.removeAppointment(
-                                      index,
+                                    appointmentController.markAsSolved(
+                                      globalIndex,
                                     );
                                   },
                                 ),
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               SizedBox(
                                 height: 40,
                                 width: 95,
                                 child: CustomGradientButton(
                                   borderRadius: 10,
-                                  text: 'Processing',
-                                  onPressed: () {},
+                                  text: 'Reply',
+                                  onPressed:
+                                      () => Get.to(
+                                        () => Reply(),
+                                        arguments: {
+                'appointment': appointmentData,
+                'globalIndex': globalIndex,
+                'tabIndex': tabIndex,
+              },
+                                      ),
                                 ),
                               ),
                             ],
@@ -1141,57 +963,74 @@ Widget buildProcessingTab() {
   });
 }
 
-Widget builConfirmedTab() {
-  final AppointmentController appointmentController = Get.put(
-    AppointmentController(),
-  );
-  final RxInt currentIndex = 2.obs;
-
+Widget buildConfirmedTab(int tabIndex) {
+  final AppointmentController appointmentController =
+      Get.find<AppointmentController>();
   return Obx(() {
+    final filteredAppointments = appointmentController.getAppointmentsByStatus(
+      tabIndex,
+      'Confirmed',
+    );
+    if (filteredAppointments.isEmpty) {
+      return const Center(child: Text('No confirmed appointments'));
+    }
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: appointmentController.apointment.length,
+      itemCount: filteredAppointments.length,
       itemBuilder: (context, index) {
-        var appointmentData = appointmentController.apointment[index];
-
-        // Get the crop images for the current appointment
-        List<String> cropImages = List<String>.from(
-          appointmentData['cropimage'],
+        final appointmentData = filteredAppointments[index];
+        final globalIndex = appointmentController.appointments.indexWhere(
+          (appt) => appt['id'] == appointmentData['id'],
         );
-        String userName = appointmentData['user'];
-        String cropName = appointmentData['cropName'];
+        final cropImages = List<String>.from(
+          appointmentData['cropimage'] ?? [],
+        );
+        final userName = appointmentData['user'] ?? 'Unknown';
+        final cropName = appointmentData['cropName'] ?? 'Unknown Crop';
+        final location = appointmentData['location'] ?? '1.0 KM • Sector 4L';
+        final dateTime = appointmentData['dateTime'] ?? '01 Apr 25, 13:09';
+        final description =
+            appointmentData['description'] ??
+            'Reddish - brown pustules on a wheat stem will turn black as it decays';
+
         return GestureDetector(
           onTap: () {
-            Get.to(() => AppointmentDetails(), arguments: currentIndex);
-            appointmentController.isComlete.value = true;
-            print('object');
+            Get.to(
+              AppointmentDetails(),
+              arguments: {
+                'appointment': appointmentData,
+                'globalIndex': globalIndex,
+                'tabIndex': tabIndex,
+              },
+            );
           },
           child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             decoration: BoxDecoration(
               color: AppColors.background,
-              boxShadow: [
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: const [
                 BoxShadow(
                   spreadRadius: 1,
                   blurRadius: 2.5,
-                  offset: Offset(0, 2), // Natural shadow
+                  offset: Offset(0, 2),
                   color: AppColors.containerShadowColor,
                 ),
               ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min, // Prevents Expanded issues
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       backgroundColor: AppColors.green,
-                      radius: 20, // Ensuring proper avatar size
+                      radius: 20,
                       child: Icon(Icons.person, color: Colors.white),
                     ),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1205,10 +1044,13 @@ Widget builConfirmedTab() {
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.textPrimary,
                                 ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               Text(
-                                'Free', // You can adjust this based on your data
+                                appointmentData['isFree'] == true
+                                    ? 'Free'
+                                    : 'Paid',
                                 style: GoogleFonts.montserrat(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
@@ -1217,9 +1059,8 @@ Widget builConfirmedTab() {
                               ),
                             ],
                           ),
-                          // SizedBox(height: 1.5),
                           Text(
-                            '1.0 KM • Sector 4L', // Adjust this if you have location data
+                            location,
                             style: GoogleFonts.montserrat(
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -1230,62 +1071,82 @@ Widget builConfirmedTab() {
                       ),
                     ),
                     Icon(Icons.message, color: AppColors.green),
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     GestureDetector(
                       onTap: () async {
-                        final Uri phoneUri = Uri(
+                        final phoneUri = Uri(
                           scheme: 'tel',
-                          path: '9277103055',
+                          path: appointmentData['phone'] ?? '9277103055',
                         );
                         if (await canLaunchUrl(phoneUri)) {
                           await launchUrl(phoneUri);
                         } else {
-                          // Optionally show an error
-                          print('Could not launch dialer');
+                          Get.snackbar('Error', 'Could not launch dialer');
                         }
                       },
-                      child: Icon(Icons.call, color: AppColors.yellow),
+                      child: const Icon(Icons.call, color: AppColors.yellow),
                     ),
                   ],
                 ),
-                Divider(color: AppColors.primaryGradinatMixColor),
+                const Divider(color: AppColors.primaryGradinatMixColor),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      height: 130,
-                      width: 80,
-                      child: GestureDetector(
-                        onTap: () {
-                          Get.dialog(buildImagePopUp(index));
-                        },
+                    GestureDetector(
+                      onTap: () {
+                        Get.dialog(buildImagePopUp(globalIndex));
+                      },
+                      child: SizedBox(
+                        width: 80,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            SizedBox(height: 15),
+                            const SizedBox(height: 10),
                             CarouselSlider(
                               options: CarouselOptions(
-                                height: 90, // Adjust height
-                                autoPlay: true, // Auto-slide
-                                enlargeCenterPage:
-                                    true, // Zoom effect on center image
+                                height: 90,
+                                autoPlay: cropImages.length > 1,
+                                enlargeCenterPage: true,
                                 aspectRatio: 16 / 9,
-                                viewportFraction:
-                                    0.8, // Show partial next/previous image
+                                viewportFraction: 0.8,
                               ),
                               items:
-                                  cropImages.map((imagePath) {
-                                    return ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.asset(
-                                        imagePath,
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                      ),
-                                    );
-                                  }).toList(),
+                                  cropImages.isEmpty
+                                      ? [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          child: Image.asset(
+                                            'assets/images/placeholder.jpg',
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                          ),
+                                        ),
+                                      ]
+                                      : cropImages
+                                          .map(
+                                            (imagePath) => ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              child: Image.asset(
+                                                imagePath,
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                                errorBuilder:
+                                                    (
+                                                      context,
+                                                      error,
+                                                      stackTrace,
+                                                    ) => Image.asset(
+                                                      'assets/images/placeholder.jpg',
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                              ),
+                                            ),
+                                          )
+                                          .toList(),
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 8),
                             Text(
                               'View All',
                               style: GoogleFonts.montserrat(
@@ -1298,6 +1159,7 @@ Widget builConfirmedTab() {
                         ),
                       ),
                     ),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1305,46 +1167,54 @@ Widget builConfirmedTab() {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                cropName,
-                                style: GoogleFonts.montserrat(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                              Flexible(
+                                child: Text(
+                                  cropName,
+                                  style: GoogleFonts.montserrat(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              // SizedBox(width:  0.5),
                               Text(
-                                '01 Apr 25, 13:09', // Adjust this if you have location data
+                                dateTime,
                                 style: GoogleFonts.montserrat(
-                                  fontSize: 13,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.primaryGradinatMixColor,
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 8),
                           Container(
-                            padding: EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               color: AppColors.lightGrey,
                             ),
-                            child: Center(
-                              child: Text(
-                                'Reddish - brown pustules on a wheat stem will turn black as it decays',
-                                style: GoogleFonts.montserrat(fontSize: 12),
-                              ),
+                            child: Text(
+                              description,
+                              style: GoogleFonts.montserrat(fontSize: 12),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          SizedBox(height: 15),
-                          CustomGradientButton(
-                            borderRadius: 10,
-                            // width: 100,
+                          const SizedBox(height: 12),
+                          SizedBox(
                             height: 40,
-                            text: 'Completed',
-                            onPressed: () {},
+                            width: 120,
+                            child: CustomGradientButton(
+                              borderRadius: 10,
+                              text: 'Completed',
+                              onPressed: () {
+                                appointmentController.markAsCompleted(
+                                  globalIndex,
+                                );
+                              },
+                            ),
                           ),
                         ],
                       ),
@@ -1360,392 +1230,186 @@ Widget builConfirmedTab() {
   });
 }
 
-// Widget buildOfflineTab() {
-//   final AppointmentController appointmentController = Get.put(
-//     AppointmentController(),
-//   );
-
-//   return Obx(() {
-//     return ListView.builder(
-//       shrinkWrap: true,
-//       itemCount: appointmentController.apointment.length,
-//       itemBuilder: (context, index) {
-//         var appointmentData = appointmentController.apointment[index];
-//         // Get the crop images for the current appointment
-//         List<String> cropImages = List<String>.from(
-//           appointmentData['cropimage'],
-//         );
-//         String userName = appointmentData['user'];
-//         String cropName = appointmentData['cropName'];
-//         return Container(
-//           margin: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-//           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-//           decoration: BoxDecoration(
-//             color: AppColors.background,
-//             boxShadow: [
-//               BoxShadow(
-//                 spreadRadius: 1,
-//                 blurRadius: 2.5,
-//                 offset: Offset(0, 2), // Natural shadow
-//                 color: AppColors.containerShadowColor,
-//               ),
-//             ],
-//           ),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             mainAxisSize: MainAxisSize.min, // Prevents Expanded issues
-//             children: [
-//               Row(
-//                 children: [
-//                   CircleAvatar(
-//                     backgroundColor: AppColors.green,
-//                     radius: 20, // Ensuring proper avatar size
-//                     child: Icon(Icons.person, color: Colors.white),
-//                   ),
-//                   SizedBox(width: 10),
-//                   Expanded(
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Row(
-//                           children: [
-//                             Text(
-//                               userName,
-//                               style: GoogleFonts.montserrat(
-//                                 fontSize: 14,
-//                                 fontWeight: FontWeight.w700,
-//                                 color: AppColors.textPrimary,
-//                               ),
-//                             ),
-//                             SizedBox(width: 10),
-//                             Text(
-//                               'Free', // You can adjust this based on your data
-//                               style: GoogleFonts.montserrat(
-//                                 fontSize: 12,
-//                                 fontWeight: FontWeight.w500,
-//                                 color: AppColors.green,
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                         // SizedBox(height: 1.5),
-//                         Text(
-//                           '1.0 KM • Sector 4L', // Adjust this if you have location data
-//                           style: GoogleFonts.montserrat(
-//                             fontSize: 12,
-//                             fontWeight: FontWeight.w500,
-//                             color: AppColors.textSecondary,
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                   Icon(Icons.message, color: AppColors.green),
-//                   SizedBox(width: 20),
-//                   Icon(Icons.call, color: AppColors.yellow),
-//                 ],
-//               ),
-//               Divider(color: AppColors.primaryGradinatMixColor),
-//               Row(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   SizedBox(
-//                     height: 130,
-//                     width: 80,
-//                     child: GestureDetector(
-//                       onTap: () {
-//                         Get.dialog(buildImagePopUp(index));
-//                       },
-//                       child: Column(
-//                         crossAxisAlignment: CrossAxisAlignment.center,
-//                         children: [
-//                           SizedBox(height: 15),
-//                           CarouselSlider(
-//                             options: CarouselOptions(
-//                               height: 90, // Adjust height
-//                               autoPlay: true, // Auto-slide
-//                               enlargeCenterPage:
-//                                   true, // Zoom effect on center image
-//                               aspectRatio: 16 / 9,
-//                               viewportFraction:
-//                                   0.8, // Show partial next/previous image
-//                             ),
-//                             items:
-//                                 cropImages.map((imagePath) {
-//                                   return ClipRRect(
-//                                     borderRadius: BorderRadius.circular(10),
-//                                     child: Image.asset(
-//                                       imagePath,
-//                                       fit: BoxFit.cover,
-//                                       width: double.infinity,
-//                                     ),
-//                                   );
-//                                 }).toList(),
-//                           ),
-//                           SizedBox(height: 10),
-//                           Text(
-//                             'View All',
-//                             style: GoogleFonts.montserrat(
-//                               fontSize: 12,
-//                               fontWeight: FontWeight.w500,
-//                               color: AppColors.error,
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   ),
-//                   Expanded(
-//                     child: Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                           children: [
-//                             Text(
-//                               cropName,
-//                               style: GoogleFonts.montserrat(
-//                                 fontSize: 14,
-//                                 fontWeight: FontWeight.w700,
-//                                 color: AppColors.textPrimary,
-//                               ),
-//                             ),
-//                             // SizedBox(width:  0.5),
-//                             Text(
-//                               '01 Apr 25, 13:09', // Adjust this if you have location data
-//                               style: GoogleFonts.montserrat(
-//                                 fontSize: 13,
-//                                 fontWeight: FontWeight.w600,
-//                                 color: AppColors.primaryGradinatMixColor,
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                         SizedBox(height: 10),
-//                         Container(
-//                           padding: EdgeInsets.all(8),
-//                           decoration: BoxDecoration(
-//                             borderRadius: BorderRadius.circular(10),
-//                             color: AppColors.lightGrey,
-//                           ),
-//                           child: Center(
-//                             child: Text(
-//                               'Reddish - brown pustules on a wheat stem will turn black as it decays',
-//                               style: GoogleFonts.montserrat(fontSize: 12),
-//                             ),
-//                           ),
-//                         ),
-//                         SizedBox(height: 15),
-//                         Row(
-//                           mainAxisAlignment: MainAxisAlignment.end,
-//                           children: [
-//                             SizedBox(
-//                               height: 40,
-//                               width: 95,
-//                               child: CustomGradientButton(
-//                                 gradientColors: [
-//                                   AppColors.yellow,
-//                                   AppColors.yellow,
-//                                 ],
-//                                 borderRadius: 10,
-//                                 text: 'Reject',
-//                                 onPressed: () {
-//                                   // Remove the current appointment
-//                                   appointmentController.removeAppointment(
-//                                     index,
-//                                   );
-//                                 },
-//                               ),
-//                             ),
-//                             SizedBox(width: 10),
-//                             SizedBox(
-//                               height: 40,
-//                               width: 95,
-//                               child: CustomGradientButton(
-//                                 borderRadius: 10,
-//                                 text: 'Accept',
-//                                 onPressed: () {},
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ],
-//           ),
-//         );
-//       },
-//     );
-//   });
-// }
-
-Widget buildImagePopUp(int index) {
+Widget buildImagePopUp(int globalIndex) {
   final AppointmentController appointmentController =
       Get.find<AppointmentController>();
-
   return Obx(() {
-    if (appointmentController.apointment.isEmpty ||
-        index >= appointmentController.apointment.length) {
-      return SizedBox(); // Handle case where index is out of bounds
+    if (globalIndex < 0 ||
+        globalIndex >= appointmentController.appointments.length) {
+      return const SizedBox();
     }
+    final appointmentData = appointmentController.appointments[globalIndex];
+    final cropImages = List<String>.from(appointmentData['cropimage'] ?? []);
 
-    var appointmentData = appointmentController.apointment[index];
-
-    List<String> cropImages = List<String>.from(
-      appointmentData['cropimage'] ?? [],
-    );
     return AlertDialog(
       backgroundColor: AppColors.lightGrey.withOpacity(0.8),
-      contentPadding: EdgeInsets.all(0),
-      content: SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      Get.back();
-                    },
-                    child: Icon(Icons.close, color: AppColors.error),
-                  ),
-                ],
+      contentPadding: EdgeInsets.zero,
+      content: SizedBox(
+        width: Get.width * 0.9,
+        height: 400, // ✅ Give fixed height here
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: AppColors.error),
+                onPressed: () => Get.back(),
               ),
-              CarouselSlider(
+            ),
+            Expanded(
+              child: CarouselSlider(
                 options: CarouselOptions(
                   height: 350,
                   enlargeCenterPage: true,
                   aspectRatio: 16 / 9,
-                  viewportFraction: 0.8,
+                  viewportFraction: 0.9,
                 ),
                 items:
-                    cropImages.map((imagePath) {
-                      return GestureDetector(
-                        onTap: () {
-                          Get.dialog(
-                            Dialog(
-                              backgroundColor: Colors.black,
-                              insetPadding: EdgeInsets.all(0),
-                              child: Stack(
-                                children: [
-                                  InteractiveViewer(
-                                    panEnabled: true,
-                                    minScale: 1.0,
-                                    maxScale: 4.0,
-                                    child: Center(
-                                      child: Image.asset(
-                                        imagePath,
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: 30,
-                                    right: 20,
-                                    child: IconButton(
-                                      icon: Icon(
-                                        Icons.close,
-                                        color: Colors.white,
-                                      ),
-                                      onPressed: () => Get.back(),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                    cropImages.isEmpty
+                        ? [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.asset(
+                              'assets/images/placeholder.jpg',
+                              fit: BoxFit.cover,
+                              width: double.infinity,
                             ),
-                          );
-                        },
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(
-                            imagePath,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
                           ),
-                        ),
-                      );
-                    }).toList(),
+                        ]
+                        : cropImages
+                            .map(
+                              (imagePath) => GestureDetector(
+                                onTap:
+                                    () => Get.dialog(
+                                      Dialog(
+                                        backgroundColor: Colors.black,
+                                        insetPadding: EdgeInsets.zero,
+                                        child: Stack(
+                                          children: [
+                                            InteractiveViewer(
+                                              panEnabled: true,
+                                              minScale: 2.0,
+                                              maxScale: 3.0,
+                                              child: Center(
+                                                child: Image.asset(
+                                                  imagePath,
+                                                  fit: BoxFit.contain,
+                                                  errorBuilder:
+                                                      (
+                                                        context,
+                                                        error,
+                                                        stackTrace,
+                                                      ) => Image.asset(
+                                                        'assets/images/placeholder.jpg',
+                                                        fit: BoxFit.contain,
+                                                      ),
+                                                ),
+                                              ),
+                                            ),
+                                            Positioned(
+                                              top: 20,
+                                              right: 20,
+                                              child: IconButton(
+                                                icon: const Icon(
+                                                  Icons.close,
+                                                  color: Colors.white,
+                                                ),
+                                                onPressed: () => Get.back(),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Image.asset(
+                                    imagePath,
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Image.asset(
+                                              'assets/images/placeholder.jpg',
+                                              fit: BoxFit.cover,
+                                            ),
+                                  ),
+                                ),
+                              ),
+                            )
+                            .toList(),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   });
 }
 
-Widget buildCaution() {
+Widget buildCaution(int globalIndex) {
   final AppointmentController appointmentController =
       Get.find<AppointmentController>();
-  return Container(
-    height: 150,
-    child: AlertDialog(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          GestureDetector(
-            onTap: () {
-              Get.back();
-            },
-            child: Icon(Icons.close, color: AppColors.error),
-          ),
-        ],
-      ),
-      content: SizedBox(
-        height: 100,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              'assets/svgs/alert_triangel.svg',
-              color: AppColors.error,
-            ),
-            // SizedBox(height: 10),
-            Text('Are You sure want to reject'),
-          ],
-        ),
-      ),
-      actions: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: CustomGradientButton(
-                gradientColors: [AppColors.green, AppColors.green],
-                height: 35,
-                borderRadius: 10,
-                text: 'Cancel',
-                onPressed: () {
-                  // appointmentController.removeAppointment(index);
-                  Get.back();
-                },
-              ),
-            ),
-            SizedBox(width: 10),
-            Expanded(
-              child: CustomGradientButton(
-                gradientColors: [AppColors.error, AppColors.error],
-                text: 'Reject',
-                onPressed: () {
-                  // appointmentController.removeAppointment(index);.
-                  Get.back();
-                },
-                height: 35,
-                borderRadius: 10,
-              ),
-            ),
-          ],
+  return AlertDialog(
+    title: Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.close, color: AppColors.error),
+          onPressed: () => Get.back(),
         ),
       ],
     ),
+    content: SizedBox(
+      height: 100,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            'assets/svgs/alert_triangle.svg',
+            color: AppColors.error,
+            height: 30,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Are you sure you want to reject?',
+            style: GoogleFonts.montserrat(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    ),
+    actions: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            child: CustomGradientButton(
+              gradientColors: [AppColors.green, AppColors.green],
+              height: 35,
+              borderRadius: 10,
+              text: 'Cancel',
+              onPressed: () => Get.back(),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: CustomGradientButton(
+              gradientColors: [AppColors.error, AppColors.error],
+              height: 35,
+              borderRadius: 10,
+              text: 'Reject',
+              onPressed: () {
+                appointmentController.removeAppointment(globalIndex);
+                Get.back();
+              },
+            ),
+          ),
+        ],
+      ),
+    ],
   );
 }

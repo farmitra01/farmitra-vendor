@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
+import '../modules/Add_coupons/bindings/add_coupons_binding.dart';
+import '../modules/Add_coupons/views/add_coupons_view.dart';
+import '../modules/Advertisement/bindings/advertisement_binding.dart';
+import '../modules/Advertisement/views/advertisement_view.dart';
 import '../modules/Help_Center/views/faq_grid_pages_view.dart';
 import '../modules/Help_Center/views/faq_view.dart';
 import '../modules/Help_Center/views/help_center_view.dart';
@@ -48,6 +52,8 @@ import '../modules/registration/views/store_location_search_view.dart';
 import '../modules/registration/views/store_location_view.dart';
 import '../modules/registration/views/store_selecte_module_view.dart';
 import '../modules/registration/views/store_template_view.dart';
+import '../modules/splashPage/bindings/splash_page_binding.dart';
+import '../modules/splashPage/views/splash_page_view.dart';
 import '../modules/storeProfile/bindings/store_profile_binding.dart';
 import '../modules/storeProfile/views/about_view.dart';
 import '../modules/storeProfile/views/review_view.dart';
@@ -63,9 +69,8 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.LOGIN;
+  static const INITIAL = Routes.SPLASH_PAGE;
   // static const INITIAL = Routes.OTP;
-
   static final routes = [
     GetPage(name: _Paths.home, page: () => HomeView(), binding: HomeBinding()),
     GetPage(
@@ -160,6 +165,21 @@ class AppPages {
       name: _Paths.KHATA_BOOK,
       page: () => const KhataBookView(),
       binding: KhataBookBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_COUPONS,
+      page: () => const AddCouponsView(),
+      binding: AddCouponsBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADVERTISEMENT,
+      page: () => const AdvertisementView(),
+      binding: AdvertisementBinding(),
+    ),
+    GetPage(
+      name: _Paths.SPLASH_PAGE,
+      page: () => SplashPage(),
+      binding: SplashPageBinding(),
     ),
   ];
 }

@@ -56,149 +56,159 @@ class StoreTemplateView extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      children: [
-                        Obx(
-                          () => Container(
-                            height: 125,
-                            width: 125,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              color:
-                                  storeTemplateController
-                                      .storeTemplate[storeTemplateController
-                                          .selectedLogoIndex
-                                          .value]
-                                      .backgroundColor,
-                            ),
-                            child: Center(
-                              child: RichText(
-                                text: TextSpan(
-                                  children: <TextSpan>[
-                                    TextSpan(
-                                      text:
-                                          storeTemplateController
-                                              .firstName
-                                              .value,
-                                      style: GoogleFonts.montserrat(
-                                        color:
-                                            storeTemplateController
-                                                .storeTemplate[storeTemplateController
-                                                    .selectedLogoIndex
-                                                    .value]
-                                                .spanTextColor,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text:
-                                          storeTemplateController
-                                              .lastName
-                                              .value,
-                                      style: GoogleFonts.montserrat(
-                                        color:
-                                            AppColors.primaryGradinatMixColor,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Obx(
+                            () => Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                // borderRadius: BorderRadius.circular(100),
+                                color:
+                                    storeTemplateController
+                                        .storeTemplate[storeTemplateController
+                                            .selectedLogoIndex
+                                            .value]
+                                        .backgroundColor,
                               ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Profile',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 10),
-                    Column(
-                      children: [
-                        Obx(
-                          () => Container(
-                            height: 125,
-                            width: 180,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              image: DecorationImage(
-                                fit: BoxFit.fill,
-                                image: AssetImage(
-                                  storeTemplateController
-                                      .storeTemplate[storeTemplateController
-                                          .selectedBannerIndex
-                                          .value]
-                                      .bannerImage,
-                                ),
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                SizedBox(height: 15),
-                                Align(
-                                  alignment: Alignment.topCenter,
-                                  child: Obx(
-                                    () => RichText(
-                                      text: TextSpan(
-                                        children: <TextSpan>[
-                                          TextSpan(
-                                            text:
+                              child: CircleAvatar(
+                                backgroundColor: Colors.transparent,
+                                radius: 62,
+                                child: Center(
+                                  child: RichText(
+                                    text: TextSpan(
+                                      children: <TextSpan>[
+                                        TextSpan(
+                                          text:
+                                              storeTemplateController
+                                                  .firstName
+                                                  .value,
+                                          style: GoogleFonts.montserrat(
+                                            color:
                                                 storeTemplateController
-                                                    .firstName
-                                                    .value,
-                                            style: GoogleFonts.montserrat(
-                                              color:
-                                                  storeTemplateController
-                                                      .storeTemplate[storeTemplateController
-                                                          .selectedBannerIndex
-                                                          .value]
-                                                      .spanTextColor,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                                    .storeTemplate[storeTemplateController
+                                                        .selectedLogoIndex
+                                                        .value]
+                                                    .spanTextColor,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
                                           ),
-                                          TextSpan(
-                                            text:
-                                                storeTemplateController
-                                                    .lastName
-                                                    .value,
-                                            style: GoogleFonts.montserrat(
-                                              color:
-                                                  AppColors
-                                                      .primaryGradinatMixColor,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                        ),
+                                        TextSpan(
+                                          text:
+                                              storeTemplateController
+                                                  .lastName
+                                                  .value,
+                                          style: GoogleFonts.montserrat(
+                                            color:
+                                                AppColors
+                                                    .primaryGradinatMixColor,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Banner',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                          const SizedBox(height: 10),
+                          Text(
+                            'Profile',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                    ),
+                    // const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+
+                        children: [
+                          Obx(
+                            () => Container(
+                              height: 125,
+                              // width: 180,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                image: DecorationImage(
+                                  fit: BoxFit.fill,
+                                  image: AssetImage(
+                                    storeTemplateController
+                                        .storeTemplate[storeTemplateController
+                                            .selectedBannerIndex
+                                            .value]
+                                        .bannerImage,
+                                  ),
+                                ),
+                              ),
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 15),
+                                  Align(
+                                    alignment: Alignment.topCenter,
+                                    child: Obx(
+                                      () => RichText(
+                                        text: TextSpan(
+                                          children: <TextSpan>[
+                                            TextSpan(
+                                              text:
+                                                  storeTemplateController
+                                                      .firstName
+                                                      .value,
+                                              style: GoogleFonts.montserrat(
+                                                color:
+                                                    storeTemplateController
+                                                        .storeTemplate[storeTemplateController
+                                                            .selectedBannerIndex
+                                                            .value]
+                                                        .spanTextColor,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            TextSpan(
+                                              text:
+                                                  storeTemplateController
+                                                      .lastName
+                                                      .value,
+                                              style: GoogleFonts.montserrat(
+                                                color:
+                                                    AppColors
+                                                        .primaryGradinatMixColor,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Banner',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -234,17 +244,8 @@ class StoreTemplateView extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: 15),
-                      child: Text(
-                        'First Find Template:',
-                        style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
                     GestureDetector(
                       onTap: () {
                         showDialogForUpdateName(context);
@@ -252,7 +253,7 @@ class StoreTemplateView extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.only(left: 15),
                         child: Text(
-                          'Edit Profile & Banner Name...',
+                          'Edit Profile & Banner Name',
                           style: GoogleFonts.montserrat(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,

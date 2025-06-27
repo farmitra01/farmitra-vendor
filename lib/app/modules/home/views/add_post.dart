@@ -7,7 +7,6 @@ import 'package:farmitra/app/utils/global_widgets/vendor_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -17,190 +16,231 @@ class AddPost extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AddPostcontroller addPostcontroller = Get.put(AddPostcontroller());
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
     return Scaffold(
       appBar: VendorAppBar(title: 'Add Post'),
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 10),
-            CustomTextFormField(
-              hintText: "What's in your mind?",
-              keyboardType: TextInputType.text,
-              controller: addPostcontroller.comment,
-              validator: (p0) {},
-              maxLines: 3,
-              borderRadius: 10,
-            ),
-            SizedBox(height: 5),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  '0/250',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Select tags',
-              style: GoogleFonts.montserrat(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+      body: Form(
+        key: _formKey,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 10),
+              CustomTextFormField(
+                hintText: "What's in your mind?",
+                keyboardType: TextInputType.text,
+                controller: addPostcontroller.comment,
+                validator: addPostcontroller.validateComment,
+                maxLines: 3,
+                borderRadius: 10,
               ),
-            ),
-            SizedBox(height: 10),
-            SizedBox(
-              height: 80, // Increased height for multiple lines
-              child: Obx(
-                () => Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: List.generate(addPostcontroller.tags.length, (
-                    index,
-                  ) {
-                    bool isSelected = addPostcontroller.selectedTags.contains(
+              const SizedBox(height: 5),
+              Obx(
+                () => Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${addPostcontroller.commentLength.value}/100',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Select tags',
+                style: GoogleFonts.montserrat(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 80,
+                child: Obx(
+                  () => Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: List.generate(addPostcontroller.tags.length, (
                       index,
-                    );
-                    return GestureDetector(
-                      onTap: () {
-                        if (isSelected) {
-                          addPostcontroller.selectedTags.remove(index);
-                        } else {
-                          addPostcontroller.selectedTags.add(index);
-                        }
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 15,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color:
-                              isSelected
-                                  ? AppColors.primaryGradinatMixColor
-                                  : AppColors.white,
-                          border:
-                              isSelected
-                                  ? null
-                                  : Border.all(color: AppColors.border),
-                        ),
-                        child: Text(
-                          addPostcontroller.tags[index],
-                          style: TextStyle(
+                    ) {
+                      bool isSelected = addPostcontroller.selectedTags.contains(
+                        index,
+                      );
+                      return GestureDetector(
+                        onTap: () {
+                          if (isSelected) {
+                            addPostcontroller.selectedTags.remove(index);
+                          } else {
+                            addPostcontroller.selectedTags.add(index);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
                             color:
                                 isSelected
-                                    ? Colors.white
-                                    : AppColors.textPrimary,
+                                    ? AppColors.primaryGradinatMixColor
+                                    : AppColors.white,
+                            border:
+                                isSelected
+                                    ? null
+                                    : Border.all(color: AppColors.border),
+                          ),
+                          child: Text(
+                            addPostcontroller.tags[index],
+                            style: TextStyle(
+                              color:
+                                  isSelected
+                                      ? Colors.white
+                                      : AppColors.textPrimary,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }),
+                      );
+                    }),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 35),
-            GestureDetector(
-              onTap: () {
-                _uploadCertificateDialog(); // Show image source dialog on tap
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 8,
-                ),
-                child: DottedBorder(
-                  color: AppColors.border,
-                  dashPattern: [6, 3],
-                  borderType: BorderType.RRect,
-                  radius: Radius.circular(10),
-                  child: Container(
-                    height: 250,
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: AppColors.white,
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Obx(
-                          () =>
-                              addPostcontroller.selectedImage.value != null
-                                  ? Image.file(
-                                    addPostcontroller.selectedImage.value!,
-                                    height: 200,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                  )
-                                  : SvgPicture.asset(
-                                    'assets/icons/uploadicon.svg',
+              const SizedBox(height: 35),
+              GestureDetector(
+                onTap: () {
+                  _uploadImagesDialog();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 15,
+                    vertical: 8,
+                  ),
+                  child: DottedBorder(
+                    color: AppColors.border,
+                    dashPattern: const [6, 3],
+                    borderType: BorderType.RRect,
+                    radius: const Radius.circular(10),
+                    child: Container(
+                      height: 250,
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: AppColors.white,
+                      ),
+                      child: Obx(
+                        () =>
+                            addPostcontroller.selectedImages.isEmpty
+                                ? Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/icons/uploadicon.svg',
+                                    ),
+                                    Text(
+                                      'Upload Images',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      'JPEG, PNG less than 15MB',
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                                : SizedBox(
+                                  height: 250,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount:
+                                        addPostcontroller.selectedImages.length,
+                                    itemBuilder: (context, index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Stack(
+                                          children: [
+                                            Image.file(
+                                              addPostcontroller
+                                                  .selectedImages[index],
+                                              height: 200,
+                                              width: 150,
+                                              fit: BoxFit.cover,
+                                            ),
+                                            Positioned(
+                                              top: 0,
+                                              right: 0,
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  addPostcontroller
+                                                      .selectedImages
+                                                      .removeAt(index);
+                                                },
+                                                child: const Icon(
+                                                  Icons.cancel,
+                                                  color: Colors.red,
+                                                  size: 24,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
                                   ),
-                        ),
-                        Text(
-                          'Upload Image',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          'JPEG, PNG less than 15MB',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
+                                ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       bottomSheet: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-        child: CustomGradientButton(text: 'Add Post', onPressed: () {}),
+        child: CustomGradientButton(
+          text: 'Add Post',
+          onPressed: () async {
+            if (_formKey.currentState!.validate()) {
+              await addPostcontroller.addPost();
+            }
+          },
+        ),
       ),
     );
   }
 }
 
-void _uploadCertificateDialog() {
+void _uploadImagesDialog() {
   final AddPostcontroller addPostcontroller = Get.put(AddPostcontroller());
 
   showDialog(
-    context: Get.context!, // Since you're using GetX
+    context: Get.context!,
     builder: (BuildContext context) {
       return AlertDialog(
         title: Text(
-          'Select Image:-',
+          'Select Images',
           style: GoogleFonts.montserrat(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: AppColors.primaryGradinatMixColor,
           ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min, // To avoid the dialog being too large
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // If you need to add additional content here
-          ],
         ),
         actions: [
           Row(
@@ -208,22 +248,8 @@ void _uploadCertificateDialog() {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
-                  addPostcontroller.pickImage(ImageSource.camera);
-                },
-                child: Text(
-                  'Camera',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.primaryGradinatMixColor,
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  Get.back(); // Close dialog
-                  addPostcontroller.pickImage(ImageSource.gallery);
+                  Get.back();
+                  addPostcontroller.pickImages();
                 },
                 child: Text(
                   'Gallery',

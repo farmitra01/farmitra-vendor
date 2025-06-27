@@ -1,4 +1,3 @@
-
 import 'package:farmitra/app/data/models/registration_model/registration_model.dart';
 import 'package:get/get.dart';
 
@@ -37,8 +36,8 @@ class RegistrationController extends GetxController {
       imagePath: "assets/icons/registration_stepper_icons/profile.svg",
     ),
     Registration_Model(
-      title: "Store Details",
-      subtitle: "Provide basic details about your store",
+      title: "Business Details",
+      subtitle: "Provide basic details about your Business",
       imagePath: "assets/icons/registration_stepper_icons/store.svg",
     ),
     Registration_Model(
@@ -50,6 +49,6 @@ class RegistrationController extends GetxController {
       title: "Bank Details",
       subtitle: "Payment receiving details",
       imagePath: "assets/icons/registration_stepper_icons/bank.svg",
-    )
+    ),
   ];
 }

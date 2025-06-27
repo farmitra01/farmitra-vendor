@@ -8,15 +8,15 @@ import 'package:google_fonts/google_fonts.dart';
 
 class StoreDetailsView extends GetView<StoreDetailsController> {
   const StoreDetailsView({super.key});
-
   @override
   Widget build(BuildContext context) {
-    // Instantiate the controller
-    Get.put(StoreDetailsController());
-
+    final StoreDetailsController storeDetailsController = Get.put(
+      StoreDetailsController(),
+    );
     return Scaffold(
       appBar: CustomAppBar(
         automaticallyImplyLeading: true,
+
         onHelpTap: () => Get.toNamed('/help-center'),
         onTranslateTap: () => Get.toNamed('/add'),
       ),
@@ -26,7 +26,7 @@ class StoreDetailsView extends GetView<StoreDetailsController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Nature of business-",
+              "Nature of business",
               style: GoogleFonts.montserrat(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -42,74 +42,92 @@ class StoreDetailsView extends GetView<StoreDetailsController> {
               ),
             ),
             const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: controller.listContent.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () => controller.selectItem(index),
-                    child: Obx(
-                      () => Container(
-                        height: 100,
-                        margin: const EdgeInsets.symmetric(vertical: 4.0),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: controller.selectedIndex.value == index
-                                ? AppColors.primaryGradinatMixColor
-                                : AppColors.secondary,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        child: ListTile(
-                          isThreeLine: true,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 15,
-                            vertical: 8,
-                          ),
-                          title: Text(
-                            controller.listContent[index].title,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
-                              fontWeight: FontWeight.w500,
+            Obx(() {
+              if (controller.isLoading.value) {
+                return const Expanded(
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryGradinatMixColor,
+                    ),
+                  ),
+                );
+              }
+              if (controller.storeOptions.isEmpty) {
+                return const Expanded(
+                  child: Center(child: Text('No options available.')),
+                );
+              }
+              return Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: controller.storeOptions.length,
+                  itemBuilder: (context, index) {
+                    final item = controller.storeOptions[index];
+                    return Obx(
+                      () => GestureDetector(
+                        onTap: () => controller.selectItem(index),
+                        child: Container(
+                          height: 100,
+                          margin: const EdgeInsets.symmetric(vertical: 3.0),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color:
+                                  controller.selectedIndex.value == index
+                                      ? AppColors.primaryGradinatMixColor
+                                      : AppColors.secondary,
+                              width: 1.0,
                             ),
+                            borderRadius: BorderRadius.circular(15.0),
                           ),
-                          subtitle: Text(
-                            controller.listContent[index].subtitle,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary,
+                          child: ListTile(
+                            isThreeLine: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: 8,
                             ),
-                          ),
-                          trailing: Radio<int>(
-                            value: index,
-                            groupValue: controller.selectedIndex.value,
-                            activeColor: controller.selectedIndex.value == index
-                                ? AppColors.primaryGradinatMixColor
-                                : AppColors.secondary,
-                            onChanged: (int? value) {
-                              if (value != null) {
-                                controller.selectItem(value);
-                              }
-                            },
+                            title: Text(
+                              item.name ?? 'Unnamed',
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            subtitle: Text(
+                              item.desc ?? 'No description',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            trailing: Radio<int>(
+                              value: index,
+                              groupValue: controller.selectedIndex.value,
+                              activeColor: AppColors.primaryGradinatMixColor,
+                              onChanged: (int? value) {
+                                if (value != null) {
+                                  controller.selectItem(value);
+                                }
+                              },
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
+                    );
+                  },
+                ),
+              );
+            }),
           ],
         ),
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         child: CustomGradientButton(
           text: 'Proceed',
           onPressed: () {
-            if (controller.selectedIndex.value == 1) {
+            if (controller.selectedIndex.value == 2) {
+              print('Argument Data ${controller.previousSelectedValue.value}');
               Get.snackbar(
                 'Note',
                 'Coming Soon ... 🙏🙏',
@@ -129,6 +147,9 @@ class StoreDetailsView extends GetView<StoreDetailsController> {
               Get.toNamed(
                 '/store_select_module',
                 arguments: controller.previousSelectedValue.value,
+              );
+              print(
+                'Selected data on ${controller.previousSelectedValue.value}',
               );
             }
           },

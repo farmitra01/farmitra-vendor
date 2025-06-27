@@ -6,6 +6,7 @@ import 'package:farmitra/app/modules/home/views/feed.dart';
 import 'package:farmitra/app/modules/home/views/first_med_order.dart';
 import 'package:farmitra/app/modules/home/views/home_view.dart';
 import 'package:farmitra/app/modules/home/views/order_view.dart';
+import 'package:farmitra/app/modules/my_subscription/views/my_subscription_view.dart';
 import 'package:farmitra/app/modules/owner_profile/views/owner_profile_view.dart';
 import 'package:farmitra/app/modules/registration/controllers/store_category_controller.dart';
 import 'package:farmitra/app/modules/registration/controllers/store_selected_module_controller.dart';
@@ -54,14 +55,15 @@ class HomeBottomBarController extends GetxController {
 
   List<Widget> get pages => [
     HomeView(),
-    storeSelectedModuleController.PreviousSelectedValue == 'As a Retailer'
+    storeSelectedModuleController.previousSelectedValue == 'As a Retailer'
         ? OrderView()
         : Feed(),
 
     // storeCategoryController.previousPageGridTitle == 'Med'
     // ? FirstMedOrder()
-    ChatView(),
-    storeSelectedModuleController.PreviousSelectedValue == 'As a Retailer'
+    // ChatView(),
+    MySubscriptionView(),
+    storeSelectedModuleController.previousSelectedValue == 'As a Retailer'
         ? ProfileView()
         : ExpertProfile(),
   ];

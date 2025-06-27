@@ -24,8 +24,10 @@ class Reply extends StatelessWidget {
       tag: 'ReplyController',
     );
     // Safely handle Get.arguments
-    final int? tabIndex = Get.arguments is int ? Get.arguments as int : null;
-    print('Tab index value =  ${tabIndex}');
+    final Map<String, dynamic> arguments = Get.arguments ?? {};
+    final Map<String, dynamic> appointmentData = arguments['appointment'] ?? {};
+    final int globalIndex = arguments['globalIndex'] ?? -1;
+    final int tabIndex = arguments['tabIndex'] ?? -1;
     return Scaffold(
       appBar: const VendorAppBar(title: 'Reply'),
       body: SingleChildScrollView(
@@ -110,13 +112,25 @@ class Reply extends StatelessWidget {
                   onTap: () {
                     Get.to(
                       () => const AppointmentDetails(),
-                      arguments: tabIndex,
+                    arguments: {
+                       'appointment': appointmentData,
+                                          'globalIndex': globalIndex,
+                                          'tabIndex': tabIndex,
+                    }
                     );
                   },
                   child: const Icon(
                     Icons.arrow_forward_ios,
                     color: AppColors.primaryGradinatMixColor,
                   ),
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Suggest Product',
+                style: GoogleFonts.montserrat(
+                  fontSize: 12,
+                  color: AppColors.textPrimary,
                 ),
               ),
               SizedBox(height: 10),

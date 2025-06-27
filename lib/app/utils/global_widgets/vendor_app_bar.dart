@@ -34,7 +34,7 @@ class VendorAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
       leadingWidth: showTitle
-          ? titleWidth + 60
+          ? titleWidth + 75
           : 50, // Adjust leading width based on title visibility
       backgroundColor: AppColors.appBarColor,
       automaticallyImplyLeading: false,

@@ -1,14 +1,12 @@
 import 'package:dotted_border/dotted_border.dart';
+import 'package:farmitra/app/ApiModels/getModuleSubCategory.dart';
 import 'package:farmitra/app/constants/app_colors.dart';
-import 'package:farmitra/app/data/models/store_category_model/store_category_model.dart';
-import 'package:farmitra/app/modules/kyc_documents/views/rental_kyc.dart';
 import 'package:farmitra/app/modules/registration/controllers/store_category_controller.dart';
 import 'package:farmitra/app/modules/registration/controllers/store_selected_module_controller.dart';
-import 'package:farmitra/app/modules/registration/views/retailer_store_details_form.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/custome_appBar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -23,19 +21,26 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
 
   @override
   Widget build(BuildContext context) {
-    // Handle null arguments with a fallback
     final previousPageGridTitle =
-        Get.arguments?.toString() ?? 'Default Category';
+        Get.arguments?.toString() ?? 'id:0,name:Default Category';
+    String? categoryId;
+    String? categoryName;
+    if (previousPageGridTitle.isNotEmpty) {
+      final parts = previousPageGridTitle.split(',');
+      for (var part in parts) {
+        if (part.startsWith('id:')) {
+          categoryId = part.split(':')[1];
+        } else if (part.startsWith('name:')) {
+          categoryName = part.split(':')[1];
+        }
+      }
+    }
 
     return Scaffold(
       appBar: CustomAppBar(
         automaticallyImplyLeading: true,
-        onHelpTap: () {
-          Get.toNamed('/help-center');
-        },
-        onTranslateTap: () {
-          Get.toNamed('/add');
-        },
+        onHelpTap: () => Get.toNamed('/help-center'),
+        onTranslateTap: () => Get.toNamed('/add'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -64,7 +69,7 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              previousPageGridTitle,
+                              categoryName ?? 'Unknown',
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                               style: GoogleFonts.montserrat(
@@ -76,14 +81,13 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
                           ),
                           const SizedBox(width: 10),
                           GestureDetector(
-                            onTap: () {
-                              Get.back();
-                            },
+                            onTap: () => Get.back(),
                             child: Text(
                               'Edit     ',
                               style: GoogleFonts.montserrat(
                                 color: AppColors.primaryGradinatMixColor,
                                 fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -98,7 +102,7 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
                       padding: const EdgeInsets.all(2.0),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
@@ -145,7 +149,7 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
               ),
               const SizedBox(height: 5),
               Text(
-                'Select Rental Services Category -',
+                'Select Expert Service Categories -',
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -163,280 +167,146 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
               ),
               const SizedBox(height: 10),
               Obx(() {
-                if (controller.gridContent.isEmpty &&
-                    controller.rentalCategoriesList.isEmpty &&
-                    controller.droneCategoryList.isEmpty &&
-                    controller.inputSuppliesCategoriesList.isEmpty &&
-                    controller.farmEquipmentMachinaryCategoriesList.isEmpty &&
-                    controller.farmToolsCategoriesList.isEmpty &&
-                    controller
-                        .agriServicesInfrastructureCategoriesList
-                        .isEmpty &&
-                    controller.animalHusbandryCategoriesList.isEmpty &&
-                    controller.organicNaturalFarmingCategoriesList.isEmpty &&
-                    controller
-                        .ValueAdditionFoodProcessingCategoriesList
-                        .isEmpty) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+                if (controller.isLoading.value) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryGradinatMixColor,
+                    ),
+                  );
+                } else if (controller.gridContent.isEmpty) {
+                  return const Center(
+                    child: Text('No subcategories available'),
+                  );
+                } else {
+                  return GridView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 0.85,
+                        ),
+                    itemCount: controller.gridContent.length,
+                    itemBuilder: (context, index) {
+                      return Obx(() {
+                        final item = controller.gridContent[index];
+                        final isSelected =
+                            controller.selectedItems.contains(index) ||
+                            controller.selectedIndex.value == index;
 
-                // Use null-safe trim with fallback
-                final title = previousPageGridTitle.trim();
-
-                final isRental = title == 'Rental';
-                final isDrone = title == 'Drone';
-                final isRetailer = title == 'Input Supplies';
-                final isFarmEquipment = title == 'Farm Equipment & Machinery';
-                final isFarmTool = title == 'Farm Tools';
-                final isAgriServices =
-                    title == 'Agri-Services & Infrastructure';
-                final isAnimalHusbandry = title == 'Animal Husbandry';
-                final isOrganicFarming = title == 'Organic & Natural Farming';
-                final isValueAddition =
-                    title == 'Value Addition / Food Processing';
-
-                final itemCount =
-                    isRental
-                        ? controller.rentalCategoriesList.length
-                        : isDrone
-                        ? controller.droneCategoryList.length
-                        : isRetailer
-                        ? controller.inputSuppliesCategoriesList.length
-                        : isFarmEquipment
-                        ? controller.farmEquipmentMachinaryCategoriesList.length
-                        : isFarmTool
-                        ? controller.farmToolsCategoriesList.length
-                        : isAgriServices
-                        ? controller
-                            .agriServicesInfrastructureCategoriesList
-                            .length
-                        : isAnimalHusbandry
-                        ? controller.animalHusbandryCategoriesList.length
-                        : isOrganicFarming
-                        ? controller.organicNaturalFarmingCategoriesList.length
-                        : isValueAddition
-                        ? controller
-                            .ValueAdditionFoodProcessingCategoriesList
-                            .length
-                        : controller.gridContent.length;
-
-                return GridView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    childAspectRatio: 0.85,
-                  ),
-                  itemCount: itemCount,
-                  itemBuilder: (context, index) {
-                    String? svgImage;
-                    IconData? iconData;
-                    String label = '';
-                    bool setImage = false;
-
-                    if (isRental) {
-                      iconData = controller.rentalCategoriesList[index]['Icon'];
-                      label = controller.rentalCategoriesList[index]['name'];
-                    } else if (isDrone) {
-                      svgImage =
-                          controller.droneCategoryList[index]['svgImaga'];
-                      label = controller.droneCategoryList[index]['name'];
-                    } else if (isRetailer) {
-                      svgImage =
-                          controller
-                              .inputSuppliesCategoriesList[index]
-                              .Imagepath;
-                      label =
-                          controller.inputSuppliesCategoriesList[index].text;
-                      setImage = svgImage != null && svgImage.isNotEmpty;
-                    } else if (isFarmEquipment) {
-                      svgImage =
-                          controller
-                              .farmEquipmentMachinaryCategoriesList[index]
-                              .Imagepath;
-                      label =
-                          controller
-                              .farmEquipmentMachinaryCategoriesList[index]
-                              .text;
-                      setImage = svgImage != null && svgImage.isNotEmpty;
-                    } else if (isFarmTool) {
-                      svgImage =
-                          controller.farmToolsCategoriesList[index].Imagepath;
-                      label = controller.farmToolsCategoriesList[index].text;
-                      setImage = svgImage != null && svgImage.isNotEmpty;
-                    } else if (isAgriServices) {
-                      svgImage =
-                          controller
-                              .agriServicesInfrastructureCategoriesList[index]
-                              .Imagepath;
-                      label =
-                          controller
-                              .agriServicesInfrastructureCategoriesList[index]
-                              .text;
-                      setImage = svgImage != null && svgImage.isNotEmpty;
-                    } else if (isAnimalHusbandry) {
-                      svgImage =
-                          controller
-                              .animalHusbandryCategoriesList[index]
-                              .Imagepath;
-                      label =
-                          controller.animalHusbandryCategoriesList[index].text;
-                      setImage = svgImage != null && svgImage.isNotEmpty;
-                    } else if (isOrganicFarming) {
-                      svgImage =
-                          controller
-                              .organicNaturalFarmingCategoriesList[index]
-                              .Imagepath;
-                      label =
-                          controller
-                              .organicNaturalFarmingCategoriesList[index]
-                              .text;
-                      setImage = svgImage != null && svgImage.isNotEmpty;
-                    } else if (isValueAddition) {
-                      svgImage =
-                          controller
-                              .ValueAdditionFoodProcessingCategoriesList[index]
-                              .Imagepath;
-                      label =
-                          controller
-                              .ValueAdditionFoodProcessingCategoriesList[index]
-                              .text;
-                      setImage = svgImage != null && svgImage.isNotEmpty;
-                    } else {
-                      final item = controller.gridContent[index];
-                      svgImage = item.Imagepath;
-                      label = item.text;
-                      setImage = svgImage != null && svgImage.isNotEmpty;
-                    }
-
-                    return Obx(() {
-                      final isSelected = controller.selectedItems.contains(
-                        index,
-                      );
-
-                      return GestureDetector(
-                        onTap: () => controller.toggleSelection(index),
-                        child: Container(
-                          margin: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color:
-                                  isSelected
-                                      ? AppColors.primaryGradinatMixColor
-                                      : AppColors.border,
+                        return GestureDetector(
+                          onTap: () {
+                            controller.selectItem(index);
+                            controller.toggleSelection(index);
+                          },
+                          child: Container(
+                            // margin: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color:
+                                    isSelected
+                                        ? AppColors.primaryGradinatMixColor
+                                        : AppColors.border,
+                              ),
                             ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 10, top: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (isRental && iconData != null)
-                                  Icon(
-                                    iconData,
-                                    color:
-                                        isSelected
-                                            ? AppColors.textPrimary
-                                            : AppColors.textSecondary,
-                                  )
-                                else if ((isDrone ||
-                                        isRetailer ||
-                                        isFarmEquipment ||
-                                        isFarmTool ||
-                                        isAgriServices ||
-                                        isAnimalHusbandry ||
-                                        isOrganicFarming ||
-                                        isValueAddition ||
-                                        setImage) &&
-                                    svgImage != null)
-                                  SvgPicture.asset(
-                                    svgImage,
-                                    height: 28,
-                                    color:
-                                        isSelected
-                                            ? AppColors.textPrimary
-                                            : AppColors.textSecondary,
-                                  )
-                                else
-                                  const Icon(Icons.star_border_outlined),
-                                const SizedBox(height: 5),
-                                Text(
-                                  label,
-                                  maxLines: 3,
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color:
-                                        isSelected
-                                            ? AppColors.textPrimary
-                                            : AppColors.textSecondary,
-                                  ),
-                                ),
-                                const Spacer(),
-                                Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                      right: 5,
-                                      bottom: 5,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 10, top: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (item.imagePath != null &&
+                                      item.imagePath!.isNotEmpty)
+                                    SvgPicture.asset(
+                                      item.imagePath!,
+                                      height: 28,
+                                      color:
+                                          isSelected
+                                              ? AppColors.textPrimary
+                                              : AppColors.textSecondary,
+                                    )
+                                  else
+                                    Icon(
+                                      Icons.category,
+                                      color:
+                                          isSelected
+                                              ? AppColors.textPrimary
+                                              : AppColors.textSecondary,
                                     ),
-                                    child: GestureDetector(
-                                      onTap: () => showInfoBottomSheet(context),
-                                      child: const Icon(
-                                        Icons.error_outline_rounded,
-                                        size: 20,
-                                        color: AppColors.textSecondary,
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    item.name ?? 'Unknown',
+                                    maxLines: 3,
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color:
+                                          isSelected
+                                              ? AppColors.textPrimary
+                                              : AppColors.textSecondary,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                        right: 5,
+                                        bottom: 5,
+                                      ),
+                                      child: GestureDetector(
+                                        onTap:
+                                            () => showInfoBottomSheet(context),
+                                        child: const Icon(
+                                          Icons.error_outline_rounded,
+                                          size: 20,
+                                          color: AppColors.textSecondary,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    });
-                  },
-                );
-              }),
-              GestureDetector(
-                onTap: () {
-                  showBottomSheet(context);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 8,
-                  ),
-                  child: DottedBorder(
-                    borderType: BorderType.RRect,
-                    color: AppColors.border,
-                    radius: const Radius.circular(10),
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        height: 110,
-                        width: 90,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(
-                              Icons.add_circle_sharp,
-                              color: AppColors.secondary,
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              'Custom',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.secondary,
+                                ],
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        );
+                      });
+                    },
+                  );
+                }
+              }),
+              SizedBox(height: 10),
+              GestureDetector(
+                onTap: () => showBottomSheet(context, categoryId: categoryId),
+                child: DottedBorder(
+                  borderType: BorderType.RRect,
+                  color: AppColors.border,
+                  radius: const Radius.circular(10),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      height: 120,
+                      width: 95,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.add_circle_sharp,
+                            color: AppColors.secondary,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Custom',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.secondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -454,13 +324,24 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
             CustomGradientButton(
               text: 'Proceed',
               onPressed: () {
-                storeSelectedModuleController.PreviousSelectedValue ==
-                        'As a Retailer'
-                    ? Get.to(() => RetailerStoreDetailsFrom())
-                    : Get.toNamed(
-                      '/store_details_form',
-                      arguments: previousPageGridTitle,
+                if (controller.selectedIndex.value >= 0 &&
+                    controller.gridContent.isNotEmpty) {
+                  final selectedItem =
+                      controller.gridContent[controller.selectedIndex.value];
+                  final argument =
+                      'id:${selectedItem.id},name:${selectedItem.name ?? 'Unknown'}';
+                  if (storeSelectedModuleController.previousSelectedValue ==
+                      'As a Retailer') {
+                    Get.toNamed(
+                      '/retailer_store_details_form',
+                      arguments: argument,
                     );
+                  } else {
+                    Get.toNamed('/store_details_form', arguments: argument);
+                  }
+                } else {
+                  Get.snackbar('Error', 'Please select a category');
+                }
               },
             ),
             const SizedBox(height: 10),
@@ -479,8 +360,7 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
   }
 }
 
-// Rest of the code (showBottomSheet and showInfoBottomSheet) remains unchanged
-void showBottomSheet(BuildContext context) {
+void showBottomSheet(BuildContext context, {String? categoryId}) {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final StoreCategoryController controller = Get.find();
 
@@ -520,9 +400,7 @@ void showBottomSheet(BuildContext context) {
                 ),
                 const Spacer(),
                 GestureDetector(
-                  onTap: () {
-                    Get.back();
-                  },
+                  onTap: () => Get.back(),
                   child: const Icon(Icons.cancel, color: Color(0xff636363)),
                 ),
               ],
@@ -594,12 +472,19 @@ void showBottomSheet(BuildContext context) {
                 ),
                 onPressed: () {
                   if (formKey.currentState!.validate()) {
-                    var item = StoreCategoryModel(
-                      text: controller.customeCategory.text,
-                      Imagepath:
-                          'assets/icons/store_category_grid_icons/grocery&general.svg',
+                    final now = DateTime.now().toIso8601String();
+                    final item = ModuleSubCategory(
+                      id: -(controller.gridContent.length + 1),
+                      name: controller.customeCategory.text,
+                      moduleCategoryId: int.tryParse(categoryId ?? '0') ?? 0,
+                      description: 'Custom category',
+                      status: 'active',
+                      createdAt: now,
+                      updatedAt: now,
+                      imagePath: 'assets/svgs/default_category.svg',
                     );
                     controller.addGridItem(item);
+                    controller.selectItem(controller.gridContent.length - 1);
                     Get.back();
                     controller.customeCategory.clear();
                   }
@@ -672,9 +557,7 @@ void showInfoBottomSheet(BuildContext context) {
               ),
               const Spacer(),
               GestureDetector(
-                onTap: () {
-                  Get.back();
-                },
+                onTap: () => Get.back(),
                 child: const Icon(
                   Icons.cancel_sharp,
                   color: AppColors.primaryGradinatMixColor,
@@ -685,7 +568,7 @@ void showInfoBottomSheet(BuildContext context) {
           const SizedBox(height: 15),
           Center(
             child: Text(
-              'Baby Care/Beauty/Bath Essentials/Breakfast, Snacks & Sweets/Ready To Eat/Milk & Dairy Products/Grocery Item/Oral Care/Spices, Sauces & Spreads/Beverages & Health Drinks/Home Care & Cleaning/Household/Fragrances/Stationary/Organic.',
+              'Select a subcategory that best describes your service or product.',
               style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
