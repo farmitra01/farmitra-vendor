@@ -1,5 +1,6 @@
 // import 'package:farmitra/app/data/models/store_profile/views/profile_view.dart';
 import 'package:farmitra/app/data/models/store_about_model/store_about_model.dart';
+import 'package:farmitra/app/modules/POS/views/pos_view.dart';
 import 'package:farmitra/app/modules/home/views/Appointment.dart';
 import 'package:farmitra/app/modules/home/views/chat_view.dart';
 import 'package:farmitra/app/modules/home/views/feed.dart';
@@ -14,6 +15,7 @@ import 'package:farmitra/app/modules/storeProfile/views/expert_profile.dart';
 import 'package:farmitra/app/modules/storeProfile/views/profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 class HomeBottomBarController extends GetxController {
   //TODO: Implement HomeBottomBarController
@@ -25,14 +27,13 @@ class HomeBottomBarController extends GetxController {
     StoreSelectedModuleController(),
   );
   var previousPageGridTitle = Get.arguments;
+  var box = GetStorage();
 
   final count = 0.obs;
   @override
   void onInit() {
     super.onInit();
-    print(
-      'previous page content in home Controller = ${storeCategoryController.previousPageGridTitle}',
-    );
+    print('Stored Role ${box.read('user_role')}');
   }
 
   @override
@@ -55,17 +56,15 @@ class HomeBottomBarController extends GetxController {
 
   List<Widget> get pages => [
     HomeView(),
-    storeSelectedModuleController.previousSelectedValue == 'As a Retailer'
-        ? OrderView()
-        : Feed(),
+    // storeSelectedModuleController.previousSelectedValue == 'As a Retailer'
+    box.read('user_role') == 'Vendor' ? OrderView() : Feed(),
 
-    // storeCategoryController.previousPageGridTitle == 'Med'
-    // ? FirstMedOrder()
-    // ChatView(),
-    MySubscriptionView(),
-    storeSelectedModuleController.previousSelectedValue == 'As a Retailer'
-        ? ProfileView()
-        : ExpertProfile(),
+    storeCategoryController.previousPageGridTitle == 'Med'
+    ? FirstMedOrder():
+    ChatView(),
+    // box.read('user_role') == 'Vendor' ? PosView() : MySubscriptionView(),
+    // storeSelectedModuleController.previousSelectedValue == 'As a Retailer'
+    box.read('user_role') == 'Vendor' ? ProfileView() : ExpertProfile(),
   ];
   // ProfileView()
   // previousPageGridTitle == "Med" ? FirstMedOrder() : OrderView(),

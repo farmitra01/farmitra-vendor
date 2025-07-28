@@ -16,7 +16,9 @@ class KycView extends GetView {
           padding: const EdgeInsets.only(left: 10, top: 10, bottom: 10),
           child: GestureDetector(
             onTap: () {
-              Get.back();
+              Get.closeAllSnackbars();
+              Get.back(closeOverlays: true);
+              ();
             },
             child: Container(
               decoration: BoxDecoration(

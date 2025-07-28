@@ -546,7 +546,9 @@ Widget buildCashAdjust() {
       children: [
         GestureDetector(
           onTap: () {
-            Get.back();
+            Get.closeAllSnackbars();
+            Get.back(closeOverlays: true);
+            ();
           },
           child: Icon(Icons.close, color: AppColors.error),
         ),
@@ -586,7 +588,9 @@ Widget buildCashAdjust() {
               text: 'Cancel',
               borderRadius: 10,
               onPressed: () {
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
             ),
           ),
@@ -596,7 +600,9 @@ Widget buildCashAdjust() {
               text: 'OK',
               borderRadius: 10,
               onPressed: () {
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
                 walletController.isWithdrawal.value = true;
               },
             ),
@@ -773,7 +779,9 @@ Widget buildWithdrawal() {
                   'status': 'Pending',
                 });
                 walletController.account.clear();
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               } else {
                 Get.snackbar('Error', 'Please enter a valid amount');
               }

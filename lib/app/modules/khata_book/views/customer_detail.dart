@@ -43,7 +43,9 @@ class CustomerDetail extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () {
-                  Get.back();
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  ();
                 },
                 child: CircleAvatar(
                   backgroundColor: AppColors.white,
@@ -621,7 +623,7 @@ class CustomerDetail extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                              ],          
+                              ],
                             ),
                           ),
                         ),
@@ -740,7 +742,9 @@ Widget buildRequestMoney(BuildContext context) {
               text: 'Submit',
               onPressed: () {
                 customerDetailController.addTransection();
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
             ),
             SizedBox(height: 20),

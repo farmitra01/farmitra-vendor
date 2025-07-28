@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -44,7 +45,9 @@ class _CustomUploadImageWidgetState extends State<CustomUploadImageWidget> {
                 title: Text('Gallery'),
                 onTap: () {
                   _pickImage(ImageSource.gallery);
-                  Navigator.of(context).pop();
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  ();
                 },
               ),
               ListTile(
@@ -52,7 +55,9 @@ class _CustomUploadImageWidgetState extends State<CustomUploadImageWidget> {
                 title: Text('Camera'),
                 onTap: () {
                   _pickImage(ImageSource.camera);
-                  Navigator.of(context).pop();
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  ();
                 },
               ),
             ],
@@ -91,37 +96,40 @@ class _CustomUploadImageWidgetState extends State<CustomUploadImageWidget> {
         child: Container(
           height: widget.height,
           width: widget.width,
-          child: _selectedImage != null
-              ? Image.file(
-                  _selectedImage!,
-                  fit: BoxFit.cover,
-                  width: widget.width,
-                  height: widget.height,
-                )
-              : Column(
-                  // crossAxisAlignment: CrossAxisAlignment.center,
-                  // mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset('assets/icons/uploadicon.svg'),
-                    SizedBox(height: 5),
-                    Text(
-                      widget.label, // Custom label
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.montserrat(
-                          fontSize: 12, fontWeight: FontWeight.w600),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      widget.size,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.textSecondary,
+          child:
+              _selectedImage != null
+                  ? Image.file(
+                    _selectedImage!,
+                    fit: BoxFit.cover,
+                    width: widget.width,
+                    height: widget.height,
+                  )
+                  : Column(
+                    // crossAxisAlignment: CrossAxisAlignment.center,
+                    // mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset('assets/icons/uploadicon.svg'),
+                      SizedBox(height: 5),
+                      Text(
+                        widget.label, // Custom label
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.montserrat(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                      SizedBox(height: 4),
+                      Text(
+                        widget.size,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.montserrat(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
         ),
       ),
     );

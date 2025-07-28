@@ -5,6 +5,7 @@ import 'package:farmitra/app/data/models/home_model/sales_report_model.dart';
 import 'package:farmitra/app/modules/registration/controllers/store_category_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 class HomeController extends GetxController {
   //TODO: Implement HomeController
@@ -12,9 +13,11 @@ class HomeController extends GetxController {
     StoreCategoryController(),
   );
   final count = 0.obs;
+  final box = GetStorage();
   @override
   void onInit() {
     super.onInit();
+    print('Stored Vendor Details ${box.read('user_details')} ');
   }
 
   @override
@@ -220,13 +223,19 @@ class HomeController extends GetxController {
       gridItemText: 'Orders on Hold',
       gridItemIcon: Icons.hourglass_top_outlined,
     ),
+
     QuickAccessModel(
       gridItemText: 'Invoice',
       gridItemIcon: Icons.receipt_outlined,
     ),
+
     QuickAccessModel(
       gridItemText: 'Sales',
       gridItemIcon: Icons.discount_outlined,
+    ),
+    QuickAccessModel(
+      gridItemText: 'My Subscription',
+      gridItemIcon: Icons.local_shipping_outlined,
     ),
     QuickAccessModel(
       gridItemText: 'Parties',

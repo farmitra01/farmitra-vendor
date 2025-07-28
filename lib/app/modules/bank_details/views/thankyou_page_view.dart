@@ -82,11 +82,11 @@ class ThankyouPageView extends GetView {
           child: CustomGradientButton(
             text: 'Back to home',
             onPressed: () {
-              Get.toNamed(
+              Get.offAllNamed(
                 '/homeBottomBarView',
                 arguments: previousPageGridTitle,
               );
-              print('Argument ${previousPageGridTitle}');
+              // print('Argument ${previousPageGridTitle}');
             },
           ),
         ),

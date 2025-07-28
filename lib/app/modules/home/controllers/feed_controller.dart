@@ -4,6 +4,7 @@ import 'package:farmitra/app/ApiModels/getAllComment.dart';
 import 'package:farmitra/app/ApiModels/getPost.dart';
 import 'package:farmitra/app/ApiModels/postComment.dart';
 import 'package:farmitra/app/ApiModels/postReport.dart';
+import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:farmitra/app/data/remote/remote_api.dart';
 import 'package:farmitra/app/services/network_services.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ class FeedController extends GetxController with GetTickerProviderStateMixin {
   final reply = TextEditingController();
   final report = TextEditingController();
   final RxInt reportCharCount = 0.obs;
+  bool _hasFetchedComments = false;
 
   final List<Map<String, dynamic>> action = [
     {'icon': Icons.favorite_outline_outlined, 'count': '45'},
@@ -194,7 +196,9 @@ class FeedController extends GetxController with GetTickerProviderStateMixin {
           response['data']['message'] ?? 'Failed to submit report',
         );
         report.clear();
-        Get.back();
+        Get.closeAllSnackbars();
+        Get.back(closeOverlays: true);
+        ();
       } else {
         Get.snackbar(
           'Error',
@@ -306,7 +310,10 @@ class FeedController extends GetxController with GetTickerProviderStateMixin {
         final postResponse = PostResponse.fromJson(response['data']);
         posts.assignAll(postResponse.data);
       } else {
-        showErrorSnackbar('Error', response['data']['message'] ?? 'Failed to fetch posts');
+        showErrorSnackbar(
+          'Error',
+          response['data']['message'] ?? 'Failed to fetch posts',
+        );
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to fetch posts: $e');

@@ -1,5 +1,8 @@
+import 'dart:io';
 
 import 'package:farmitra/app/constants/app_colors.dart';
+import 'package:farmitra/app/modules/kyc_documents/views/rental_kyc.dart';
+import 'package:farmitra/app/modules/registration/views/RetailerStoreDetailsFrom1.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/custome_appBar.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +13,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../controllers/registration_controller.dart';
 
@@ -19,126 +27,279 @@ class RegistrationView extends GetView<RegistrationController> {
   final RegistrationController controller = Get.put(RegistrationController());
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        automaticallyImplyLeading: false,
-        onHelpTap: () {
-          Get.toNamed('/help-center');
-        },
-        onTranslateTap: () {
-          Get.toNamed('/add');
-        },
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
-                children: [
-                  FlutterCarousel(
-                    options: CarouselOptions(
-                      height: 200.0,
-                      autoPlay: true,
-                      enlargeCenterPage: true,
-                      showIndicator: true,
-                      slideIndicator: CircularSlideIndicator(
-                        slideIndicatorOptions: SlideIndicatorOptions(
-                          indicatorBackgroundColor: AppColors.secondary,
-                          currentIndicatorColor:
-                              AppColors.primaryGradinatMixColor,
-                          enableAnimation: true,
+    print('crusel list ${controller.mediaList.length}');
+    return PopScope(
+      canPop: false, // prevents default back behavior
+      onPopInvoked: (didPop) {
+        if (!didPop) {
+          Future.microtask(() async {
+            final shouldExit =
+                await Get.dialog<bool>(
+                  AlertDialog(
+                    title: const Text('Are you sure?'),
+                    content: const Text('Do you want to close the app?'),
+                    actions: [
+                      TextButton(
+                        onPressed:
+                            () => Get.back(closeOverlays: true, result: false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed:
+                            () => Get.back(closeOverlays: true, result: true),
+                        child: const Text('Yes'),
+                      ),
+                    ],
+                  ),
+                ) ??
+                false;
+
+            if (shouldExit) {
+              Get.closeAllSnackbars();
+              Get.back(closeOverlays: true); // or SystemNavigator.pop()
+            }
+          });
+        }
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          automaticallyImplyLeading: false,
+          onHelpTap: () {
+            Get.toNamed('/help-center');
+          },
+          onTranslateTap: () {
+            Get.toNamed('/add');
+          },
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Obx(() {
+                  final mediaList = controller.mediaList;
+                  return Stack(
+                    children: [
+                      FlutterCarousel(
+                        options: CarouselOptions(
+                          height: 200,
+                          autoPlay: !controller.isVideoPlaying.value,
+                          enlargeCenterPage: true,
+                          enableInfiniteScroll: true,
+                          showIndicator: true,
+                          onPageChanged: (index, reason) {
+                            controller.currentIndex.value = index;
+                          },
+                          slideIndicator: CircularSlideIndicator(
+                            slideIndicatorOptions: SlideIndicatorOptions(
+                              currentIndicatorColor:
+                                  AppColors.primaryGradinatMixColor,
+                              indicatorBackgroundColor: Colors.grey,
+                            ),
+                          ),
+                        ),
+                        items:
+                            mediaList.isEmpty
+                                ? [
+                                  // Show fallback if list is empty
+                                  Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      border: Border.all(color: Colors.grey),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      "No media available",
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ]
+                                : List.generate(mediaList.length, (index) {
+                                  final media = mediaList[index];
+                                  final ytController =
+                                      controller.youtubeControllers[index];
+                                  final isVideo =
+                                      media.videoLink?.isNotEmpty == true;
+                                  final isImage =
+                                      media.mediaUrl?.isNotEmpty == true;
+
+                                  return SizedBox(
+                                    width: double.infinity,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        border: Border.all(color: Colors.grey),
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child:
+                                            isVideo
+                                                ? YoutubePlayerBuilder(
+                                                  player: YoutubePlayer(
+                                                    actionsPadding:
+                                                        EdgeInsets.all(0),
+                                                    controller: ytController,
+                                                    showVideoProgressIndicator:
+                                                        true,
+                                                    onReady: () {
+                                                      ytController.addListener(() {
+                                                        final isPlaying =
+                                                            ytController
+                                                                .value
+                                                                .isPlaying;
+                                                        if (controller
+                                                                .isVideoPlaying
+                                                                .value !=
+                                                            isPlaying) {
+                                                          controller
+                                                              .isVideoPlaying
+                                                              .value = isPlaying;
+                                                        }
+                                                      });
+                                                    },
+                                                  ),
+                                                  builder:
+                                                      (context, player) =>
+                                                          player,
+                                                )
+                                                : isImage
+                                                ? Image.network(
+                                                  media.mediaUrl!,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder:
+                                                      (
+                                                        _,
+                                                        __,
+                                                        ___,
+                                                      ) => Image.asset(
+                                                        'assets/images/registration_banner_02.jpg',
+                                                      ),
+                                                )
+                                                : Center(
+                                                  child: Text(
+                                                    "Media not available",
+                                                    style:
+                                                        GoogleFonts.montserrat(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: Colors.grey,
+                                                        ),
+                                                  ),
+                                                ),
+                                      ),
+                                    ),
+                                  );
+                                }),
+                      ),
+
+                      /// PDF Download button
+                      Positioned(
+                        bottom: 0,
+                        left: 15,
+                        child: GestureDetector(
+                          onTap: () async {
+                            if (mediaList.isEmpty) {
+                              Get.snackbar('Unavailable', 'No PDF found');
+                              return;
+                            }
+                            final currentMedia =
+                                mediaList[controller.currentIndex.value];
+                            final pdfUrl = currentMedia.pdfLink;
+                            if (pdfUrl != null && pdfUrl.isNotEmpty) {
+                              final Uri uri = Uri.parse(pdfUrl);
+                              if (await canLaunchUrl(uri)) {
+                                await launchUrl(
+                                  uri,
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              } else {
+                                Get.snackbar(
+                                  'Error',
+                                  'Could not open PDF link',
+                                );
+                              }
+                            } else {
+                              Get.snackbar(
+                                'Unavailable',
+                                'PDF not found for this slide',
+                              );
+                            }
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: AppColors.lightGrey,
+                            ),
+                            child: Obx(() {
+                              final mediaList = controller.mediaList;
+                              final index = controller.currentIndex.value;
+                              final pdfTitle =
+                                  (mediaList.isNotEmpty &&
+                                          index < mediaList.length)
+                                      ? mediaList[index].pdfTitle ?? 'PDF'
+                                      : 'PDF';
+                              return Text(
+                                pdfTitle,
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.primaryGradinatMixColor,
+                                ),
+                              );
+                            }),
+                          ),
                         ),
                       ),
-                    ),
-                    items: [
-                      'assets/images/registration_banner_01.jpg',
-                      'assets/images/registration_banner_02.jpg',
-                      'assets/images/registration_banner_03.avif',
-                    ].map(
-                      (imagePath) {
-                        return Builder(
-                          builder: (BuildContext context) {
-                            return Container(
-                              width: MediaQuery.of(context).size.width,
-                              decoration: BoxDecoration(
-                                  border: Border.all(color: AppColors.border),
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: Image.asset(
-                                  imagePath,
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ).toList(),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    child: Container(
-                      margin: EdgeInsets.only(left: 15),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(15),
-                              bottomLeft: Radius.circular(15)),
-                          color: AppColors.lightGrey),
-                      child: Text(
-                        'How to register as vendor?',
-                        style: GoogleFonts.montserrat(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary),
+                    ],
+                  );
+                }),
+                SizedBox(height: 15),
+                ShaderMask(
+                  shaderCallback:
+                      (bounds) => LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          AppColors.primaryFirstGradiant,
+                          AppColors.primarySecondGradiant,
+                        ],
+                      ).createShader(
+                        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
                       ),
-                    ),
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppColors.primaryFirstGradiant,
-                    AppColors.primarySecondGradiant
-                  ],
-                ).createShader(
-                    Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
-                child: Text(
-                  'Let’s get started:',
-                  style: GoogleFonts.montserrat(
+                  child: Text(
+                    'Let’s get started:',
+                    style: GoogleFonts.montserrat(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.white),
+                      color: AppColors.white,
+                    ),
+                  ),
                 ),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              Text(
-                '    Steps to register-',
-                style: GoogleFonts.montserrat(
+                SizedBox(height: 15),
+                Text(
+                  '    Steps to register-',
+                  style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.textSecondary),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Obx(
-                    () {
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                SizedBox(height: 15),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Obx(() {
                       // Use Obx to rebuild the stepper when the currentStep changes
                       return Column(
                         children: [
@@ -148,20 +309,18 @@ class RegistrationView extends GetView<RegistrationController> {
                           ],
                         ],
                       );
-                    },
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              CustomGradientButton(
-                text: 'Register Now!',
-                onPressed: () {
-                  Get.toNamed('/store-details');
-                },
-              )
-            ],
+                    }),
+                  ],
+                ),
+                SizedBox(height: 20),
+                CustomGradientButton(
+                  text: 'Register Now!',
+                  onPressed: () {
+                    Get.toNamed('/store-details');
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -170,114 +329,89 @@ class RegistrationView extends GetView<RegistrationController> {
 }
 
 Widget _buildStep(int stepIndex) {
-  final RegistrationController controller = Get.put(RegistrationController());
+  final RegistrationController controller = Get.find();
 
   return GestureDetector(
     onTap: () {
-      // Use the controller to update the current step
       controller.setStep(stepIndex);
+      switch (stepIndex) {
+        case 0:
+          Get.to(() => RetailerStoreDetailsFrom1());
+          break;
+        case 1:
+          Get.to(() => RentalKyc());
+          break;
+        case 2:
+          Get.toNamed('/business_kyc');
+          break;
+        case 3:
+          Get.toNamed('/bank-details');
+          break;
+      }
     },
-    child: Container(
-      // margin: EdgeInsets.symmetric(vertical: 0),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: controller.currentStep.value == stepIndex
-                  ? AppColors
-                      .primaryGradinatMixColor // Background color when currentStep matches stepIndex
-                  : Colors.transparent, // No background color otherwise
-              border: Border.all(
-                color: controller.currentStep.value == stepIndex
-                    ? AppColors
-                        .primaryGradinatMixColor // Border color when selected
-                    : AppColors.secondary, // Grey border when not selected
-                width: 2,
-              ),
-            ),
-            child: Center(
-              child: SvgPicture.asset(
-                controller.stepperContent[stepIndex].imagePath,
-                color: controller.currentStep.value == stepIndex
-                    ? AppColors.white
-                    : AppColors.secondary,
-              ),
+    child: Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color:
+                controller.currentStep.value == stepIndex
+                    ? AppColors.primaryGradinatMixColor
+                    : Colors.transparent,
+            border: Border.all(
+              color:
+                  controller.currentStep.value == stepIndex
+                      ? AppColors.primaryGradinatMixColor
+                      : AppColors.secondary,
+              width: 2,
             ),
           ),
-          SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                controller.stepperContent[stepIndex].title,
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: controller.currentStep.value == stepIndex
+          child: Center(
+            child: SvgPicture.asset(
+              controller.stepperContent[stepIndex].imagePath,
+              color:
+                  controller.currentStep.value == stepIndex
+                      ? AppColors.white
+                      : AppColors.secondary,
+            ),
+          ),
+        ),
+        SizedBox(width: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              controller.stepperContent[stepIndex].title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight:
+                    controller.currentStep.value == stepIndex
                         ? FontWeight.bold
                         : FontWeight.normal,
-                    color: controller.currentStep.value == stepIndex
+                color:
+                    controller.currentStep.value == stepIndex
                         ? AppColors.primaryGradinatMixColor
-                        : AppColors.secondary),
+                        : AppColors.secondary,
               ),
-              SizedBox(height: 5),
-              Text(
-                controller.stepperContent[stepIndex].subtitle,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: controller.currentStep.value == stepIndex
+            ),
+            SizedBox(height: 5),
+            Text(
+              controller.stepperContent[stepIndex].subtitle,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight:
+                    controller.currentStep.value == stepIndex
                         ? FontWeight.bold
                         : FontWeight.normal,
-                    color: AppColors.textSecondary),
+                color: AppColors.textSecondary,
               ),
-              SizedBox(
-                height: 10,
-              ),
-              // Container(
-              //   width: double.infinity,
-              //   height: 50,
-              //   decoration: BoxDecoration(
-              //     gradient: const LinearGradient(
-              //       begin: Alignment.topCenter,
-              //       end: Alignment.bottomCenter,
-              //       colors: [
-              //         Color(0xffF27129),
-              //         Color(0xffA3410A),
-              //       ],
-              //     ),
-              //     borderRadius: BorderRadius.circular(25),
-              //   ),
-              //   child: ElevatedButton(
-              //     style: ElevatedButton.styleFrom(
-              //       backgroundColor: Colors.transparent,
-              //       elevation: 0,
-              //     ),
-              //     onPressed: () {
-              //       // Get.toNamed('/store-details');
-              //     },
-              //     child: Center(
-              //       child: Row(
-              //         children: [
-              //           Icon(Icons.add),
-              //           Text(
-              //             'Add',
-              //             style: GoogleFonts.montserrat(
-              //               fontSize: 14,
-              //               fontWeight: FontWeight.w600,
-              //               color: Colors.white,
-              //             ),
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // ),
-            ],
-          ),
-        ],
-      ),
+            ),
+            SizedBox(height: 10),
+          ],
+        ),
+      ],
     ),
   );
 }

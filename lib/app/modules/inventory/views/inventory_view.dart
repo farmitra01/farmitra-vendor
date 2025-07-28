@@ -110,7 +110,12 @@ class InventoryView extends GetView<InventoryController> {
                       vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.background,
+                      // color: AppColors.background,
+                      border: Border.all(
+                        color: AppColors.primaryGradinatMixColor.withOpacity(
+                          0.2,
+                        ),
+                      ),
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: TabBar(
@@ -123,7 +128,9 @@ class InventoryView extends GetView<InventoryController> {
                       ),
                       indicator: BoxDecoration(
                         borderRadius: BorderRadius.circular(25),
-                        color: AppColors.background,
+                        color: AppColors.primaryGradinatMixColor.withOpacity(
+                          0.2,
+                        ),
                       ),
 
                       // labelColor: Colors.black,
@@ -135,9 +142,9 @@ class InventoryView extends GetView<InventoryController> {
                             'My Library',
                             style: GoogleFonts.montserrat(
                               color:
-                                  inventoryController.isTabActiev == true
-                                      ? AppColors.textPrimary
-                                      : AppColors.textSecondary,
+                                  // inventoryController.isTabActiev == true ?
+                                  AppColors.textPrimary,
+                              // : AppColors.textSecondary,
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
                             ),
@@ -1186,7 +1193,9 @@ Widget buildOfflineAlertBox() {
             child: CustomGradientButton(
               text: 'Add Now',
               onPressed: () {
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
               height: 35,
             ),

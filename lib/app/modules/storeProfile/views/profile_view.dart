@@ -9,12 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'dart:math' as math;
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:marquee/marquee.dart';
 
 class ProfileView extends GetView {
   ProfileView({super.key});
   final ProfileController profileController = Get.put(ProfileController());
-
+  final box = GetStorage();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,17 +29,40 @@ class ProfileView extends GetView {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'JP Provisional Store',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.white,
+              Container(
+                height: 20,
+                // width: 300,
+                child: Marquee(
+                  text:
+                      '${box.read('user_details')['store_name']}' ??
+                      'Store Name',
+
+                  style: GoogleFonts.montserrat(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.white,
+                  ),
+
+                  scrollAxis: Axis.horizontal,
+                  blankSpace: 20.0,
+                  velocity: 40.0,
+                  pauseAfterRound: Duration(seconds: 3),
+                  startPadding: 0.0,
+                  accelerationDuration: Duration(seconds: 1),
+                  accelerationCurve: Curves.linear,
+                  decelerationDuration: Duration(milliseconds: 500),
+                  decelerationCurve: Curves.easeOut,
                 ),
               ),
               SizedBox(height: 5),
               Text(
-                'Grocery | Stationary',
+                // storeCategoryController.previousPageGridTitle == 'Rental' ||
+                //         storeCategoryController.previousPageGridTitle == 'Drone'
+                //     ? ''
+                //     :
+                box.read('user_role') == 'Expert'
+                    ? 'Agriculture | Field Expert'
+                    : 'Agri Inputs | Seeds ',
                 style: GoogleFonts.montserrat(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -99,16 +124,25 @@ class ProfileView extends GetView {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  'JP Provisional Store',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
+                                SizedBox(
+                                  width: 200,
+                                  child: Text(
+                                    '${box.read('user_details')['store_name']}' ??
+                                        '',
+                                    maxLines: 3,
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: true,
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
                                 SizedBox(height: 10),
                                 Text(
-                                  'Grocery | Stationary',
+                                  box.read('user_role') == 'Expert'
+                                      ? 'Agriculture | Field Expert'
+                                      : 'Agri Inputs | Seeds ',
                                   style: GoogleFonts.montserrat(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
@@ -185,7 +219,7 @@ class ProfileView extends GetView {
                               ),
                               SizedBox(width: 2.5),
                               Text(
-                                'Awaiting Approval',
+                                'Waiting Approval',
                                 style: GoogleFonts.montserrat(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -904,31 +938,51 @@ class ProfileView extends GetView {
                   )
                   : SizedBox();
             }),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GradientSvgIcon(
-                  icon: Icon(Icons.power_settings_new_outlined),
-                  size: 25,
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppColors.primaryFirstGradiant,
-                      AppColors.primarySecondGradiant,
-                    ],
+            SizedBox(height: 15),
+            InkWell(
+              onTap: () {
+                final box = GetStorage();
+                box.erase();
+
+                Get.snackbar(
+                  'Logged Out',
+                  'You have been successfully logged out.',
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+                CircularProgressIndicator(
+                  color: AppColors.primaryGradinatMixColor,
+                );
+                // 🔁 Delay navigation to allow gesture + widget cleanup
+                Future.delayed(Duration(milliseconds: 500), () {
+                  Get.offAllNamed('/login');
+                });
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GradientSvgIcon(
+                    icon: Icon(Icons.power_settings_new_outlined),
+                    size: 25,
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.primaryFirstGradiant,
+                        AppColors.primarySecondGradiant,
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(width: 5),
-                Text(
-                  'Log OUt',
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textPrimary,
+                  SizedBox(width: 5),
+                  Text(
+                    'Log Out',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             SizedBox(height: 20),
             Text(
@@ -948,8 +1002,10 @@ class ProfileView extends GetView {
 }
 
 class CustomVendorProfileCard extends StatelessWidget {
+  final ProfileController profileController = Get.put(ProfileController());
   @override
   Widget build(BuildContext context) {
+    final box = GetStorage();
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Column(
@@ -978,49 +1034,80 @@ class CustomVendorProfileCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Stack(
-                              children: [
-                                Container(
-                                  height: 75,
-                                  width: 75,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(50),
-                                    color: AppColors.background,
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 10,
-                                  right: 0,
-                                  child: Container(
-                                    height: 20,
-                                    width: 20,
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 15,
-                                      vertical: 8,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: AppColors.containerShadowColor,
-                                          blurRadius: 7,
+                            Obx(
+                              () => GestureDetector(
+                                onTap:
+                                    () =>
+                                        profileController
+                                            .showImageSourceDialog(),
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      height: 75,
+                                      width: 75,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(50),
+                                        color: AppColors.background,
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(
+                                          100,
                                         ),
-                                      ],
-                                      color: AppColors.white,
+                                        child:
+                                            profileController
+                                                        .pickedImage
+                                                        .value !=
+                                                    null
+                                                ? Image.file(
+                                                  profileController
+                                                      .pickedImage
+                                                      .value!,
+                                                  fit: BoxFit.cover,
+                                                  width: double.infinity,
+                                                  height: double.infinity,
+                                                )
+                                                : Image.network(
+                                                  'https://api.farmitra.in/storage/${box.read('user_details')['logo']}',
+                                                  height: 35,
+                                                  width: double.infinity,
+                                                  fit: BoxFit.contain,
+                                                  alignment:
+                                                      Alignment.bottomLeft,
+                                                  errorBuilder:
+                                                      (
+                                                        context,
+                                                        error,
+                                                        stackTrace,
+                                                      ) => const Icon(
+                                                        Icons.broken_image,
+                                                      ),
+                                                ),
+                                      ),
                                     ),
-                                    child: SvgPicture.asset(
-                                      'assets/icons/home_icons/Edit.svg',
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 2.5,
+                                      child: CircleAvatar(
+                                        child: Icon(
+                                          Icons.edit,
+                                          size: 15,
+                                          color: AppColors.secondary,
+                                        ),
+                                        radius: 10,
+                                        backgroundColor: AppColors.lightGrey,
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
+
                             SizedBox(width: 20),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Amit Kumar Singh',
+                                  '${box.read('user_details')['vendor_name']}',
                                   style: GoogleFonts.montserrat(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -1028,9 +1115,11 @@ class CustomVendorProfileCard extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(height: 5),
-                                Text('+91 88022 04443'),
+                                Text(
+                                  '+91 ${box.read('user_details')['whatsapp_no']}',
+                                ),
                                 SizedBox(height: 5),
-                                Text('teststore@firstfind.com'),
+                                Text('${box.read('user_details')['email']}'),
                               ],
                             ),
                           ],

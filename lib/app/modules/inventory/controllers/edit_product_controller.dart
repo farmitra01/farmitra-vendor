@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:get/get.dart';
@@ -24,7 +25,8 @@ class EditProductController extends GetxController {
   }
 
   RxBool showGrid = false.obs;
-  var purchasePriceTax = ''.obs; // Use RxString for reactivity
+  var purchasePriceTax = ''.obs;
+  var product_priceTax = ''.obs; // Use RxString for reactivity
   var producName = TextEditingController();
   var productDiscription = TextEditingController();
   var storeChannel = Rx<String?>(null);
@@ -42,14 +44,15 @@ class EditProductController extends GetxController {
   var hsn_Code = TextEditingController();
   var assign_barcode = TextEditingController();
 
-  RxList<String> availableItems = [
-    "Vegitables & Fruits",
-    "Vegitables",
-    "Green veggie",
-    "Organic",
-    "Healthy",
-    "Fruits"
-  ].obs;
+  RxList<String> availableItems =
+      [
+        "Vegitables & Fruits",
+        "Vegitables",
+        "Green veggie",
+        "Organic",
+        "Healthy",
+        "Fruits",
+      ].obs;
   RxList selectedItems = [].obs;
 
   void selectItem(String item) {
@@ -75,8 +78,11 @@ class EditProductController extends GetxController {
 
     if (pickedFiles != null && pickedFiles.isNotEmpty) {
       selectedImages.addAll(
-          pickedFiles.map((file) => File(file.path))); // Add images to the list
-      Get.back(); // Close the dialog after selecting images
+        pickedFiles.map((file) => File(file.path)),
+      ); // Add images to the list
+      Get.closeAllSnackbars();
+      Get.back(closeOverlays: true);
+      (); // Close the dialog after selecting images
     }
   }
 
@@ -85,18 +91,20 @@ class EditProductController extends GetxController {
   var selectedImageIndex = 0.obs;
 
   // List of images for the grid (you can replace it with your actual image data)
-  var imagePaths = [
-    'assets/images/Null_image.png',
-    'assets/images/Null_image.png',
-    'assets/images/Null_image.png',
-    'assets/images/Null_image.png',
-  ].obs;
+  var imagePaths =
+      [
+        'assets/images/Null_image.png',
+        'assets/images/Null_image.png',
+        'assets/images/Null_image.png',
+        'assets/images/Null_image.png',
+      ].obs;
 
   // Nested grid image paths (can be dynamic based on your data)
-  var nestedImagePaths = [
-    'assets/images/Null_image.png',
-    'assets/images/Null_image.png',
-    'assets/images/Null_image.png',
-    'assets/images/Null_image.png',
-  ].obs;
+  var nestedImagePaths =
+      [
+        'assets/images/Null_image.png',
+        'assets/images/Null_image.png',
+        'assets/images/Null_image.png',
+        'assets/images/Null_image.png',
+      ].obs;
 }

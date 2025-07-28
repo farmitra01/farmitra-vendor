@@ -202,9 +202,15 @@ class BusinessKycView extends GetView {
                     elevation: 0,
                   ),
                   onPressed: () {
-                    Get.back();
-                    Get.back();
-                    Get.back();
+                    Get.closeAllSnackbars();
+                    Get.back(closeOverlays: true);
+                    ();
+                    Get.closeAllSnackbars();
+                    Get.back(closeOverlays: true);
+                    ();
+                    Get.closeAllSnackbars();
+                    Get.back(closeOverlays: true);
+                    ();
                   },
                   child: Text(
                     '+ Add New Document',
@@ -220,7 +226,7 @@ class BusinessKycView extends GetView {
             Text(
               'Contact for help!',
               style: GoogleFonts.montserrat(
-                fontSize: 14, 
+                fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: AppColors.primaryGradinatMixColor,
               ),

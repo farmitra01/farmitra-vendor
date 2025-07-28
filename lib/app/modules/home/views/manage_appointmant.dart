@@ -580,7 +580,7 @@ Widget buildOfflineTab(BuildContext context) {
                     padding: const EdgeInsets.symmetric(vertical: 5),
                     child: Row(
                       children: [
-                        // First Time Picker 
+                        // First Time Picker
                         Expanded(
                           child: TextFormField(
                             controller:
@@ -650,6 +650,7 @@ Widget buildOfflineTab(BuildContext context) {
     ),
   );
 }
+
 Widget buildBlockData() {
   return AlertDialog(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -668,7 +669,9 @@ Widget buildBlockData() {
             lastDate: DateTime(2100),
             onDateChanged: (selectedDate) {
               print("Selected Date: $selectedDate");
-              Get.back(); // Close the dialog after selecting a date
+              Get.closeAllSnackbars();
+              Get.back(closeOverlays: true);
+              (); // Close the dialog after selecting a date
             },
           ),
           SizedBox(height: 10),

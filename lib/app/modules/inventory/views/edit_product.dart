@@ -287,44 +287,44 @@ class EditProduct extends StatelessWidget {
                     );
               }),
               SizedBox(height: 10),
-              Row(
-                children: [
-                  Obx(() {
-                    return Checkbox(
-                      activeColor: AppColors.primaryGradinatMixColor,
-                      value: editProductController.isAvailable.value,
-                      onChanged: (value) {
-                        editProductController.isAvailable.value =
-                            !editProductController.isAvailable.value;
-                      },
-                    );
-                  }),
-                  GradientText(
-                    text: 'Available For Gift',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.primaryFirstGradiant,
-                        AppColors.primarySecondGradiant,
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  GradientSvgIcon(
-                    assetName: 'assets/svgs/gift_bw.svg',
-                    size: 20,
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.primaryFirstGradiant,
-                        AppColors.primarySecondGradiant,
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              // Row(
+              //   children: [
+              //     Obx(() {
+              //       return Checkbox(
+              //         activeColor: AppColors.primaryGradinatMixColor,
+              //         value: editProductController.isAvailable.value,
+              //         onChanged: (value) {
+              //           editProductController.isAvailable.value =
+              //               !editProductController.isAvailable.value;
+              //         },
+              //       );
+              //     }),
+              //     GradientText(
+              //       text: 'Available For Gift',
+              //       style: GoogleFonts.montserrat(
+              //         fontSize: 15,
+              //         fontWeight: FontWeight.w500,
+              //       ),
+              //       gradient: LinearGradient(
+              //         colors: [
+              //           AppColors.primaryFirstGradiant,
+              //           AppColors.primarySecondGradiant,
+              //         ],
+              //       ),
+              //     ),
+              //     SizedBox(width: 10),
+              //     GradientSvgIcon(
+              //       assetName: 'assets/svgs/gift_bw.svg',
+              //       size: 20,
+              //       gradient: LinearGradient(
+              //         colors: [
+              //           AppColors.primaryFirstGradiant,
+              //           AppColors.primarySecondGradiant,
+              //         ],
+              //       ),
+              //     ),
+              //   ],
+              // ),
               SizedBox(height: 10),
               Text(
                 "A. Product Details:",
@@ -353,19 +353,19 @@ class EditProduct extends StatelessWidget {
                 borderRadius: 20,
               ),
               SizedBox(height: 10),
-              Obx(() {
-                return CustomDropdown<String>(
-                  hint: 'Store Channel',
-                  items: ['Online', 'Offline', 'Both'],
-                  selectedItem: editProductController.storeChannel.value,
-                  onChanged: (value) {
-                    if (value != null) {
-                      editProductController.storeChannel.value = value;
-                    }
-                  },
-                  itemBuilder: (item) => item.toString(),
-                );
-              }),
+              // Obx(() {
+              //   return CustomDropdown<String>(
+              //     hint: 'Store Channel',
+              //     items: ['Online', 'Offline', 'Both'],
+              //     selectedItem: editProductController.storeChannel.value,
+              //     onChanged: (value) {
+              //       if (value != null) {
+              //         editProductController.storeChannel.value = value;
+              //       }
+              //     },
+              //     itemBuilder: (item) => item.toString(),
+              //   );
+              // }),
               SizedBox(height: 10),
               Obx(() {
                 return CustomDropdown(
@@ -421,13 +421,56 @@ class EditProduct extends StatelessWidget {
                 );
               }),
               SizedBox(height: 10),
-              CustomTextFormField(
-                hintText: 'Product Price in INR(₹)',
-                keyboardType: TextInputType.number,
-                inputFormatters: [],
-                controller: editProductController.product_price,
-                validator: (p0) {},
-              ),
+              // CustomTextFormField(
+              //   hintText: 'Product Price in INR(₹)',
+              //   keyboardType: TextInputType.number,
+              //   inputFormatters: [],
+              //   controller: editProductController.,
+              //   validator: (p0) {},
+              // ),
+              Obx(() {
+                return CustomTextFormField(
+                  hintText: 'Product Price in INR(₹)',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [],
+                  controller: editProductController.product_price,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter purchase price';
+                    }
+                    return null;
+                  },
+                  maxLines: 1,
+                  minLines: 1,
+                  suffixWidget: SizedBox(
+                    height: 20,
+                    width: 135,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CustomDropdown(
+                        hint: 'Tax',
+                        items: ['0%', '5%', '12%', '18%', '28%'],
+                        selectedItem:
+                            ['0%', '5%', '12%', '18%', '28%'].contains(
+                                  editProductController.product_priceTax.value,
+                                )
+                                ? editProductController.product_priceTax.value
+                                : '0%', // Default fallback value
+                        onChanged: (value) {
+                          if (value != null) {
+                            editProductController.product_priceTax.value =
+                                value;
+                          }
+                        },
+                        itemBuilder: (item) => item,
+                        showBorder: false,
+                        selectedItemColor: AppColors.primaryGradinatMixColor,
+                      ),
+                    ),
+                  ),
+                );
+              }),
+
               SizedBox(height: 10),
               CustomTextFormField(
                 hintText: 'Tax Amount Included',
@@ -499,7 +542,7 @@ class EditProduct extends StatelessWidget {
               SizedBox(height: 20),
               Obx(() {
                 return CustomTextFormField(
-                  hintText: 'Purchase Price (Tax)',
+                  hintText: 'Purchase Price(Tax)',
                   keyboardType: TextInputType.number,
                   inputFormatters: [],
                   controller: editProductController.purchase_price_tax,
@@ -512,24 +555,29 @@ class EditProduct extends StatelessWidget {
                   maxLines: 1,
                   minLines: 1,
                   suffixWidget: SizedBox(
-                    width: 163,
-                    child: CustomDropdown(
-                      hint: 'Tax',
-                      items: ['Tax Included', 'Tax Excluded'],
-                      selectedItem:
-                          ['Tax Included', 'Tax Excluded'].contains(
-                                editProductController.purchasePriceTax.value,
-                              )
-                              ? editProductController.purchasePriceTax.value
-                              : 'Tax Included',
-                      onChanged: (value) {
-                        if (value != null) {
-                          editProductController.purchasePriceTax.value = value;
-                        }
-                      },
-                      itemBuilder: (item) => item,
-                      showBorder: false,
-                      selectedItemColor: AppColors.primaryGradinatMixColor,
+                    height: 30,
+                    width: 170,
+                    child: Padding(
+                      padding: const EdgeInsets.all(3.5),
+                      child: CustomDropdown(
+                        hint: 'Tax',
+                        items: ['Tax Included', 'Tax Excluded'],
+                        selectedItem:
+                            ['Tax Included', 'Tax Excluded'].contains(
+                                  editProductController.purchasePriceTax.value,
+                                )
+                                ? editProductController.purchasePriceTax.value
+                                : 'Tax Included',
+                        onChanged: (value) {
+                          if (value != null) {
+                            editProductController.purchasePriceTax.value =
+                                value;
+                          }
+                        },
+                        itemBuilder: (item) => item,
+                        showBorder: false,
+                        selectedItemColor: AppColors.primaryGradinatMixColor,
+                      ),
                     ),
                   ),
                 );

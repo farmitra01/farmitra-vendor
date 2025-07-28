@@ -1,146 +1,226 @@
-import 'package:farmitra/app/constants/app_colors.dart';
-import 'package:farmitra/app/modules/registration/controllers/store_category_controller.dart';
-import 'package:farmitra/app/modules/registration/controllers/store_location_search_controller.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
-import 'package:farmitra/app/utils/global_widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:latlong2/latlong.dart';
 
-class StoreLocationSearchView extends GetView {
-  const StoreLocationSearchView({super.key});
+import 'package:farmitra/app/constants/app_colors.dart';
+import 'package:farmitra/app/modules/registration/controllers/store_location_search_controller.dart';
+
+class StoreLocationSearchView extends StatelessWidget {
+  final StoreSearchLocationController controller = Get.put(
+    StoreSearchLocationController(),
+  );
+  final TextEditingController searchField = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    final StoreLocationSearchController store_location_search_controller =
-        Get.put(StoreLocationSearchController());
-
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-        child: Column(
-          children: [
-            SizedBox(height: 40),
-            CustomTextFormField(
-              prefixIcon: Icon(Icons.search, color: AppColors.textSecondary),
-              hintText: 'Search for your location',
-              keyboardType: TextInputType.text,
-              controller: store_location_search_controller.search,
-              suffixIcon: Icons.my_location_sharp,
-              // suffixIcon: Icon(
-              //       Icons.my_location_sharp,
-              //       color: AppColors.textSecondary,
-              //     ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please Enter Store Name';
-                }
-                return null;
+      body: Stack(
+        children: [
+          /// 🌍 Map
+          FlutterMap(
+            mapController: controller.mapController,
+            options: MapOptions(
+              onMapReady: controller.onMapReady,
+              onTap: (tapPos, latLng) {
+                controller.selectedLocation.value = latLng;
+                controller.mapController.move(latLng, 15);
               },
-              inputFormatters: [LengthLimitingTextInputFormatter(35)],
             ),
-
-            // Container(
-            //   decoration: BoxDecoration(
-            //     boxShadow: [
-            //       BoxShadow(
-            //         color: AppColors.containerShadowColor,
-            //         blurRadius: 7,
-            //         spreadRadius: 2,
-            //         offset: Offset(0, 1),
-            //       ),
-            //     ],
-            //     color: AppColors.background,
-            //     borderRadius: BorderRadius.circular(25),
-            //   ),
-            //   child: TextFormField(
-            //     decoration: InputDecoration(
-            //       prefixIcon: Icon(
-            //         Icons.search,
-            //         color: AppColors.textSecondary,
-            //       ),
-            //       suffixIcon: Icon(
-            //         Icons.my_location_sharp,
-            //         color: AppColors.textSecondary,
-            //       ),
-            //       hintText: "Search for your location",
-            //       hintStyle: TextStyle(
-            //         color: AppColors.textSecondary,
-            //         fontSize: 14,
-            //         fontWeight: FontWeight.w500,
-            //       ),
-            //       focusedBorder: OutlineInputBorder(
-            //         borderRadius: BorderRadius.circular(25),
-            //         borderSide: BorderSide(
-            //           color: AppColors.primaryGradinatMixColor,
-            //         ),
-            //       ),
-            //       enabledBorder: OutlineInputBorder(
-            //         borderRadius: BorderRadius.circular(25),
-            //         borderSide: BorderSide(color: AppColors.border),
-            //       ),
-            //       focusedErrorBorder: OutlineInputBorder(
-            //         borderRadius: BorderRadius.circular(25),
-            //         borderSide: BorderSide(color: AppColors.error),
-            //       ),
-            //       errorBorder: OutlineInputBorder(
-            //         borderRadius: BorderRadius.circular(25),
-            //         borderSide: BorderSide(color: AppColors.error),
-            //       ),
-            //     ),
-            //     validator: (value) {
-            //       if (value == null || value.isEmpty) {
-            //         return 'Please Enter Store Name';
-            //       }
-            //       return null;
-            //     },
-            //     inputFormatters: [LengthLimitingTextInputFormatter(35)],
-            //   ),
-            // ),
-            SizedBox(height: 50),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(50),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primaryGradinatMixColor.withOpacity(
-                        0.15,
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.app',
+              ),
+              Obx(() {
+                final point = controller.selectedLocation.value;
+                if (point == null) return MarkerLayer(markers: []);
+                return MarkerLayer(
+                  markers: [
+                    Marker(
+                      width: 40,
+                      height: 40,
+                      point: point,
+                      child: Icon(
+                        Icons.location_pin,
+                        color: Colors.red,
+                        size: 40,
                       ),
-                      blurRadius: 25,
-                      spreadRadius: 7,
-                      offset: Offset(0, 3),
                     ),
                   ],
-                  // .withOpacity(0.035),
-                ),
-                child: SvgPicture.asset(
-                  'assets/svgs/location.svg',
+                );
+              }),
+            ],
+          ),
+
+          /// 🔍 Search UI
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(15),
+              child: Column(
+                children: [
+                  Material(
+                    elevation: 4,
+                    borderRadius: BorderRadius.circular(12),
+                    child: TextField(
+                      controller: searchField,
+                      onSubmitted: controller.searchLocation,
+                      decoration: InputDecoration(
+                        hintText: 'Search location',
+                        prefixIcon: Icon(Icons.search),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () {
+                            searchField.clear();
+                            controller.searchResults.clear();
+                          },
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+
+                  /// 📋 Search Results
+                  Obx(() {
+                    if (controller.isLoading.value) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    if (controller.searchResults.isEmpty) {
+                      return SizedBox.shrink();
+                    }
+                    return Container(
+                      height: 300,
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.95),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ListView.builder(
+                        itemCount: controller.searchResults.length,
+                        itemBuilder: (context, index) {
+                          final item = controller.searchResults[index];
+                          return ListTile(
+                            title: Text(
+                              item['display_name'],
+                              style: GoogleFonts.montserrat(fontSize: 13),
+                            ),
+                            onTap: () {
+                              controller.selectLocation(item);
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+
+      /// 📍 Use Current Location Button
+      floatingActionButton: Align(
+        alignment: Alignment.bottomCenter,
+        child: GestureDetector(
+          onTap: () async {
+            await controller.getCurrentLocationAndAddress();
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            margin: EdgeInsets.only(bottom: 135, left: 20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(25),
+              color: Colors.white70,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.my_location,
                   color: AppColors.primaryGradinatMixColor,
                 ),
-              ),
+                SizedBox(width: 10),
+                Text(
+                  'Use Current Location',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primaryGradinatMixColor,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
-      bottomNavigationBar: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-              child: CustomGradientButton(
-                text: 'Save',
-                onPressed: () {
-                  Get.back();
-                },
-              ),
+
+      /// 📝 Confirm & Proceed Bottom Sheet
+      bottomSheet: Obx(() {
+        final address = controller.searchedSelectedLocation.value;
+        if (address.isEmpty) return SizedBox.shrink();
+
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
             ),
-          ],
-        ),
-      ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 6,
+                offset: Offset(0, -3),
+              ),
+            ],
+          ),
+          height: 150,
+          child: Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.pin_drop_outlined,
+                    color: AppColors.primaryGradinatMixColor,
+                    size: 35,
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      address,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primaryGradinatMixColor,
+                      ),
+                      maxLines: 5,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: true,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              CustomGradientButton(
+                text: 'Confirm & Proceed',
+                onPressed: controller.confirmSelection,
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }

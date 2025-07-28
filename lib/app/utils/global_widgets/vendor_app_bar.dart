@@ -14,32 +14,35 @@ class VendorAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions,
     this.showTitle = true, // Default to showing the title
   }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     final TextStyle titleStyle = GoogleFonts.montserrat(
       fontSize: 12,
       fontWeight: FontWeight.w500,
-      color:  AppColors.white,
+      color: AppColors.white,
     );
-
-    final double titleWidth = showTitle
-        ? (TextPainter(
-            text: TextSpan(text: title, style: titleStyle),
-            maxLines: 1,
-            textDirection: TextDirection.ltr,
-          )..layout())
-            .width
-        : 0;
+    final double titleWidth =
+        showTitle
+            ? (TextPainter(
+              text: TextSpan(text: title, style: titleStyle),
+              maxLines: 1,
+              textDirection: TextDirection.ltr,
+            )..layout()).width
+            : 0;
 
     return AppBar(
-      leadingWidth: showTitle
-          ? titleWidth + 75
-          : 50, // Adjust leading width based on title visibility
+      leadingWidth:
+          showTitle
+              ? titleWidth + 75
+              : 50, // Adjust leading width based on title visibility
       backgroundColor: AppColors.appBarColor,
       automaticallyImplyLeading: false,
       leading: GestureDetector(
-        onTap: () => Get.back(),
+        onTap: () {
+          // closeSnackbarSafely();
+          Get.closeAllSnackbars();
+          Get.back(closeOverlays: true);
+        },
         child: Container(
           width: 50, // Fixed width to ensure proper alignment
           height: 35,
@@ -51,30 +54,65 @@ class VendorAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           alignment:
               Alignment.center, // Ensures icon is centered when title is hidden
-          child: showTitle
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Icon(
-                      Icons.keyboard_backspace_sharp,
-                      color: AppColors.white,
-                      size: 18,
-                    ),
-                    Text(title, style: titleStyle),
-                  ],
-                )
-              : const Icon(
-                  Icons.arrow_back, // Use arrow_back when title is hidden
-                  color: AppColors.white,
-                  size: 18,
-                ),
+          child:
+              showTitle
+                  ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Icon(
+                        Icons.keyboard_backspace_sharp,
+                        color: AppColors.white,
+                        size: 18,
+                      ),
+                      Text(title, style: titleStyle),
+                    ],
+                  )
+                  : const Icon(
+                    Icons.arrow_back, // Use arrow_back when title is hidden
+                    color: AppColors.white,
+                    size: 18,
+                  ),
         ),
       ),
       centerTitle: false,
       actions: actions,
     );
   }
-
+  void closeSnackbarSafely() {
+    try {
+      // Check if snackbar is open before attempting to close
+      if (Get.isSnackbarOpen) {
+        Future.delayed(Duration.zero, () {
+          try {
+            // This may still throw if GetX's snackbar controller was never initialized
+            Get.closeCurrentSnackbar();
+          } catch (e) {
+            debugPrint('❌ Error closing snackbar: $e');
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('❌ Outer error in closeSnackbarSafely: $e');
+    }
+  }
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
+
+// class SnackbarUtil {
+//   static void safeClose() {
+//     try {
+//       if (Get.isSnackbarOpen) {
+//         Future.delayed(Duration.zero, () {
+//           try {
+//             Get.closeCurrentSnackbar();
+//           } catch (e) {
+//             debugPrint('Snackbar close failed: $e');
+//           }
+//         });
+//       }
+//     } catch (e) {
+//       debugPrint('Snackbar guard outer failed: $e');
+//     }
+//   }
+// }

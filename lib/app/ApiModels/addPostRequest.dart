@@ -20,4 +20,6 @@ class AddPostRequest {
       'content': content,
     };
   }
+
+  toFileMap() {}
 }

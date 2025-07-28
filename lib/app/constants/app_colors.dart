@@ -1,5 +1,7 @@
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
+
 class AppColors {
   static const Color appBarColor = Color(0xff31a05f); //AppBar Background Color
   static const Color containerShadowColor = Color(0xFFDADADA);
@@ -22,3 +24,5 @@ class AppColors {
   static const Color yellow = Color(0xffFFCB74);
   static const Color darkBlue = Color(0xff0e0070);
 }
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

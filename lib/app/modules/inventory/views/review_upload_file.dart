@@ -1,4 +1,3 @@
-
 import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:farmitra/app/modules/inventory/controllers/review_upload_file_controller.dart';
 import 'package:farmitra/app/modules/inventory/views/inventory_view.dart';
@@ -12,8 +11,9 @@ import 'package:google_fonts/google_fonts.dart';
 class ReviewUploadFile extends StatelessWidget {
   ReviewUploadFile({super.key});
 
-  final ReviewUploadFileController reviewUploadFileController =
-      Get.put(ReviewUploadFileController());
+  final ReviewUploadFileController reviewUploadFileController = Get.put(
+    ReviewUploadFileController(),
+  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +25,9 @@ class ReviewUploadFile extends StatelessWidget {
             Text(
               'Review Upload File',
               style: GoogleFonts.montserrat(
-                  fontSize: 18, fontWeight: FontWeight.w800),
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
             ),
             const SizedBox(height: 10),
             Text(
@@ -33,7 +35,9 @@ class ReviewUploadFile extends StatelessWidget {
               overflow: TextOverflow.visible,
               softWrap: true,
               style: GoogleFonts.montserrat(
-                  fontSize: 12, fontWeight: FontWeight.w600),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             // SizedBox(height: 15,)
           ],
@@ -49,26 +53,28 @@ class ReviewUploadFile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              height: 15,
-            ),
+            SizedBox(height: 15),
             const Divider(color: AppColors.border),
             Stack(
               children: [
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 15,
+                    vertical: 8,
+                  ),
                   margin: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: AppColors.white,
-                      boxShadow: const [
-                        BoxShadow(
-                            blurRadius: 1,
-                            color: AppColors.containerShadowColor,
-                            offset: Offset(0, 1),
-                            spreadRadius: 1)
-                      ]),
+                    borderRadius: BorderRadius.circular(15),
+                    color: AppColors.white,
+                    boxShadow: const [
+                      BoxShadow(
+                        blurRadius: 1,
+                        color: AppColors.containerShadowColor,
+                        offset: Offset(0, 1),
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
@@ -84,25 +90,28 @@ class ReviewUploadFile extends StatelessWidget {
                           Text(
                             'Shopping item sheet.xls',
                             style: GoogleFonts.montserrat(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textPrimary),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                           const SizedBox(height: 5),
                           Text(
                             '10 Mb',
                             style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textSecondary),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                           const SizedBox(height: 5),
                           Text(
                             '8 Sep 2021 08:44 Pm',
                             style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                color: AppColors.textSecondary),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                         ],
                       ),
@@ -113,19 +122,24 @@ class ReviewUploadFile extends StatelessWidget {
                   right: 15,
                   top: 8,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 5,
+                    ),
                     decoration: const BoxDecoration(
-                        color: AppColors.green,
-                        borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(15),
-                            bottomLeft: Radius.circular(15))),
+                      color: AppColors.green,
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(15),
+                        bottomLeft: Radius.circular(15),
+                      ),
+                    ),
                     child: Text(
                       'NEW',
                       style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.white),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -134,43 +148,40 @@ class ReviewUploadFile extends StatelessWidget {
             const SizedBox(height: 10),
             Row(
               children: [
-                Obx(
-                  () {
-                    return reviewUploadFileController.isChecked.value == true
-                        ? Checkbox(
-                            value:
-                                reviewUploadFileController.isAllSelected.value,
-                            activeColor: AppColors.primaryGradinatMixColor,
-                            onChanged: (bool? value) {
-                              if (value != null) {
-                                reviewUploadFileController
-                                    .toggleSelectAll(value);
-                              }
-                            })
-                        : SizedBox(
-                            width: 10,
-                          );
-                  },
-                ),
-                SizedBox(
-                  width: 5,
-                ),
+                Obx(() {
+                  return reviewUploadFileController.isChecked.value == true
+                      ? Checkbox(
+                        value: reviewUploadFileController.isAllSelected.value,
+                        activeColor: AppColors.primaryGradinatMixColor,
+                        onChanged: (bool? value) {
+                          if (value != null) {
+                            reviewUploadFileController.toggleSelectAll(value);
+                          }
+                        },
+                      )
+                      : SizedBox(width: 10);
+                }),
+                SizedBox(width: 5),
                 RichText(
                   textWidthBasis: TextWidthBasis.longestLine,
                   text: TextSpan(
                     children: [
                       TextSpan(
-                          text: 'Total Products ',
-                          style: GoogleFonts.montserrat(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary)),
+                        text: 'Total Products ',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
                       TextSpan(
-                          text: ' ( Products)',
-                          style: GoogleFonts.montserrat(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.textSecondary)),
+                        text: ' ( Products)',
+                        style: GoogleFonts.montserrat(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -192,53 +203,57 @@ class ReviewUploadFile extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Obx(() =>
-                              reviewUploadFileController.isChecked.value == true
-                                  ? SizedBox(
+                          SizedBox(width: 20),
+                          Obx(
+                            () =>
+                                reviewUploadFileController.isChecked.value ==
+                                        true
+                                    ? SizedBox(
                                       height: 10,
                                       width: 10,
                                       child: Obx(() {
                                         return Checkbox(
                                           activeColor:
                                               AppColors.primaryGradinatMixColor,
-                                          value: reviewUploadFileController
-                                              .productSelections[index],
+                                          value:
+                                              reviewUploadFileController
+                                                  .productSelections[index],
                                           onChanged: (value) {
                                             if (value != null) {
                                               reviewUploadFileController
                                                   .toggleProductSelection(
-                                                      index, value);
+                                                    index,
+                                                    value,
+                                                  );
                                               print('Selected item ${index}');
                                             }
                                           },
                                         );
                                       }),
                                     )
-                                  : reviewUploadFileController.selectedIndex ==
-                                          index
-                                      ? SizedBox(
-                                          height: 5,
-                                          width: 10,
-                                          child: Obx(
-                                            () => Checkbox(
-                                              activeColor: AppColors
-                                                  .primaryGradinatMixColor,
-                                              value: reviewUploadFileController
+                                    : reviewUploadFileController
+                                            .selectedIndex ==
+                                        index
+                                    ? SizedBox(
+                                      height: 5,
+                                      width: 10,
+                                      child: Obx(
+                                        () => Checkbox(
+                                          activeColor:
+                                              AppColors.primaryGradinatMixColor,
+                                          value:
+                                              reviewUploadFileController
                                                   .selectedItems[index],
-                                              onChanged: (value) {
-                                                reviewUploadFileController
-                                                    .toggleSelection(index);
-                                              },
-                                            ),
-                                          ),
-                                        )
-                                      : SizedBox()),
-                          SizedBox(
-                            width: 10,
+                                          onChanged: (value) {
+                                            reviewUploadFileController
+                                                .toggleSelection(index);
+                                          },
+                                        ),
+                                      ),
+                                    )
+                                    : SizedBox(),
                           ),
+                          SizedBox(width: 10),
                           Image.asset(
                             'assets/images/Capsicum.png',
                             fit: BoxFit.fill,
@@ -251,17 +266,19 @@ class ReviewUploadFile extends StatelessWidget {
                               Text(
                                 'Green Capsicum (Shimla Mirch)',
                                 style: GoogleFonts.montserrat(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
                               const SizedBox(height: 5),
                               Text(
                                 '250 g',
                                 style: GoogleFonts.montserrat(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
                               const SizedBox(height: 5),
                               RichText(
@@ -271,31 +288,30 @@ class ReviewUploadFile extends StatelessWidget {
                                     TextSpan(
                                       text: '₹40 ',
                                       style: GoogleFonts.montserrat(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.textPrimary),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textPrimary,
+                                      ),
                                     ),
                                     TextSpan(
                                       text: ' ₹50',
                                       style: GoogleFonts.montserrat(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.textSecondary,
-                                          decoration:
-                                              TextDecoration.lineThrough),
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.textSecondary,
+                                        decoration: TextDecoration.lineThrough,
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
                               const SizedBox(height: 5),
                             ],
-                          )
+                          ),
                         ],
                       ),
                     ),
-                    const Divider(
-                      color: AppColors.border,
-                    ),
+                    const Divider(color: AppColors.border),
                     const SizedBox(height: 10),
                   ],
                 );
@@ -311,12 +327,14 @@ class ReviewUploadFile extends StatelessWidget {
           children: [
             Obx(() {
               return CustomGradientButton(
-                text: reviewUploadFileController.isImport.value == false
-                    ? "Import To Library"
-                    : " 100% Done",
-                text2: reviewUploadFileController.isShowCheckBox.value == true
-                    ? "${reviewUploadFileController.selectedItems}"
-                    : reviewUploadFileController.isImport.value == false
+                text:
+                    reviewUploadFileController.isImport.value == false
+                        ? "Import To Library"
+                        : " 100% Done",
+                text2:
+                    reviewUploadFileController.isShowCheckBox.value == true
+                        ? "${reviewUploadFileController.selectedItems}"
+                        : reviewUploadFileController.isImport.value == false
                         ? "(10 product found)"
                         : null,
                 onPressed: () {
@@ -327,9 +345,7 @@ class ReviewUploadFile extends StatelessWidget {
                 height: 50,
               );
             }),
-            SizedBox(
-              height: 10,
-            ),
+            SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -344,14 +360,15 @@ class ReviewUploadFile extends StatelessWidget {
                           ? 'Delete File'
                           : "Cancel Import",
                       style: GoogleFonts.montserrat(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.error),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.error,
+                      ),
                     ),
                   );
-                })
+                }),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -360,8 +377,9 @@ class ReviewUploadFile extends StatelessWidget {
 }
 
 Widget buildAlertBox() {
-  final ReviewUploadFileController reviewUploadFileController =
-      Get.put(ReviewUploadFileController());
+  final ReviewUploadFileController reviewUploadFileController = Get.put(
+    ReviewUploadFileController(),
+  );
 
   return AlertDialog(
     content: SingleChildScrollView(

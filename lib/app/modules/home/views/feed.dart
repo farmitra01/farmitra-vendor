@@ -796,7 +796,9 @@ class Feed extends StatelessWidget {
           IconButton(
             onPressed: () {
               feedController.clearReport();
-              Get.back();
+              Get.closeAllSnackbars();
+              Get.back(closeOverlays: true);
+              ();
             },
             icon: const Icon(Icons.close_rounded, color: AppColors.error),
           ),
@@ -849,7 +851,9 @@ class Feed extends StatelessWidget {
             TextButton(
               onPressed: () {
                 feedController.clearReport();
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
               child: Text(
                 'Close',
@@ -1032,14 +1036,19 @@ class Feed extends StatelessWidget {
     String postedBy,
   ) {
     final FeedController feedController = Get.find<FeedController>();
-
-    // Fetch comments only once when sheet is opened
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (feedController.comments.isEmpty) {
-        feedController.fetchComments(int.parse(postId));
-      }
-    });
-
+    bool _hasFetchedComments = false;
+    // ✅ Safe: only run once
+    if (_hasFetchedComments!) {
+      _hasFetchedComments = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (feedController.comments.isEmpty) {
+          final id = int.tryParse(postId);
+          if (id != null) {
+            feedController.fetchComments(id);
+          }
+        }
+      });
+    }
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.75,

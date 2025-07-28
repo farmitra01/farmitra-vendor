@@ -15,7 +15,7 @@ class AddPost extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AddPostcontroller addPostcontroller = Get.put(AddPostcontroller());
+    final AddPostController addPostcontroller = Get.put(AddPostController());
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
     return Scaffold(
@@ -32,7 +32,7 @@ class AddPost extends StatelessWidget {
                 hintText: "What's in your mind?",
                 keyboardType: TextInputType.text,
                 controller: addPostcontroller.comment,
-                validator: addPostcontroller.validateComment,
+                validator: addPostcontroller.validateComment(),
                 maxLines: 3,
                 borderRadius: 10,
               ),
@@ -228,7 +228,7 @@ class AddPost extends StatelessWidget {
 }
 
 void _uploadImagesDialog() {
-  final AddPostcontroller addPostcontroller = Get.put(AddPostcontroller());
+  final AddPostController addPostcontroller = Get.put(AddPostController());
 
   showDialog(
     context: Get.context!,
@@ -248,7 +248,9 @@ void _uploadImagesDialog() {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.back();
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  ();
                   addPostcontroller.pickImages();
                 },
                 child: Text(

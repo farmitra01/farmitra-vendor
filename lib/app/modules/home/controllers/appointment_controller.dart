@@ -212,9 +212,10 @@ class AppointmentController extends GetxController
   int getTabCount(int tabIndex, String category) {
     return getFilteredAppointments(tabIndex).length;
   }
-//Api Function 
-   final HomeService apiService;
-  
+
+  //Api Function
+  final HomeService apiService;
+
   // Observable list to hold the fetched queries
   var pendingQueries = <dynamic>[].obs;
 
@@ -226,8 +227,6 @@ class AppointmentController extends GetxController
 
   AppointmentController({required this.apiService});
 
- 
-
   void fetchQueries() async {
     try {
       isLoading.value = true;
@@ -235,12 +234,10 @@ class AppointmentController extends GetxController
 
       final data = await apiService.fetchQueries();
       pendingQueries.value = data;
-
     } catch (e) {
       errorMessage.value = e.toString();
     } finally {
       isLoading.value = false;
     }
   }
-  
 }

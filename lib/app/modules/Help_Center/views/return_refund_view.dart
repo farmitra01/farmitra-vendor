@@ -1,3 +1,4 @@
+import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -15,7 +16,9 @@ class ReturnRefundView extends GetView {
           padding: const EdgeInsets.only(left: 10, top: 10, bottom: 10),
           child: GestureDetector(
             onTap: () {
-              Get.back();
+              Get.closeAllSnackbars();
+              Get.back(closeOverlays: true);
+              ();
             },
             child: Container(
               decoration: BoxDecoration(
@@ -25,13 +28,8 @@ class ReturnRefundView extends GetView {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
+                  const Icon(Icons.arrow_back, color: Colors.white),
+                  SizedBox(width: 5),
                   Text(
                     'Return & Refund',
                     style: GoogleFonts.montserrat(
@@ -39,7 +37,7 @@ class ReturnRefundView extends GetView {
                       fontWeight: FontWeight.w500,
                       color: Color(0xffDADADA),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

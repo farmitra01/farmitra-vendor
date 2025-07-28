@@ -2,7 +2,6 @@ import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -10,6 +9,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onTranslateTap;
   final String language;
   final bool automaticallyImplyLeading;
+
   const CustomAppBar({
     Key? key,
     this.title = " ",
@@ -26,12 +26,20 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       leadingWidth: 50.0,
       automaticallyImplyLeading: false,
       leading:
-          automaticallyImplyLeading == true
+          automaticallyImplyLeading
               ? Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 7),
                 child: InkWell(
                   onTap: () {
-                    Get.back();
+                    // ✅ Safe back navigation with snackbar close
+                    if (Get.isSnackbarOpen) {
+                      Get.closeCurrentSnackbar();
+                    }
+                    if (Get.key.currentState?.canPop() ?? false) {
+                      Get.closeAllSnackbars();
+                      Get.back(closeOverlays: true);
+                      ();
+                    }
                   },
                   child: Container(
                     decoration: BoxDecoration(

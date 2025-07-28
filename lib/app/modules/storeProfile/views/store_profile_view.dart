@@ -12,8 +12,9 @@ import 'package:google_fonts/google_fonts.dart';
 
 class StoreProfileView extends GetView<StoreProfileController> {
   StoreProfileView({super.key});
-  final StoreProfileController storeProfileController =
-      Get.put(StoreProfileController());
+  final StoreProfileController storeProfileController = Get.put(
+    StoreProfileController(),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -39,37 +40,43 @@ class StoreProfileView extends GetView<StoreProfileController> {
                               enlargeCenterPage: true,
                               viewportFraction: 0.9,
                             ),
-                            items: storeProfileController.crouseImages
-                                .map((imagePath) {
-                              return Builder(
-                                builder: (BuildContext context) {
-                                  return Container(
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          blurStyle: BlurStyle.inner,
-                                          spreadRadius: 10,
-                                          blurRadius: 5,
-                                          color: Colors.white,
-                                          offset: Offset(0, 10),
-                                        ),
-                                      ],
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.asset(
-                                        imagePath,
-                                        fit: BoxFit.cover,
+                            items:
+                                storeProfileController.crouseImages.map((
+                                  imagePath,
+                                ) {
+                                  return Builder(
+                                    builder: (BuildContext context) {
+                                      return Container(
                                         width: double.infinity,
-                                        height: double.infinity,
-                                      ),
-                                    ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              blurStyle: BlurStyle.inner,
+                                              spreadRadius: 10,
+                                              blurRadius: 5,
+                                              color: Colors.white,
+                                              offset: Offset(0, 10),
+                                            ),
+                                          ],
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          child: Image.asset(
+                                            imagePath,
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                          ),
+                                        ),
+                                      );
+                                    },
                                   );
-                                },
-                              );
-                            }).toList(),
+                                }).toList(),
                           ),
                           Positioned(
                             bottom: 10,
@@ -77,7 +84,9 @@ class StoreProfileView extends GetView<StoreProfileController> {
                             child: Container(
                               height: 35,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 5, vertical: 0),
+                                horizontal: 5,
+                                vertical: 0,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 color: Color(0xff02A146),
@@ -87,9 +96,10 @@ class StoreProfileView extends GetView<StoreProfileController> {
                                   Text(
                                     '4.5',
                                     style: GoogleFonts.montserrat(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                   SizedBox(),
                                   Icon(
@@ -105,9 +115,10 @@ class StoreProfileView extends GetView<StoreProfileController> {
                                   Text(
                                     '23',
                                     style: GoogleFonts.montserrat(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                   SizedBox(),
                                   Icon(
@@ -148,14 +159,17 @@ class StoreProfileView extends GetView<StoreProfileController> {
                             left: 20,
                             child: GestureDetector(
                               onTap: () {
-                                Get.back();
+                                Get.closeAllSnackbars();
+                                Get.back(closeOverlays: true);
+                                ();
                               },
                               child: Container(
                                 height: 50,
                                 width: 35,
                                 decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white70),
+                                  shape: BoxShape.circle,
+                                  color: Colors.white70,
+                                ),
                                 child: Icon(Icons.arrow_back),
                               ),
                             ),
@@ -167,12 +181,10 @@ class StoreProfileView extends GetView<StoreProfileController> {
                               height: 50,
                               width: 35,
                               decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white70),
-                              child: Icon(
-                                Icons.message_rounded,
-                                size: 20,
+                                shape: BoxShape.circle,
+                                color: Colors.white70,
                               ),
+                              child: Icon(Icons.message_rounded, size: 20),
                             ),
                           ),
                         ],
@@ -200,16 +212,18 @@ class StoreProfileView extends GetView<StoreProfileController> {
                               Text(
                                 'First',
                                 style: GoogleFonts.montserrat(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.white),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.white,
+                                ),
                               ),
                               Text(
                                 'Find',
                                 style: GoogleFonts.montserrat(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.primaryGradinatMixColor),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.primaryGradinatMixColor,
+                                ),
                               ),
                             ],
                           ),
@@ -252,21 +266,24 @@ class StoreProfileView extends GetView<StoreProfileController> {
                             Text(
                               'Grocery',
                               style: GoogleFonts.montserrat(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.textPrimary),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textPrimary,
+                              ),
                             ),
                             SizedBox(width: 2),
                             Text('|', style: TextStyle(fontSize: 22)),
                             SizedBox(width: 2),
                             Flexible(
-                              child: Text('Stationary',
-                                  overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.textPrimary,
-                                  )),
+                              child: Text(
+                                'Stationary',
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -277,25 +294,34 @@ class StoreProfileView extends GetView<StoreProfileController> {
                             Text(
                               'Sun-Mon ',
                               style: GoogleFonts.montserrat(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            Text(
+                              '|',
+                              style: TextStyle(
+                                fontSize: 22,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            Flexible(
+                              child: Text(
+                                '9:00 Am - 8:00 Pm',
+                                style: GoogleFonts.montserrat(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: AppColors.textSecondary),
-                            ),
-                            Text('|',
-                                style: TextStyle(
-                                    fontSize: 22,
-                                    color: AppColors.textSecondary)),
-                            Flexible(
-                              child: Text('9:00 Am - 8:00 Pm',
-                                  style: GoogleFonts.montserrat(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.textSecondary),
-                                  overflow: TextOverflow.ellipsis),
+                                  color: AppColors.textSecondary,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                             Container(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 8),
+                                horizontal: 10,
+                                vertical: 8,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(
@@ -310,7 +336,7 @@ class StoreProfileView extends GetView<StoreProfileController> {
                                   end: Alignment.bottomCenter,
                                   colors: [
                                     AppColors.primaryFirstGradiant,
-                                    AppColors.primaryGradinatMixColor
+                                    AppColors.primaryGradinatMixColor,
                                   ],
                                 ),
                               ),
@@ -318,10 +344,7 @@ class StoreProfileView extends GetView<StoreProfileController> {
                           ],
                         ),
                         SizedBox(height: 10),
-                        Divider(
-                          thickness: 5,
-                          color: AppColors.border,
-                        ),
+                        Divider(thickness: 5, color: AppColors.border),
                       ],
                     ),
                   ),
@@ -339,8 +362,9 @@ class StoreProfileView extends GetView<StoreProfileController> {
                       ],
                       indicatorSize: TabBarIndicatorSize.tab,
                       indicator: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
-                          color: AppColors.white),
+                        borderRadius: BorderRadius.circular(25),
+                        color: AppColors.white,
+                      ),
                       labelColor: AppColors.textPrimary,
                       labelStyle: GoogleFonts.montserrat(
                         fontWeight: FontWeight.w600,
@@ -357,11 +381,7 @@ class StoreProfileView extends GetView<StoreProfileController> {
 
             // **Scrollable TabBarView**
             body: TabBarView(
-              children: [
-                StoresTabProfileView(),
-                ReviewView(),
-                AboutView(),
-              ],
+              children: [StoresTabProfileView(), ReviewView(), AboutView()],
             ),
           ),
         ),
@@ -383,11 +403,11 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: AppColors.lightGrey,
-      child: tabBar,
-    );
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(color: AppColors.lightGrey, child: tabBar);
   }
 
   @override

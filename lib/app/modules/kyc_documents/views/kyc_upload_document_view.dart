@@ -1,6 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:farmitra/app/constants/app_colors.dart';
-import 'package:farmitra/app/modules/kyc_documents/controllers/kyc_upload_document_controller_controller.dart';
+import 'package:farmitra/app/modules/kyc_documents/controllers/kyc_upload_document_controller.dart';
+import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_text_form_field.dart';
 
 import 'package:flutter/material.dart';
@@ -14,9 +15,8 @@ import 'package:image_picker/image_picker.dart';
 class KycUploadDocumentView extends GetView {
   KycUploadDocumentView({super.key});
   final GlobalKey<FormState> formkey = GlobalKey<FormState>();
-  final KycUploadDocumentControllerController
-  kycUploadDocumentControllerController = Get.put(
-    KycUploadDocumentControllerController(),
+  final KycUploadDocumentController kycUploadDocumentController = Get.put(
+    KycUploadDocumentController(),
   );
   @override
   Widget build(BuildContext context) {
@@ -190,8 +190,7 @@ class KycUploadDocumentView extends GetView {
                 CustomTextFormField(
                   hintText: "Enter Document ID/No.",
                   keyboardType: TextInputType.number,
-                  controller:
-                      kycUploadDocumentControllerController.documentIdNo,
+                  controller: kycUploadDocumentController.documentIdNo,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please Enter Document ID/No.';
@@ -200,43 +199,7 @@ class KycUploadDocumentView extends GetView {
                   },
                   inputFormatters: [LengthLimitingTextInputFormatter(12)],
                 ),
-                // TextFormField(
-                //   controller:
-                //       kycUploadDocumentControllerController.documentIdNo,
-                //   decoration: InputDecoration(
-                //     hintText: "Enter Document ID/No.",
-                //     hintStyle: TextStyle(
-                //       color: AppColors.border,
-                //       fontSize: 14,
-                //       fontWeight: FontWeight.w500,
-                //     ),
-                //     focusedBorder: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(25),
-                //       borderSide: BorderSide(
-                //         color: AppColors.,
-                //       ),
-                //     ),
-                //     enabledBorder: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(25),
-                //       borderSide: BorderSide(
-                //         color: Color(0xffDADADA),
-                //       ),
-                //     ),
-                //     focusedErrorBorder: OutlineInputBorder(
-                //         borderRadius: BorderRadius.circular(25),
-                //         borderSide: BorderSide(color: Colors.red)),
-                //     errorBorder: OutlineInputBorder(
-                //         borderRadius: BorderRadius.circular(25),
-                //         borderSide: BorderSide(color: Colors.red)),
-                //   ),
-                //   validator: (value) {
-                //     if (value == null || value.isEmpty) {
-                //       return 'Please Enter Document ID/No.';
-                //     }
-                //     return null;
-                //   },
-                //   inputFormatters: [LengthLimitingTextInputFormatter(12)],
-                // ),
+
                 SizedBox(height: 10),
                 Text(
                   'Upload your document here (2:1)',
@@ -267,12 +230,12 @@ class KycUploadDocumentView extends GetView {
                           children: [
                             Obx(
                               () =>
-                                  kycUploadDocumentControllerController
+                                  kycUploadDocumentController
                                               .selectedImage
                                               .value !=
                                           null
                                       ? Image.file(
-                                        kycUploadDocumentControllerController
+                                        kycUploadDocumentController
                                             .selectedImage
                                             .value!,
                                         height: 150,
@@ -320,14 +283,11 @@ class KycUploadDocumentView extends GetView {
                 children: [
                   Obx(
                     () => Checkbox(
-                      value:
-                          kycUploadDocumentControllerController.isChecked.value,
+                      value: kycUploadDocumentController.isChecked.value,
                       activeColor: AppColors.primaryGradinatMixColor,
                       checkColor: AppColors.white,
                       onChanged: (value) {
-                        kycUploadDocumentControllerController.toggleCheckBox(
-                          value,
-                        );
+                        kycUploadDocumentController.toggleCheckBox(value);
                       },
                     ),
                   ),
@@ -341,46 +301,71 @@ class KycUploadDocumentView extends GetView {
                 ],
               ),
               SizedBox(height: 15),
-              Container(
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [AppColors.primaryFirstGradiant,AppColors.primarySecondGradiant],
-                  ),
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                  ),
-                  onPressed: () {
-                    if (formkey.currentState!.validate() &&
-                        kycUploadDocumentControllerController.isChecked.value ==
-                            true) {
+              CustomGradientButton(
+                text: 'Submit',
+                onPressed: () async {
+                  if (formkey.currentState!.validate() &&
+                      kycUploadDocumentController.isChecked.value == true) {
+                    final success =
+                        await kycUploadDocumentController
+                            .submitBusinessDocument();
+                    if (success) {
                       Get.toNamed('/business_kyc');
-                    } else {
-                      Get.snackbar(
-                        'Notice',
-                        'Text field and checkbox are required field',
-                        backgroundColor: AppColors.appBarColor,
-                        colorText: AppColors.primaryGradinatMixColor,
-                      );
                     }
-                  },
-                  child: Text(
-                    'Submit',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.white,
-                    ),
-                  ),
-                ),
+                  } else {
+                    Get.snackbar(
+                      'Notice',
+                      'Text field and checkbox are required fields',
+                      backgroundColor: AppColors.primaryGradinatMixColor,
+                      colorText: AppColors.white,
+                    );
+                  }
+                },
               ),
+
+              // Container(
+              //   width: double.infinity,
+              //   height: 50,
+              //   decoration: BoxDecoration(
+              //     gradient: const LinearGradient(
+              //       begin: Alignment.topCenter,
+              //       end: Alignment.bottomCenter,
+              //       colors: [
+              //         AppColors.primaryFirstGradiant,
+              //         AppColors.primarySecondGradiant,
+              //       ],
+              //     ),
+              //     borderRadius: BorderRadius.circular(25),
+              //   ),
+              //   child: ElevatedButton(
+              //     style: ElevatedButton.styleFrom(
+              //       backgroundColor: Colors.transparent,
+              //       elevation: 0,
+              //     ),
+              //     onPressed: () {
+              //       if (formkey.currentState!.validate() &&
+              //           kycUploadDocumentController.isChecked.value ==
+              //               true) {
+              //         Get.toNamed('/business_kyc');
+              //       } else {
+              //         Get.snackbar(
+              //           'Notice',
+              //           'Text field and checkbox are required field',
+              //           backgroundColor: AppColors.appBarColor,
+              //           colorText: AppColors.primaryGradinatMixColor,
+              //         );
+              //       }
+              //     },
+              //     child: Text(
+              //       'Submit',
+              //       style: GoogleFonts.montserrat(
+              //         fontSize: 14,
+              //         fontWeight: FontWeight.w600,
+              //         color: AppColors.white,
+              //       ),
+              //     ),
+              //   ),
+              // ),
               SizedBox(height: 10),
               Text(
                 'Contact for help!',
@@ -400,9 +385,8 @@ class KycUploadDocumentView extends GetView {
 }
 
 void showImageSourceDialog() {
-  final KycUploadDocumentControllerController
-  kycUploadDocumentControllerController = Get.put(
-    KycUploadDocumentControllerController(),
+  final KycUploadDocumentController kycUploadDocumentController = Get.put(
+    KycUploadDocumentController(),
   );
   showDialog(
     context: Get.context!,
@@ -421,10 +405,10 @@ void showImageSourceDialog() {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.back();
-                  kycUploadDocumentControllerController.pickImage(
-                    ImageSource.camera,
-                  );
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  ();
+                  kycUploadDocumentController.pickImage(ImageSource.camera);
                 },
                 child: Text(
                   'Camera',
@@ -437,10 +421,10 @@ void showImageSourceDialog() {
               ),
               TextButton(
                 onPressed: () {
-                  Get.back();
-                  kycUploadDocumentControllerController.pickImage(
-                    ImageSource.gallery,
-                  );
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  ();
+                  kycUploadDocumentController.pickImage(ImageSource.gallery);
                 },
                 child: Text(
                   'Gallery',

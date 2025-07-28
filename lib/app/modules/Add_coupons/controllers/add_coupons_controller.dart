@@ -10,22 +10,29 @@ class AddCouponsController extends GetxController {
   final RxString errorMessage = ''.obs;
 
   // Observable list for coupons
-  final RxList<Map<String, dynamic>> validCoupons = <Map<String, dynamic>>[].obs;
+  final RxList<Map<String, dynamic>> validCoupons =
+      <Map<String, dynamic>>[].obs;
 
   // Observable list for switch states
   final RxList<RxBool> isSwitched = <RxBool>[].obs;
 
   // Filtered coupons by coupon_type
   List<Map<String, dynamic>> getPromotionalCoupons() {
-    return validCoupons.where((coupon) => coupon['coupon_type'] == 'Promotional').toList();
+    return validCoupons
+        .where((coupon) => coupon['coupon_type'] == 'Promotional')
+        .toList();
   }
 
   List<Map<String, dynamic>> getRegularCoupons() {
-    return validCoupons.where((coupon) => coupon['coupon_type'] == 'Regular').toList();
+    return validCoupons
+        .where((coupon) => coupon['coupon_type'] == 'Regular')
+        .toList();
   }
 
   List<Map<String, dynamic>> getOtherCoupons() {
-    return validCoupons.where((coupon) => coupon['coupon_type'] == 'Others').toList();
+    return validCoupons
+        .where((coupon) => coupon['coupon_type'] == 'Others')
+        .toList();
   }
 
   // For demo purposes - replace with actual cart total
@@ -44,20 +51,34 @@ class AddCouponsController extends GetxController {
       try {
         validCoupons.assignAll(
           couponData.map((coupon) {
-            final couponType = coupon['coupon_type']?.toString().trim() ?? 'Others';
-            final discountType = coupon['discount_type']?.toString().trim() ?? 'Percentage';
+            final couponType =
+                coupon['coupon_type']?.toString().trim() ?? 'Others';
+            final discountType =
+                coupon['discount_type']?.toString().trim() ?? 'Percentage';
             // Normalize coupon type to handle case sensitivity
-            final normalizedCouponType = ['Promotional', 'Regular', 'Others'].contains(couponType)
-                ? couponType
-                : 'Others';
+            final normalizedCouponType =
+                ['Promotional', 'Regular', 'Others'].contains(couponType)
+                    ? couponType
+                    : 'Others';
             final processedCoupon = {
-              'code': coupon['coupon_code']?.toString().trim().toUpperCase() ?? 'UNKNOWN',
-              'discount': int.tryParse(coupon['discount']?.toString() ?? '0') ?? 0,
-              'discount_type': discountType == 'Amount' ? 'Amount' : 'Percentage',
-              'min_cart_value': int.tryParse(coupon['minimum_purchase']?.toString() ?? '0') ?? 0,
-              'max_discount': int.tryParse(coupon['maximum_discount']?.toString() ?? '0') ?? 0,
-              'description': coupon['title']?.toString().trim() ?? 'No description',
-              'is_active': normalizedCouponType == 'Promotional' || normalizedCouponType == 'Regular',
+              'code':
+                  coupon['coupon_code']?.toString().trim().toUpperCase() ??
+                  'UNKNOWN',
+              'discount':
+                  int.tryParse(coupon['discount']?.toString() ?? '0') ?? 0,
+              'discount_type':
+                  discountType == 'Amount' ? 'Amount' : 'Percentage',
+              'min_cart_value':
+                  int.tryParse(coupon['minimum_purchase']?.toString() ?? '0') ??
+                  0,
+              'max_discount':
+                  int.tryParse(coupon['maximum_discount']?.toString() ?? '0') ??
+                  0,
+              'description':
+                  coupon['title']?.toString().trim() ?? 'No description',
+              'is_active':
+                  normalizedCouponType == 'Promotional' ||
+                  normalizedCouponType == 'Regular',
               'coupon_type': normalizedCouponType,
               'user_limit': coupon['user_limit']?.toString().trim() ?? '0',
               'start_date': coupon['start_date']?.toString().trim() ?? 'N/A',
@@ -133,7 +154,9 @@ class AddCouponsController extends GetxController {
       appliedCoupon.value = code;
       discountAmount.value = discount;
       Get.snackbar('Success', 'Coupon $code applied! Discount: ₹$discount');
-      Get.back(result: {'code': code, 'discount': discount});
+      Get.closeAllSnackbars();
+      Get.back(closeOverlays: true);
+      (result: {'code': code, 'discount': discount});
     } catch (e) {
       errorMessage.value = 'Error applying coupon: $e';
       print('Error applying coupon: $e');
@@ -154,7 +177,10 @@ class AddCouponsController extends GetxController {
     String startDate = '',
     String endDate = '',
   }) {
-    if (code.isEmpty || discount <= 0 || minCartValue <= 0 || maxDiscount <= 0) {
+    if (code.isEmpty ||
+        discount <= 0 ||
+        minCartValue <= 0 ||
+        maxDiscount <= 0) {
       Get.snackbar('Error', 'Please fill all fields with valid values');
       return;
     }
@@ -234,7 +260,9 @@ class AddCouponsController extends GetxController {
       calculatedDiscount = (cartTotal * discount) / 100;
     }
 
-    return calculatedDiscount > maxDiscount ? maxDiscount.toDouble() : calculatedDiscount;
+    return calculatedDiscount > maxDiscount
+        ? maxDiscount.toDouble()
+        : calculatedDiscount;
   }
 
   void clearCoupon() {
@@ -246,7 +274,9 @@ class AddCouponsController extends GetxController {
 
   void initializeSwitches() {
     isSwitched.assignAll(
-      validCoupons.map<RxBool>((coupon) => RxBool(coupon['is_active'] ?? false)).toList(),
+      validCoupons
+          .map<RxBool>((coupon) => RxBool(coupon['is_active'] ?? false))
+          .toList(),
     );
     print('Switches initialized for ${validCoupons.length} coupons');
   }

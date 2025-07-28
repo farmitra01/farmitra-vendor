@@ -24,7 +24,9 @@ class ProductDetails extends StatelessWidget {
           decoration: InputDecoration(
             prefixIcon: GestureDetector(
               onTap: () {
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
               child: Icon(Icons.arrow_back, color: Colors.grey),
             ),
@@ -233,7 +235,8 @@ Widget FirstFindLibrary(BuildContext context) {
                                     width: 10,
                                     child: Obx(() {
                                       return Checkbox(
-                                        activeColor: AppColors.primaryGradinatMixColor,
+                                        activeColor:
+                                            AppColors.primaryGradinatMixColor,
 
                                         value:
                                             productDetailsController
@@ -257,7 +260,8 @@ Widget FirstFindLibrary(BuildContext context) {
                                     width: 10,
                                     child: Obx(
                                       () => Checkbox(
-                                        activeColor: AppColors.primaryGradinatMixColor,
+                                        activeColor:
+                                            AppColors.primaryGradinatMixColor,
                                         value:
                                             productDetailsController
                                                 .selectedItems[index],

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:farmitra/app/modules/kyc_documents/controllers/owner_upload_doc_controller.dart';
+import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_text_form_field.dart';
 
 import 'package:flutter/material.dart';
@@ -190,7 +191,7 @@ class OwnerUploadDoc extends StatelessWidget {
                   controller: ownerUploadDocController.name,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please Enter Document ID/No.';
+                      return 'Please Enter Full Name.';
                     }
                     return null;
                   },
@@ -199,7 +200,7 @@ class OwnerUploadDoc extends StatelessWidget {
                 CustomTextFormField(
                   hintText: 'Enter Document ID/No.',
                   keyboardType: TextInputType.text,
-                  controller: ownerUploadDocController.name,
+                  controller: ownerUploadDocController.documentIdNo,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please Enter Document ID/No.';
@@ -207,36 +208,6 @@ class OwnerUploadDoc extends StatelessWidget {
                     return null;
                   },
                 ),
-                // TextFormField(
-                //   controller: ownerUploadDocController.documentIdNo,
-                //   decoration: InputDecoration(
-                //     hintText: "Enter Document ID/No.",
-                //     hintStyle: TextStyle(
-                //       color: Color(0xff636363),
-                //       fontSize: 14,
-                //       fontWeight: FontWeight.w500,
-                //     ),
-                //     focusedBorder: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(25),
-                //       borderSide: BorderSide(
-                //         color: Color(0xffF27129),
-                //       ),
-                //     ),
-                //     enabledBorder: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(25),
-                //       borderSide: BorderSide(
-                //         color: Color(0xffDADADA),
-                //       ),
-                //     ),
-                //     focusedErrorBorder: OutlineInputBorder(
-                //         borderRadius: BorderRadius.circular(25),
-                //         borderSide: BorderSide(color: Colors.red)),
-                //     errorBorder: OutlineInputBorder(
-                //         borderRadius: BorderRadius.circular(25),
-                //         borderSide: BorderSide(color: Colors.red)),
-                //   ),
-                //   inputFormatters: [LengthLimitingTextInputFormatter(12)],
-                // ),
                 SizedBox(height: 10),
                 Text(
                   'Upload your document here (2:1)',
@@ -430,48 +401,30 @@ class OwnerUploadDoc extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 15),
-              Container(
-                width: double.infinity,
-                height: 50,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppColors.primaryFirstGradiant,
-                      AppColors.primarySecondGradiant,
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                  ),
-                  onPressed: () {
-                    if (formkey.currentState!.validate() &&
-                        ownerUploadDocController.isChecked.value == true) {
+              CustomGradientButton(
+                text: 'Submit',
+                onPressed: () async {
+                  if (formkey.currentState!.validate() &&
+                      ownerUploadDocController.isChecked.value == true) {
+                    // Call API
+                    bool success =
+                        await ownerUploadDocController.submitOwnerDocument();
+
+                    if (success) {
+                      // Navigate if successful
                       Get.toNamed('/business_kyc');
-                    } else {
-                      Get.snackbar(
-                        'Notice',
-                        'Text field and checkbox are required field',
-                        backgroundColor: AppColors.appBarColor,
-                        colorText: AppColors.primaryGradinatMixColor,
-                      );
                     }
-                  },
-                  child: Text(
-                    'Submit',
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.white,
-                    ),
-                  ),
-                ),
+                  } else {
+                    Get.snackbar(
+                      'Notice',
+                      'Text field and checkbox are required field',
+                      backgroundColor: AppColors.appBarColor,
+                      colorText: AppColors.primaryGradinatMixColor,
+                    );
+                  }
+                },
               ),
+             
               SizedBox(height: 10),
               Text(
                 'Contact for help!',
@@ -490,61 +443,3 @@ class OwnerUploadDoc extends StatelessWidget {
   }
 }
 
-// void showImageSourceDialog() {
-//   final KycUploadDocumentControllerController
-//       kycUploadDocumentControllerController =
-//       Get.put(KycUploadDocumentControllerController());
-//   showDialog(
-//     context: Get.context!,
-//     builder: (BuildContext context) {
-//       return AlertDialog(
-//         title: Text(
-//           'Select Image :-',
-//         ),
-//         titleTextStyle: GoogleFonts.montserrat(
-//           fontWeight: FontWeight.w500,
-//           fontSize: 18,
-//           color: Color(0xffF27129),
-//         ),
-//         // content: Text('Choose where you want to select the image from.'),
-//         actions: [
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.end,
-//             children: [
-//               TextButton(
-//                 onPressed: () {
-//                   Get.back();
-//                   kycUploadDocumentControllerController
-//                       .pickImage(ImageSource.camera);
-//                 },
-//                 child: Text(
-//                   'Camera',
-//                   style: GoogleFonts.montserrat(
-//                     fontWeight: FontWeight.w500,
-//                     fontSize: 14,
-//                     color: Color(0xffF27129),
-//                   ),
-//                 ),
-//               ),
-//               TextButton(
-//                 onPressed: () {
-//                   Get.back();
-//                   kycUploadDocumentControllerController
-//                       .pickImage(ImageSource.gallery);
-//                 },
-//                 child: Text(
-//                   'Gallery',
-//                   style: GoogleFonts.montserrat(
-//                     fontWeight: FontWeight.w500,
-//                     fontSize: 14,
-//                     color: Color(0xffF27129),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ],
-//       );
-//     },
-//   );
-// }

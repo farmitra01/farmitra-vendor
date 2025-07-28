@@ -1,31 +1,32 @@
 import 'package:farmitra/app/constants/app_colors.dart';
+import 'package:farmitra/app/modules/login/controllers/login_controller.dart';
 import 'package:farmitra/app/modules/login/controllers/otp_controller.dart';
+import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/gradiant_outlined_button.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class OtpView extends GetView {
-  final String mobileNumber;
-
-  OtpView({super.key, required this.mobileNumber});
+class OtpView extends StatelessWidget {
+  OtpView({super.key});
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
-    final receivedNumber = Get.arguments;
+    // var validate = false.obs;
     final OtpController otpController = Get.put(OtpController());
+    final LoginController loginController = Get.put(LoginController());
+    // final receivedNumber = Get.arguments; // Receiving from LoginView
+    bool isOtpComplete() =>
+        otpController.OTPcontrollers.every((c) => c.text.trim().isNotEmpty);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.appBarColor,
         leading: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: GestureDetector(
-            onTap: () {
-              Get.back();
-            },
+            onTap: () => Get.back(),
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -42,7 +43,7 @@ class OtpView extends GetView {
         child: Form(
           key: _formkey,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -53,7 +54,7 @@ class OtpView extends GetView {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 Text(
                   'We have sent a verification code on',
                   style: GoogleFonts.montserrat(
@@ -62,163 +63,231 @@ class OtpView extends GetView {
                     color: const Color(0xff636363),
                   ),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Text(
-                  '+91 ${receivedNumber}',
+                  '+91 ${otpController.mobile}',
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
                 ),
-                SizedBox(height: 100),
+                const SizedBox(height: 100),
                 Center(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: List.generate(4, (index) {
                           return Container(
-                            margin: EdgeInsets.symmetric(horizontal: 8),
+                            margin: const EdgeInsets.symmetric(horizontal: 8),
                             width: 50,
                             height: 50,
-                            child: TextFormField(
-                              cursorColor: AppColors.primaryGradinatMixColor,
-                              controller: otpController.OTPcontrollers[index],
-                              focusNode: otpController.focusNodes[index],
-                              textAlign: TextAlign.center,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                LengthLimitingTextInputFormatter(1),
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
+                            child: Obx(
+                              () => TextFormField(
+                                cursorColor: AppColors.primaryGradinatMixColor,
+                                controller: otpController.OTPcontrollers[index],
+                                focusNode: otpController.focusNodes[index],
+                                textAlign: TextAlign.center,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(1),
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                decoration: InputDecoration(
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color:
+                                          otpController
+                                                  .otpErrorMessage
+                                                  .isNotEmpty
+                                              ? AppColors.error
+                                              : const Color(0xff636363),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color:
+                                          otpController
+                                                  .otpErrorMessage
+                                                  .isNotEmpty
+                                              ? AppColors.error
+                                              : AppColors
+                                                  .primaryGradinatMixColor,
+                                    ),
+                                  ),
+                                  focusedErrorBorder: const OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: AppColors.error,
+                                    ),
+                                  ),
+                                ),
+                                maxLines: 1,
+                                onChanged:
+                                    (value) => otpController.onOTPChanged(
+                                      value,
+                                      index,
+                                    ),
                               ),
-                              decoration: InputDecoration(
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Color(0xff636363),
-                                  ),
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: AppColors.primaryGradinatMixColor,
-                                  ),
-                                ),
-                                focusedErrorBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: AppColors.error,
-                                  ),
-                                ),
-                              ),
-                              maxLines: 1,
-                              onChanged:
-                                  (value) =>
-                                      otpController.onOTPChanged(value, index),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return ' ';
-                                  // otpController.OTPValidation();
-                                }
-                                return null;
-                              },
                             ),
                           );
                         }),
                       ),
-                      SizedBox(height: 30),
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100),
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              AppColors.primaryFirstGradiant,
-                              AppColors.primarySecondGradiant,
-                            ],
-                          ),
-                        ),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            elevation: 0,
-                            backgroundColor: Colors.transparent,
-                          ),
+                      const SizedBox(height: 8),
+                      Obx(() {
+                        return otpController.otpErrorMessage.isNotEmpty
+                            ? Text(
+                              otpController.otpErrorMessage.value,
+                              style: const TextStyle(
+                                color: AppColors.error,
+                                fontSize: 12,
+                              ),
+                            )
+                            : const SizedBox();
+                      }),
+                      // SizedBox(height: 10),
+                      const SizedBox(height: 30),
+                      Obx(
+                        () => CustomGradientButton(
+                          text: 'Verify',
+                          gradientColors:
+                              otpController.isOtpFilled.value
+                                  ? [
+                                    AppColors.primaryFirstGradiant,
+                                    AppColors.primarySecondGradiant,
+                                  ]
+                                  : [AppColors.lightGrey, AppColors.secondary],
                           onPressed: () {
+                            if (!otpController.isOtpFilled.value) {
+                              otpController.showOtpError(
+                                "Please enter 4-digit Valid OTP",
+                              );
+
+                              return;
+                            }
+
                             if (_formkey.currentState!.validate()) {
-                              Get.toNamed('/registration');
+                              otpController.submitOtp();
                             } else {
                               otpController.OTPValidation();
                             }
                           },
-                          child: Text(
-                            'Verify',
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Didn't receive it? ",
                             style: GoogleFonts.montserrat(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textSecondary,
                             ),
                           ),
-                        ),
-                      ),
-                      SizedBox(height: 30),
-                      Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: GradientOutlinedButton(
-                                borderRadius: BorderRadius.circular(25),
-                                text: "Resend OTP",
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    AppColors.primaryFirstGradiant,
-                                    AppColors.primarySecondGradiant,
-                                  ],
+                          Obx(
+                            () => InkWell(
+                              onTap:
+                                  otpController.isButtonEnabled.value
+                                      ? () {
+                                        loginController.loginWithOtp();
+                                        otpController.startTimer();
+                                      }
+                                      : null,
+                              child: Text(
+                                otpController.isButtonEnabled.value
+                                    ? "Resend OTP"
+                                    : "${otpController.formattedTime}s",
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.primaryGradinatMixColor,
                                 ),
-                                onPressed: () {
-                                  Get.snackbar(
-                                    backgroundColor:
-                                        AppColors.primaryGradinatMixColor,
-                                    colorText: AppColors.white,
-                                    'Notice',
-                                    'Requested for New OTP on $receivedNumber',
-                                  );
-                                },
                               ),
                             ),
-                            SizedBox(width: 15),
-                            Expanded(
-                              child: GradientOutlinedButton(
-                                borderRadius: BorderRadius.circular(25),
-                                text: "Call me",
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    AppColors.primaryFirstGradiant,
-                                    AppColors.primarySecondGradiant,
-                                  ],
-                                ),
-                                onPressed: () {
-                                  Get.snackbar(
-                                    backgroundColor:
-                                        AppColors.primaryGradinatMixColor,
-                                    colorText: AppColors.white,
-                                    'Notice',
-                                    'Requested for call on $receivedNumber',
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                      // Row(
+                      //   children: [
+                      //     Obx(
+                      //       () => Expanded(
+                      //         child: GradientOutlinedButton(
+                      //           borderRadius: BorderRadius.circular(25),
+
+                      //           text:
+                      //               otpController.isButtonEnabled.value
+                      //                   ? "Resend OTP"
+                      //                   : 'Resend OTP in ${otpController.formattedTime}s',
+                      //           gradient:
+                      //               otpController.isButtonEnabled.value
+                      //                   ? LinearGradient(
+                      //                     colors: [
+                      //                       AppColors.primaryFirstGradiant,
+                      //                       AppColors.primarySecondGradiant,
+                      //                     ],
+                      //                   )
+                      //                   : LinearGradient(
+                      //                     colors: [
+                      //                       AppColors.border,
+                      //                       AppColors.border,
+                      //                     ],
+                      //                   ),
+                      //           onPressed: () {
+                      //             otpController.isButtonEnabled.value
+                      //                 ? loginController.loginWithOtp()
+                      //                 : null;
+                      //             otpController.isButtonEnabled.value
+                      //                 ? otpController.startTimer()
+                      //                 : null;
+
+                      //             // Get.snackbar(
+                      //             //   'Notice',
+                      //             //   otpController.isButtonEnabled.value == true
+                      //             //       ? 'Requested for new OTP on ${otpController.mobile}'
+                      //             //       : 'Wait For 2 Minustes',
+                      //             //   backgroundColor:
+                      //             //       AppColors.primaryGradinatMixColor,
+                      //             //   colorText: AppColors.white,
+                      //             //   snackPosition: SnackPosition.TOP,
+                      //             // );
+                      //           },
+                      //         ),
+                      //       ),
+                      //     ),
+                      //     const SizedBox(width: 15),
+                      //     Expanded(
+                      //       child: GradientOutlinedButton(
+                      //         borderRadius: BorderRadius.circular(25),
+                      //         text: "Call me",
+                      //         gradient: LinearGradient(
+                      //           colors: [
+                      //             AppColors.primaryFirstGradiant,
+                      //             AppColors.primarySecondGradiant,
+                      //           ],
+                      //         ),
+                      //         onPressed: () {
+                      //           Get.snackbar(
+                      //             'Notice',
+                      //             'Requested for call on ${otpController.mobile}',
+                      //             backgroundColor:
+                      //                 AppColors.primaryGradinatMixColor,
+                      //             colorText: AppColors.white,
+                      //             snackPosition: SnackPosition.TOP,
+                      //           );
+                      //         },
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ),

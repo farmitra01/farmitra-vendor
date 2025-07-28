@@ -940,10 +940,10 @@ Widget buildAcceptedTab(int tabIndex) {
                                       () => Get.to(
                                         () => Reply(),
                                         arguments: {
-                'appointment': appointmentData,
-                'globalIndex': globalIndex,
-                'tabIndex': tabIndex,
-              },
+                                          'appointment': appointmentData,
+                                          'globalIndex': globalIndex,
+                                          'tabIndex': tabIndex,
+                                        },
                                       ),
                                 ),
                               ),

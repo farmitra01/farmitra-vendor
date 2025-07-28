@@ -10,6 +10,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+
 class BankDetailsFormView extends GetView {
   BankDetailsFormView({super.key});
   final BankDetailsFormController bankDetailsFormController = Get.put(
@@ -47,7 +48,9 @@ class BankDetailsFormView extends GetView {
             padding: const EdgeInsets.only(bottom: 15),
             child: GestureDetector(
               onTap: () {
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
               child: Icon(Icons.close, color: AppColors.error),
             ),
@@ -66,7 +69,7 @@ class BankDetailsFormView extends GetView {
                 CustomTextFormField(
                   hintText: 'Bank A/C No.',
                   keyboardType: TextInputType.number,
-                  controller: bankDetailsFormController.accoutNo,
+                  controller: bankDetailsFormController.accountNo,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please Enter Bank A/C No.';
@@ -94,6 +97,18 @@ class BankDetailsFormView extends GetView {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please Enter Bank Name.';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 10),
+                CustomTextFormField(
+                  hintText: 'Branch Name',
+                  keyboardType: TextInputType.text,
+                  controller: bankDetailsFormController.branchName,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please Enter Branch Name.';
                     }
                     return null;
                   },
@@ -220,7 +235,7 @@ class BankDetailsFormView extends GetView {
           ),
         ),
       ),
-      bottomNavigationBar: SingleChildScrollView(
+      bottomSheet: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
           child: Column(
@@ -250,14 +265,20 @@ class BankDetailsFormView extends GetView {
               SizedBox(height: 10),
               CustomGradientButton(
                 text: 'Submit',
-                onPressed: () {
-                  if (formkey.currentState!.validate()) {
-                    Get.toNamed('/bank-details');
+                onPressed: () async {
+                  if (formkey.currentState!.validate() &&
+                      bankDetailsFormController.isChecked.value &&
+                      bankDetailsFormController.validateDropdown()) {
+                    final success =
+                        await bankDetailsFormController.submitBankDetails();
+                    if (success) {
+                      Get.toNamed('/bank-details');
+                    }
                   } else {
                     Get.snackbar(
-                      "Notice",
-                      'All Textfields and checkbox is mandatory ',
-                      backgroundColor: AppColors.appBarColor,
+                      'Notice',
+                      'Please fill all required fields and check the agreement box',
+                      backgroundColor: AppColors.error,
                       colorText: AppColors.white,
                     );
                   }
@@ -315,7 +336,9 @@ void _showImagePickerDialog() {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  (); // Close dialog
                   bankDetailsFormController.pickImage(ImageSource.camera);
                 },
                 child: Text(
@@ -329,7 +352,9 @@ void _showImagePickerDialog() {
               ),
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  (); // Close dialog
                   bankDetailsFormController.pickImage(ImageSource.gallery);
                 },
                 child: Text(

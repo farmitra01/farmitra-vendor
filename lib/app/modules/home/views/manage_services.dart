@@ -410,7 +410,9 @@ Widget buildHourlyContent(BuildContext context) {
           CustomGradientButton(
             text: 'Save',
             onPressed: () {
-              Get.back();
+              Get.closeAllSnackbars();
+              Get.back(closeOverlays: true);
+              ();
             },
           ),
         ],
@@ -674,7 +676,9 @@ Widget buildWorkWise(BuildContext context) {
           CustomGradientButton(
             text: 'Save',
             onPressed: () {
-              Get.back();
+              Get.closeAllSnackbars();
+              Get.back(closeOverlays: true);
+              ();
             },
           ),
         ],
@@ -701,7 +705,9 @@ Widget buildBlockData() {
             lastDate: DateTime(2100),
             onDateChanged: (selectedDate) {
               print("Selected Date: $selectedDate");
-              Get.back();
+              Get.closeAllSnackbars();
+              Get.back(closeOverlays: true);
+              ();
             },
           ),
           const SizedBox(height: 10),

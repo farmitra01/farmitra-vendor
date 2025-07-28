@@ -34,7 +34,9 @@ class OrderDetails extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
               child: Container(
                 padding: const EdgeInsets.all(5),
@@ -866,7 +868,7 @@ class OrderDetails extends StatelessWidget {
                           fit: BoxFit.cover,
                         ),
                       ),
-                      child: Padding( 
+                      child: Padding(
                         padding: EdgeInsets.symmetric(
                           horizontal: 15,
                           vertical: 30,
@@ -1324,7 +1326,9 @@ Widget buildAlertBox() {
           Expanded(
             child: CustomOutlinedButton(
               onPressed: () {
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
@@ -1347,7 +1351,9 @@ Widget buildAlertBox() {
               onPressed: () {
                 orderDetailsController.isOrderAccepted.value = false;
                 // Get.to(OrderView());
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
               height: 35,
             ),

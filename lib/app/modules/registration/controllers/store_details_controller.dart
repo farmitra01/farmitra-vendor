@@ -21,7 +21,7 @@ class StoreDetailsController extends GetxController {
       selectedIndex.value = index;
 
       final selected = storeOptions[index];
-      final id = selected.id?.toString() ?? '';
+      final id = selected.id.toString() ?? '';
       final name = selected.name ?? '';
 
       previousSelectedValue.value = 'id:$id,name:$name';

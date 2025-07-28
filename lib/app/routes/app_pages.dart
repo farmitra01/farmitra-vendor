@@ -72,13 +72,18 @@ class AppPages {
   static const INITIAL = Routes.SPLASH_PAGE;
   // static const INITIAL = Routes.OTP;
   static final routes = [
-    GetPage(name: _Paths.home, page: () => HomeView(), binding: HomeBinding()),
+    GetPage(
+      name: _Paths.home,
+      page: () => HomeView(),
+      binding: HomeBinding(),
+      transition: Transition.leftToRight,
+    ),
     GetPage(
       name: _Paths.LOGIN,
       page: () => LoginView(),
       binding: LoginBinding(),
     ),
-    GetPage(name: _Paths.OTP, page: () => OtpView(mobileNumber: ' ')),
+    GetPage(name: _Paths.OTP, page: () => OtpView()),
     GetPage(name: _Paths.ADD, page: () => AddView()),
     GetPage(name: _Paths.HELP_CENTER, page: () => HelpCenterView()),
     GetPage(name: _Paths.text_support, page: () => TextSupportView()),
@@ -89,7 +94,11 @@ class AppPages {
       name: _Paths.faq_grid_pages,
       page: () => FaqGridPagesView(Title: ' '),
     ),
-    GetPage(name: _Paths.REGISTRATION, page: () => RegistrationView()),
+    GetPage(
+      name: _Paths.REGISTRATION,
+      page: () => RegistrationView(),
+      transition: Transition.upToDown,
+    ),
     GetPage(name: _Paths.store_details, page: () => StoreDetailsView()),
     GetPage(
       name: _Paths.store_select_module,

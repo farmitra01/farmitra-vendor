@@ -1,84 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:farmitra/app/services/network_services.dart';
+import 'package:farmitra/app/constants/api_endpoints.dart';
+import 'package:farmitra/app/ApiModels/get-business-plans.dart';
 
-class MySubscriptionController extends GetxController
-    with GetTickerProviderStateMixin {
-  //TODO: Implement MySubscriptionController
-  late TabController tabController;
-  final count = 0.obs;
+class MySubscriptionController extends GetxController {
+  final ApiService _apiService = ApiService();
+
+  RxList<PlanResponse> plans = <PlanResponse>[].obs;
+  var selectedIndex = 0.obs;
+  RxBool isLoading = false.obs;
+  RxString errorMessage = ''.obs;
+
+  // Tab data
+  RxList<String> tabs = ['Silver', 'Gold', 'Platinum'].obs;
+
+  // Mapping UI tab to API value
+  final Map<String, String> subscriptionTypeMap = {
+    'Silver': 'Silver',
+    'Gold': 'Gold',
+    'Platinum': 'Diamond',
+  };
+
+  RxInt tabIndex = 0.obs;
+  RxString selectedType = 'Silver'.obs;
+
+  RxBool trial = false.obs;
+  RxBool renew = false.obs;
+
   @override
   void onInit() {
     super.onInit();
-    tabController = TabController(length: 3, vsync: this);
+    fetchPlans(); // Fetch default tab on init
   }
 
-  @override
-  void onReady() {
-    super.onReady();
+  void changeTab(int index) {
+    tabIndex.value = index;
+    selectedType.value = tabs[index];
+    errorMessage.value = '';
+    fetchPlans();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
-  var selectedIndex = RxInt(-1); // -1 means no selection initially
-
-  // Method to update the selected index
   void selectPlan(int index) {
     selectedIndex.value = index;
   }
-   
-   var selectedPaymentIndex = RxInt(-1); // -1 means no selection initially
 
-  // Method to update the selected index
-  void selectPaymentmothod(int index) {
-    selectedPaymentIndex.value = index;
+  Future<void> fetchPlans() async {
+    try {
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      final apiType =
+          subscriptionTypeMap[selectedType.value] ?? selectedType.value;
+      debugPrint('📡 Fetching plans for: ${selectedType.value}');
+      debugPrint(
+        'Request URL: ${ApiEndpoints.getBusinessPlans}?subscription_type=$apiType',
+      );
+
+      final response = await _apiService.callApi(
+        endpoint: ApiEndpoints.getBusinessPlans,
+        method: 'GET',
+        queryParams: {'subscription_type': apiType},
+      );
+
+      debugPrint('📬 Raw API response: $response');
+
+      // ✅ CORRECT ACCESS
+      final innerData = response['data'];
+      final planList = innerData?['data']; // this is the actual array
+
+      if (planList is List) {
+        plans.value = PlanResponse.listFromJson(planList);
+        debugPrint('✅ Plans fetched: ${plans.length}');
+      } else {
+        errorMessage.value = 'Unexpected data format from API.';
+        debugPrint('❗ Unexpected data format: $innerData');
+        plans.clear();
+      }
+    } catch (e) {
+      errorMessage.value = 'Error fetching plans: $e';
+      plans.clear();
+      debugPrint('❌ Exception: $e');
+    } finally {
+      isLoading.value = false;
+      if (errorMessage.value.isNotEmpty) {
+        Get.snackbar('Error', errorMessage.value);
+      }
+    }
   }
-   
-   
-   
-  final plans = ['Quarterly', 'Monthly', 'Yearly'];
-  final prices = ['₹65.98/QTR', '₹125.99/MO', '₹199.99/YR'];
-  final originalPrices = ['₹170.98/QTR', '₹35.99/MO', '₹299.99/YR'];
-  final billingText = [
-    'Billed quarterly after free trial',
-    'Billed monthly after free trial',
-    'Billed yearly after free trial',
-  ];
-
-  var trial = false.obs;
-  var renew = false.obs;
-
-   final List<Map<String, dynamic>> priceDetails =
-      [
-        {
-          "title": "Item Total",
-          "price": "₹3099",
-          "discountedPrice": "₹1379",
-          "isStrikethrough": true,
-        },
-        {"title": "MRP", "price": "₹3098"},
-        {"title": "Product Discount", "price": "₹1750", "color": Colors.blue},
-        {"title": "Promotional Discount", "price": "₹35"},
-        {"title": "Additional Discount", "price": "₹35"},
-        {"title": "Delivery fee 3.7 KM", "price": "₹35"},
-        {"title": "Handling Charges", "price": "₹15"},
-      ].obs; 
-
-       var addedItems =
-      <Map<String, dynamic>>[
-        {
-          'productname': 'Bombay Shaving Company\nNoir Deodorant Spray',
-          'productPrice': '220',
-          'hasGift': true,
-        },
-        {
-          'productname': 'Sample Product\nItem Two',
-          'productPrice': '150',
-          'hasGift': false,
-        },
-      ].obs;
-      var quantities = <int>[1, 1].obs;
 }

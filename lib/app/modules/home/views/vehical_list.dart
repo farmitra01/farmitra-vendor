@@ -522,7 +522,9 @@ Widget buildOfflineAlertBox() {
             child: CustomGradientButton(
               text: 'Add Now',
               onPressed: () {
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
               height: 35,
             ),

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -47,12 +48,11 @@ class UpiDetailsView extends GetView {
             padding: const EdgeInsets.only(bottom: 15),
             child: GestureDetector(
               onTap: () {
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
-              child: Icon(
-                Icons.close,
-                color: AppColors.error,
-              ),
+              child: Icon(Icons.close, color: AppColors.error),
             ),
           ),
           SizedBox(width: 20),
@@ -332,20 +332,49 @@ class UpiDetailsView extends GetView {
               SizedBox(height: 10),
               CustomGradientButton(
                 text: 'Validate',
-                onPressed: () {
+                onPressed: () async {
                   if (formkey.currentState!.validate() &&
                       upiDetailsController.isChecked.value == true) {
-                    Get.toNamed('/bank_details_form');
+                    final int? upiableId = GetStorage().read('user_id');
+                    final List<dynamic> roles =
+                        GetStorage().read('user_type') ?? [];
+
+                    String upiableType = '';
+                    if (roles.contains('Vendor')) {
+                      upiableType = 'Vendor';
+                    } else if (roles.contains('Expert')) {
+                      upiableType = 'Expert';
+                    }
+
+                    if (upiableId != null && upiableType.isNotEmpty) {
+                      final success = await upiDetailsController
+                          .submitUpiDetails(
+                            upiableId: upiableId,
+                            upiableType: upiableType,
+                          );
+
+                      if (success) {
+                        Get.toNamed('/bank-details');
+                      }
+                    } else {
+                      Get.snackbar(
+                        'Error',
+                        'Invalid user_id or user_type.',
+                        backgroundColor: AppColors.error,
+                        colorText: AppColors.white,
+                      );
+                    }
                   } else {
                     Get.snackbar(
                       "Notice",
-                      "All Text Field & Check box is required field",
-                      backgroundColor: AppColors.appBarColor,
-                      colorText: AppColors.primaryGradinatMixColor,
+                      "All Text Field & Check box are required.",
+                      backgroundColor: AppColors.primaryGradinatMixColor,
+                      colorText: AppColors.white,
                     );
                   }
                 },
               ),
+
               SizedBox(height: 10),
               GestureDetector(
                 onTap: () {
@@ -398,7 +427,9 @@ void _showImagePickerDialog() {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  (); // Close dialog
                   upiDetailsController.pickImage(ImageSource.camera);
                 },
                 child: Text(
@@ -412,7 +443,9 @@ void _showImagePickerDialog() {
               ),
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  (); // Close dialog
                   upiDetailsController.pickImage(ImageSource.gallery);
                 },
                 child: Text(

@@ -21,8 +21,8 @@ class ApiService {
     Map<String, String>? headers,
     Map<String, dynamic>? body,
     Map<String, String>? queryParams,
-    Map<String, String>? formData,
-    File? file,
+    Map<String, dynamic>? formData,
+    Map<String, File>? fileMap,
     String fileFieldName = 'image',
     bool isMultipart = false,
     bool requireAuth = true,
@@ -62,16 +62,30 @@ class ApiService {
         request.headers.addAll(requestHeaders);
 
         if (formData != null) {
-          request.fields.addAll(formData);
+          formData.forEach((key, value) {
+            if (value is List) {
+              // For list values like subcategories: [1, 2]
+              for (int i = 0; i < value.length; i++) {
+                request.fields['$key[$i]'] = value[i].toString();
+              }
+            } else {
+              request.fields[key] =
+                  value.toString(); // Safely convert dynamic to String
+            }
+          });
         }
 
-        if (file != null) {
-          request.files.add(
-            await http.MultipartFile.fromPath(fileFieldName, file.path),
-          );
+        if (fileMap != null) {
+          for (final entry in fileMap.entries) {
+            request.files.add(
+              await http.MultipartFile.fromPath(entry.key, entry.value.path),
+            );
+          }
         }
 
-        final streamedResponse = await request.send().timeout(timeoutDuration);
+        final streamedResponse = await request.send().timeout(
+          ApiService.timeoutDuration,
+        );
         response = await http.Response.fromStream(streamedResponse);
       } else {
         final client = http.Client();
@@ -80,7 +94,7 @@ class ApiService {
             case 'GET':
               response = await client
                   .get(uri, headers: requestHeaders)
-                  .timeout(timeoutDuration);
+                  .timeout(ApiService.timeoutDuration);
               break;
             case 'POST':
               response = await client
@@ -89,7 +103,7 @@ class ApiService {
                     headers: requestHeaders,
                     body: body != null ? jsonEncode(body) : null,
                   )
-                  .timeout(timeoutDuration);
+                  .timeout(ApiService.timeoutDuration);
               break;
             case 'PUT':
               response = await client
@@ -98,7 +112,7 @@ class ApiService {
                     headers: requestHeaders,
                     body: body != null ? jsonEncode(body) : null,
                   )
-                  .timeout(timeoutDuration);
+                  .timeout(ApiService.timeoutDuration);
               break;
             case 'DELETE':
               response = await client
@@ -107,7 +121,7 @@ class ApiService {
                     headers: requestHeaders,
                     body: body != null ? jsonEncode(body) : null,
                   )
-                  .timeout(timeoutDuration);
+                  .timeout(ApiService.timeoutDuration);
               break;
             case 'PATCH':
               response = await client
@@ -116,7 +130,7 @@ class ApiService {
                     headers: requestHeaders,
                     body: body != null ? jsonEncode(body) : null,
                   )
-                  .timeout(timeoutDuration);
+                  .timeout(ApiService.timeoutDuration);
               break;
             default:
               throw Exception('Unsupported HTTP method: $method');
@@ -152,16 +166,17 @@ class ApiService {
         if (message.contains('unauthenticated') ||
             message.contains('token') ||
             response.statusCode == 401) {
-          Get.snackbar(
-            'Log In is Required',
-            'Log in to ease all the features of Farmitra App',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: AppColors.error,
-            colorText: AppColors.white,
-          );
+          print('Log in to use all features of the Farmitra App.');
+          // Get.snackbar(
+          //   'Log In Required',
+          //   'Log in to use all features of the Farmitra App.',
+          //   snackPosition: SnackPosition.BOTTOM,
+          //   backgroundColor: AppColors.error,
+          //   colorText: AppColors.white,
+          // );
         } else {
           Get.snackbar(
-            'Error jjjj',
+            'Notice',
             responseBody['message'] ?? 'API request failed',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: AppColors.error,

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/login_controller.dart';
 
@@ -19,21 +20,14 @@ class LoginView extends GetView<LoginController> {
 
   @override
   Widget build(BuildContext context) {
-    // Ensure controller is initialized only once using Get.find or Get.put
-    final LoginController loginController = Get.put(
-      LoginController(),
-      permanent: true,
-    );
-
+    final LoginController loginController =
+        Get.find<LoginController>(); // ✅ Use find
+    final box = GetStorage();
     return Scaffold(
       appBar: CustomAppBar(
         automaticallyImplyLeading: false,
-        onHelpTap: () {
-          Get.toNamed('/help-center');
-        },
-        onTranslateTap: () {
-          Get.toNamed('/add');
-        },
+        onHelpTap: () => Get.toNamed('/help-center'),
+        onTranslateTap: () => Get.toNamed('/add'),
       ),
       body: Form(
         key: _formKey,
@@ -79,14 +73,19 @@ class LoginView extends GetView<LoginController> {
                 text: 'Get OTP',
                 onPressed: () async {
                   try {
-                    // Validate the form
-                    if (!_formKey.currentState!.validate()) {
-                      return;
-                    }
+                    if (!_formKey.currentState!.validate()) return;
+                    box.write(
+                      'login_mobileNumber',
+                      loginController.mobileNumber.text.trim(),
+                    );
+                    print(
+                      'Stored Login Mobile Number ${box.read('login_mobileNumber')}',
+                    );
+                    // Hide keyboard before proceeding
+                    FocusScope.of(context).unfocus();
 
-                    String? mobileNumber = loginController.mobileNumber.text;
+                    final mobileNumber = loginController.mobileNumber.text;
 
-                    // Show loading indicator
                     Get.dialog(
                       const Center(
                         child: CircularProgressIndicator(
@@ -95,10 +94,12 @@ class LoginView extends GetView<LoginController> {
                       ),
                       barrierDismissible: false,
                     );
-                    // Check internet connection
+
                     await loginController.checkInternetConnectivity();
                     if (!loginController.isInternetConnected.value) {
-                      Get.back(); // Close loading dialog
+                      if (Get.isDialogOpen ?? false) Get.closeAllSnackbars();
+                      Get.back(closeOverlays: true);
+                      ();
                       Get.snackbar(
                         'No Internet',
                         'Please enable internet and try again.',
@@ -109,13 +110,18 @@ class LoginView extends GetView<LoginController> {
                       );
                       return;
                     }
-                    // Call login function
-                    await loginController.login();
-                    // Navigate to OTP screen
-                    Get.back(); // Close loading dialog
-                    Get.toNamed('/otp', arguments: mobileNumber);
+
+                    await loginController.loginWithOtp();
+
+                    if (Get.isDialogOpen ?? false) Get.closeAllSnackbars();
+                    Get.back(closeOverlays: true);
+                    ();
+
+                    Get.toNamed('/otp');
                   } catch (e) {
-                    Get.back(); // Ensure loading dialog is closed
+                    if (Get.isDialogOpen ?? false) Get.closeAllSnackbars();
+                    Get.back(closeOverlays: true);
+                    ();
                     Get.snackbar(
                       'Error',
                       'An unexpected error occurred. Please try again.',
@@ -146,9 +152,7 @@ class LoginView extends GetView<LoginController> {
                       ),
                       recognizer:
                           TapGestureRecognizer()
-                            ..onTap = () {
-                              Get.to(() => TermsCondition());
-                            },
+                            ..onTap = () => Get.to(() => TermsCondition()),
                     ),
                     const TextSpan(
                       text: ' and ',
@@ -161,9 +165,7 @@ class LoginView extends GetView<LoginController> {
                       ),
                       recognizer:
                           TapGestureRecognizer()
-                            ..onTap = () {
-                              Get.to(() => PrivacyPolicy());
-                            },
+                            ..onTap = () => Get.to(() => PrivacyPolicy()),
                     ),
                   ],
                 ),

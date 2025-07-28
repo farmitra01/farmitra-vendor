@@ -48,7 +48,7 @@ class KycDocumentsView extends GetView<KycDocumentsController> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric( 
+                padding: const EdgeInsets.symmetric(
                   horizontal: 15,
                   vertical: 8,
                 ),
@@ -62,49 +62,49 @@ class KycDocumentsView extends GetView<KycDocumentsController> {
                         fontWeight: FontWeight.w400,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Obx(
-                      () => CustomDropdown<String>(
-                        hint: 'Area of Experties',
-                        items:
-                            kycDocumentsController
-                                .storeChannelList, // Keep it as List<String>
-                        selectedItem:
-                            kycDocumentsController.selectedItem.value.isEmpty
-                                ? null
-                                : kycDocumentsController.selectedItem.value,
-                        onChanged: (value) {
-                          kycDocumentsController.updatedSelectedValue(
-                            value ?? '',
-                          );
-                        },
-                        itemBuilder: (item) => item, // Correct item mapping
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    CustomTextFormField(
-                      hintText: 'Other Experties',
-                      keyboardType: TextInputType.text,
-                      controller: kycDocumentsController.specialization,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please Enter Other Experties';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: 10),
 
-                    Text(
-                      'Highest Qualification',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    SizedBox(height: 10),
+                    // SizedBox(height: 10),
+                    // Obx(
+                    //   () => CustomDropdown<String>(
+                    //     hint: 'Area of Experties',
+                    //     items:
+                    //         kycDocumentsController
+                    //             .storeChannelList, // Keep it as List<String>
+                    //     selectedItem:
+                    //         kycDocumentsController.selectedItem.value.isEmpty
+                    //             ? null
+                    //             : kycDocumentsController.selectedItem.value,
+                    //     onChanged: (value) {
+                    //       kycDocumentsController.updatedSelectedValue(
+                    //         value ?? '',
+                    //       );
+                    //     },
+                    //     itemBuilder: (item) => item, // Correct item mapping
+                    //   ),
+                    // ),
+                    // SizedBox(height: 10),
+                    // CustomTextFormField(
+                    //   hintText: 'Other Experties',
+                    //   keyboardType: TextInputType.text,
+                    //   controller: kycDocumentsController.specialization,
+                    //   validator: (value) {
+                    //     if (value == null || value.isEmpty) {
+                    //       return 'Please Enter Other Experties';
+                    //     }
+                    //     return null;
+                    //   },
+                    // ),
+                    // SizedBox(height: 10),
 
+                    // Text(
+                    //   'Highest Qualification',
+                    //   style: GoogleFonts.montserrat(
+                    //     fontSize: 14,
+                    //     fontWeight: FontWeight.w600,
+                    //     color: AppColors.textPrimary,
+                    //   ),
+                    // ),
+                    SizedBox(height: 10),
                     Obx(
                       () => CustomDropdown<String>(
                         hint: 'Choose Highest Qualification',
@@ -951,7 +951,9 @@ void _showImagePickerDialog(String type) {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  (); // Close dialog
                   kycDocumentsController.captureImage();
                 },
                 child: Text(
@@ -965,7 +967,9 @@ void _showImagePickerDialog(String type) {
               ),
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  (); // Close dialog
                   kycDocumentsController.uploadFromGallery();
                 },
                 child: Text(
@@ -1014,7 +1018,9 @@ void _uploadCertificateDialog() {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  (); // Close dialog
                   kycDocumentsController.pickImage(ImageSource.camera);
                 },
                 child: Text(
@@ -1028,7 +1034,9 @@ void _uploadCertificateDialog() {
               ),
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  (); // Close dialog
                   kycDocumentsController.pickImage(ImageSource.gallery);
                 },
                 child: Text(

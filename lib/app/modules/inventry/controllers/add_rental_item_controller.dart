@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -76,7 +77,9 @@ class AddRentalItemController extends GetxController {
       selectedImages.addAll(
         pickedFiles.map((file) => File(file.path)),
       ); // Add images to the list
-      Get.back(); // Close the dialog after selecting images
+      Get.closeAllSnackbars();
+      Get.back(closeOverlays: true);
+      (); // Close the dialog after selecting images
     }
   }
 

@@ -122,7 +122,7 @@ class TextSupportController extends GetxController {
         method: 'POST',
         isMultipart: true,
         formData: formData,
-        file: imageFile, // Send the selected image file
+        fileMap: imageFile != null ? {'image': imageFile} : null,
         fileFieldName: 'image',
       );
 

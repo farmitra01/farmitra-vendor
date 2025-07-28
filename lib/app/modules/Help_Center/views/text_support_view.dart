@@ -235,7 +235,9 @@ void _showImagePickerDialog() {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.back();
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  ();
                   textSupportController.pickImage(ImageSource.camera);
                 },
                 child: Text(
@@ -249,7 +251,9 @@ void _showImagePickerDialog() {
               ),
               TextButton(
                 onPressed: () {
-                  Get.back();
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  ();
                   textSupportController.pickImage(ImageSource.gallery);
                 },
                 child: Text(

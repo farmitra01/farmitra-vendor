@@ -34,19 +34,19 @@ class BankDetailsView extends GetView<BankDetailsController> {
             Text(
               'Bank Details-',
               style: GoogleFonts.montserrat(
-                  fontSize: 14, fontWeight: FontWeight.w700),
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-            SizedBox(
-              height: 10,
-            ),
+            SizedBox(height: 10),
             Text(
-              'Please add your salary receiving modes.',
+              'Please add your Payment receiving modes.',
               style: GoogleFonts.montserrat(
-                  fontSize: 14, fontWeight: FontWeight.w500),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-            SizedBox(
-              height: 20,
-            ),
+            SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
               child: Row(
@@ -67,45 +67,43 @@ class BankDetailsView extends GetView<BankDetailsController> {
                               height: 150,
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 30, vertical: 40),
+                                  horizontal: 30,
+                                  vertical: 40,
+                                ),
                                 child: Column(
                                   children: [
                                     Icon(Icons.qr_code),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
+                                    SizedBox(height: 10),
                                     Text(
                                       'Add QR Code',
                                       style: GoogleFonts.montserrat(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.textPrimary),
-                                    )
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
                             ),
                           ),
-                          SizedBox(
-                            height: 10,
-                          ),
+                          SizedBox(height: 10),
                           Text(
                             'Upload QR',
                             style: GoogleFonts.montserrat(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                decoration: TextDecoration.underline,
-                                decorationColor:
-                                    AppColors.primaryGradinatMixColor,
-                                color: AppColors.primaryGradinatMixColor),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.underline,
+                              decorationColor:
+                                  AppColors.primaryGradinatMixColor,
+                              color: AppColors.primaryGradinatMixColor,
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  SizedBox(
-                    width: 10,
-                  ),
+                  SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       children: [
@@ -122,7 +120,9 @@ class BankDetailsView extends GetView<BankDetailsController> {
                               height: 150,
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 40),
+                                  horizontal: 15,
+                                  vertical: 40,
+                                ),
                                 child: Column(
                                   children: [
                                     SvgPicture.asset(
@@ -130,40 +130,37 @@ class BankDetailsView extends GetView<BankDetailsController> {
                                       height: 25,
                                       color: AppColors.black,
                                     ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
+                                    SizedBox(height: 10),
                                     Text(
                                       'Add Bank Account',
                                       style: GoogleFonts.montserrat(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600),
-                                    )
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height: 10,
-                        ),
+                        SizedBox(height: 10),
                         Text(
                           'Add Bank Details',
                           style: GoogleFonts.montserrat(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              decoration: TextDecoration.underline,
-                              decorationColor:
-                                  AppColors.primaryGradinatMixColor,
-                              color: AppColors.primaryGradinatMixColor),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                            decorationColor: AppColors.primaryGradinatMixColor,
+                            color: AppColors.primaryGradinatMixColor,
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -180,9 +177,7 @@ class BankDetailsView extends GetView<BankDetailsController> {
                 Get.toNamed('/thankyou_page', arguments: previousPageGridTitle);
               },
             ),
-            SizedBox(
-              height: 10,
-            ),
+            SizedBox(height: 10),
             GestureDetector(
               onTap: () {
                 // Handle the tap action properly (e.g., navigate or show a snackbar)
@@ -190,8 +185,10 @@ class BankDetailsView extends GetView<BankDetailsController> {
               },
               child: GestureDetector(
                 onTap: () {
-                  Get.toNamed('/thankyou_page',
-                      arguments: previousPageGridTitle);
+                  Get.toNamed(
+                    '/thankyou_page',
+                    arguments: previousPageGridTitle,
+                  );
                 },
                 child: Text(
                   'Skip for now!',

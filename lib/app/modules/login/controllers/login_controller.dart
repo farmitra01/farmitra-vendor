@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:farmitra/app/ApiModels/post-login_request.dart';
 import 'package:farmitra/app/constants/api_endpoints.dart';
 import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:farmitra/app/services/network_services.dart';
@@ -9,20 +7,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as https;
 
 class LoginController extends GetxController {
-  // Initialize controller only when needed
-  final mobileNumber = TextEditingController();
-  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+  /// ✅ Proper initialization of controller
+  final TextEditingController mobileNumber = TextEditingController();
 
-  /// Internet connection flag
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
   RxBool isInternetConnected = true.obs;
+
+  final ApiService _apiService = ApiService();
 
   @override
   void onInit() {
     super.onInit();
-    // Initialize connectivity subscription
+
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
       results,
     ) {
@@ -30,11 +28,12 @@ class LoginController extends GetxController {
       if (!isInternetConnected.value) {
         showInternetErrorDialog();
       } else if (Get.isDialogOpen!) {
-        Get.back();
+        Get.closeAllSnackbars();
+        Get.back(closeOverlays: true);
+        ();
       }
     });
 
-    // Check initial connectivity
     checkInternetConnectivity();
   }
 
@@ -61,53 +60,9 @@ class LoginController extends GetxController {
     }
     return null;
   }
-  // Api 
-final ApiService _apiService = ApiService();
 
-
-  // Future<void> login() async {
-  //   var headers = {
-  //     'Content-Type': 'application/json',
-  //     'Authorization':
-  //         'Bearer 475|WAbvWyKNUmtErIUOtYRJWD3HnDfRC2QgcjFRysvl065bc083',
-  //   };
-
-  //   var request = https.Request(
-  //     'POST',
-  //     Uri.parse('https://api.farmitra.in/api/login'),
-  //   );
-
-  //   request.body = json.encode({
-  //     "email": "sattababakingup@gmail.com",
-  //     "password": "uPYwDOUz",
-  //   });
-
-  //   request.headers.addAll(headers);
-
-  //   https.StreamedResponse response = await request.send();
-
-  //   if (response.statusCode == 200) {
-  //     String responseBody = await response.stream.bytesToString();
-  //     print('Response Body: $responseBody');
-
-  //     final decoded = json.decode(responseBody);
-
-  //     // Adjust this depending on your API's actual structure
-  //     String? token = decoded['token'] ?? decoded['data']?['token'];
-
-  //     if (token != null) {
-  //       await GetStorage().write('user_token', token);
-  //       print("Token stored: ${GetStorage().read('user_token')}");
-  //       Get.snackbar("Success", "Token saved successfully");
-  //     } else {
-  //       print("Token not found in response");
-  //       Get.snackbar("Error", "Token not found in response");
-  //     }
-  //   } else {
-  //     print("Login failed: ${response.reasonPhrase}");
-  //     Get.snackbar("Login Failed", response.reasonPhrase ?? 'Unknown error');
-  //   }
-  // }
+  /// 🔁 Old login function (commented)
+  /*
   Future<void> login() async {
     final request = PostLoginRequest(
       email: 'sattababakingup@gmail.com',
@@ -134,11 +89,70 @@ final ApiService _apiService = ApiService();
       Get.snackbar("Error", response['data']['message'] ?? 'Login failed');
     }
   }
-  // New method to print stored token
+  */
+
+  /// ✅ New login with OTP
+  Future<void> loginWithOtp() async {
+    final mobile = mobileNumber.text.trim();
+
+    final validationMessage = validateMobileNumber(mobile);
+    if (validationMessage != null) {
+      Get.snackbar(
+        "Invalid",
+        validationMessage,
+        backgroundColor: AppColors.error,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+      return;
+    }
+
+    final body = {"mobile": mobile, "app_type": " "};
+
+    try {
+      final response = await _apiService.callApi(
+        endpoint: ApiEndpoints.userLoginWithOtp,
+        method: 'POST',
+        body: body,
+      );
+
+      if (response['success'] == true) {
+        // print('');
+        // Get.snackbar(
+        //   "Success",
+        //   "OTP sent to $mobile",
+        //   backgroundColor: AppColors.primaryGradinatMixColor,
+        //   colorText: AppColors.white,
+        //   snackPosition: SnackPosition.TOP,
+        //   duration: const Duration(seconds: 2),
+        // );
+
+        await Future.delayed(const Duration(seconds: 2));
+        Get.toNamed("/otp", arguments: mobile);
+      } else {
+        Get.snackbar(
+          "Failed",
+          response['message'] ?? "Something went wrong",
+          backgroundColor: AppColors.error,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.TOP,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Server Error: ${e.toString()}",
+        backgroundColor: AppColors.error,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+      );
+    }
+  }
+
   void printStoredToken() {
-    final token = GetStorage().read('user_token'); // Fixed key to match login
+    final token = GetStorage().read('user_token');
     if (token != null) {
-      debugPrint('Retrieved Token: $token');
+      // debugPrint('Retrieved Token: $token');
       Get.snackbar(
         'Token',
         token,
@@ -160,15 +174,14 @@ final ApiService _apiService = ApiService();
 
   @override
   void onClose() {
+    mobileNumber.dispose(); // ✅ dispose controller
     _connectivitySubscription?.cancel();
-    // Do NOT dispose mobileNumber here to allow reuse
     super.onClose();
   }
 
-  // New method to clear controller
-  void clearController() {
-    mobileNumber.clear();
-  }
+  // void clearController() {
+  //   mobileNumber.clear();
+  // }
 
   Widget buildNetworkError() {
     return AlertDialog(
@@ -195,7 +208,9 @@ final ApiService _apiService = ApiService();
           onPressed: () async {
             await checkInternetConnectivity();
             if (isInternetConnected.value) {
-              Get.back();
+              Get.closeAllSnackbars();
+              Get.back(closeOverlays: true);
+              ();
             } else {
               Get.snackbar(
                 'No Internet',

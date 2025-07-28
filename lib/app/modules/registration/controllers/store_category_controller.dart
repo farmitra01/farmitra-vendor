@@ -8,8 +8,12 @@ class StoreCategoryController extends GetxController {
   final RxSet<int> selectedItems = <int>{}.obs;
   final RxList<ModuleSubCategory> gridContent = <ModuleSubCategory>[].obs;
   final RxList<ModuleSubCategory> subCategories = <ModuleSubCategory>[].obs;
+  final RxList<int> subCategoriesId = <int>[].obs;
   final RxBool isLoading = false.obs;
   final RxInt selectedIndex = 0.obs;
+
+  final RxString moduleCategoryId = ''.obs;
+  final RxString businessModuleId = ''.obs;
   final TextEditingController customeCategory = TextEditingController();
 
   // API service
@@ -21,10 +25,8 @@ class StoreCategoryController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    debugPrint(
-      'StoreCategoryController: onInit called, instance=$hashCode, previousSelectedValue=$previousPageGridTitle',
-    );
     _parseAndFetch();
+    debugPrint('🛠️ Argument of Nature of Business: $previousPageGridTitle');
   }
 
   // Toggle selection status of an item
@@ -34,13 +36,13 @@ class StoreCategoryController extends GetxController {
     } else {
       selectedItems.add(index);
     }
-    debugPrint('Selected items: ${selectedItems.toList()}');
+    debugPrint('✅ Selected items: ${selectedItems.toList()}');
   }
 
   // Add new item to the grid
   void addGridItem(ModuleSubCategory newItem) {
     gridContent.add(newItem);
-    debugPrint('Added new item: ${newItem.name}');
+    debugPrint('🆕 Added new item: ${newItem.name}');
   }
 
   // Parse arguments and fetch data
@@ -62,7 +64,7 @@ class StoreCategoryController extends GetxController {
     if (categoryId != null) {
       fetchModuleSubCategory(categoryId, name: categoryName);
     } else {
-      debugPrint('❌ Missing ID: fallback triggered, instance=$hashCode');
+      debugPrint('❌ Missing ID: fallback triggered');
       Get.snackbar(
         'Error',
         'Invalid category selection.',
@@ -77,38 +79,39 @@ class StoreCategoryController extends GetxController {
       isLoading.value = true;
 
       final endpointUrl = '/module-subcategory/$id';
-      debugPrint('Requesting API: $endpointUrl');
+      debugPrint('🌐 Requesting API: $endpointUrl');
 
       final response = await _apiService.callApi(
         endpoint: endpointUrl,
         method: 'GET',
       );
 
-      debugPrint('Raw API Response: ${response.toString()}');
+      debugPrint('📦 Raw API Response: $response');
 
       final List<dynamic>? dataList =
           response['data']?['data'] ?? response['data'];
+
       if (dataList != null && dataList.isNotEmpty) {
         final parsedList =
             dataList.map((item) => ModuleSubCategory.fromJson(item)).toList();
 
         subCategories.value = parsedList;
-        gridContent.value = parsedList; // Populate gridContent with API data
+        gridContent.value = parsedList;
 
-        // Automatically select index 0 if data exists
+        // Select first item by default
         if (subCategories.isNotEmpty) {
-          selectItem(0); // Select the first item by default
+          selectItem(0);
           _sendDefaultArgument();
         }
 
-        debugPrint('Parsed ${subCategories.length} module subcategories');
+        debugPrint('✅ Parsed ${subCategories.length} subcategories');
       } else {
         subCategories.clear();
         gridContent.clear();
-        debugPrint('No subcategories found.');
+        debugPrint('⚠️ No subcategories found');
       }
     } catch (e) {
-      debugPrint('Exception during fetchModuleSubCategory: $e');
+      debugPrint('❗ Exception during fetch: $e');
       Get.snackbar(
         'Error',
         'Failed to fetch subcategories.',
@@ -117,7 +120,7 @@ class StoreCategoryController extends GetxController {
     } finally {
       isLoading.value = false;
       debugPrint(
-        'Fetch completed: ${subCategories.length} items, instance=$hashCode',
+        '🔁 Fetch completed: ${subCategories.length} items',
       );
     }
   }
@@ -127,19 +130,26 @@ class StoreCategoryController extends GetxController {
     if (index >= 0 && index < subCategories.length) {
       selectedIndex.value = index;
       debugPrint(
-        '✅ Selected Item: Index=$index, ID=${subCategories[index].id}, Name=${subCategories[index].name}, instance=$hashCode',
+        '👉 Selected Item: Index=$index, ID=${subCategories[index].id}, Name=${subCategories[index].name}',
       );
     }
   }
 
-  // Send the default argument (index 0 data)
+  // Send default values (first item)
   void _sendDefaultArgument() {
     if (subCategories.isNotEmpty) {
-      final defaultData =
-          'id:${subCategories[0].id},name:${subCategories[0].name ?? 'Unknown'}';
-      debugPrint('Sending default argument: $defaultData');
-      // Example: Navigate to another screen with the default argument
-      // Get.to(() => NextScreen(), arguments: defaultData);
+      final firstItem = subCategories[0];
+
+      businessModuleId.value = firstItem.business_module_id.toString();
+      moduleCategoryId.value = firstItem.moduleCategoryId.toString();
+      subCategoriesId.value = [firstItem.id]; // ✅ FIXED: correct assignment
+
+      debugPrint('➡️ Default Selected:');
+      debugPrint('   - business_module_id: ${businessModuleId.value}');
+      debugPrint('   - module_category_id: ${moduleCategoryId.value}');
+      debugPrint('   - subcategory_id: ${subCategoriesId.value}');
+    } else {
+      debugPrint('⚠️ No subcategories available for default assignment.');
     }
   }
 

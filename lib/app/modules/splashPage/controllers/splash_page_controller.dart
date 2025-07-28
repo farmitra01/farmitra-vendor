@@ -11,6 +11,7 @@ class SplashController extends GetxController
   @override
   void onInit() {
     super.onInit();
+    Get.closeAllSnackbars();
 
     animationController = AnimationController(
       vsync: this,
@@ -26,14 +27,24 @@ class SplashController extends GetxController
 
     animationController.forward();
 
-    Future.delayed(const Duration(seconds: 3), () {
-      final storage = GetStorage();
-      if (storage.read('user_token') == null) {
+    Future.delayed(const Duration(seconds: 1), () {
+      final box = GetStorage();
+
+      // ✅ Corrected here
+      if ((box.read('user_token') != null) && box.read('user_role') != null) {
+        print('User Type : ${box.read('user_role')}');
+        Get.offAll(() => HomeBottomBarView());
+      } else if (box.read('user_token') == null ||
+          box.read('user_token') != null) {
         Get.offAllNamed('/login');
-      } else {
-        Get.to(() => HomeBottomBarView());
       }
     });
+  }
+
+  void closeOpenedSnackbar() {
+    if (Get.isSnackbarOpen) {
+      Get.closeCurrentSnackbar();
+    }
   }
 
   @override

@@ -7,6 +7,7 @@ import 'package:farmitra/app/modules/registration/controllers/store_category_con
 import 'package:farmitra/app/modules/registration/controllers/store_selected_module_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomeBottomBarView extends GetView<HomeBottomBarController> {
@@ -21,12 +22,9 @@ class HomeBottomBarView extends GetView<HomeBottomBarController> {
   final StoreSelectedModuleController storeSelectedModuleController = Get.put(
     StoreSelectedModuleController(),
   );
-
+  var box = GetStorage();
   @override
   Widget build(BuildContext context) {
-    print(
-      'previous page content = ${storeSelectedModuleController.previousSelectedValue}',
-    );
     return Scaffold(
       body: Obx(() {
         final pageIndex = homeBottomBarController.currentIndex.value;
@@ -34,14 +32,13 @@ class HomeBottomBarView extends GetView<HomeBottomBarController> {
       }),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          storeSelectedModuleController.previousSelectedValue == 'As a Retailer'
+          box.read('user_role') == 'Vendor'
               ? Get.toNamed('/pos')
               : Get.to(() => Appointment());
           print("Floating Action Button Pressed");
         },
         child:
-            storeSelectedModuleController.previousSelectedValue ==
-                    'As a Retailer'
+            box.read('user_role') == 'Vendor'
                 ? Icon(Icons.storefront, color: AppColors.white)
                 : Icon(Icons.calendar_month, color: AppColors.white),
         backgroundColor: AppColors.primaryGradinatMixColor,
@@ -103,8 +100,7 @@ class HomeBottomBarView extends GetView<HomeBottomBarController> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          storeSelectedModuleController.previousSelectedValue ==
-                                  'As a Retailer'
+                          box.read('user_role') == 'Vendor'
                               ? Icons.file_download_outlined
                               : Icons.layers_outlined,
                           color:
@@ -114,10 +110,7 @@ class HomeBottomBarView extends GetView<HomeBottomBarController> {
                         ),
                         SizedBox(height: 5),
                         Text(
-                          storeSelectedModuleController.previousSelectedValue ==
-                                  'As a Retailer'
-                              ? 'Order'
-                              : 'Feed',
+                          box.read('user_role') == 'Vendor' ? 'Order' : 'Feed',
                           style: GoogleFonts.montserrat(
                             fontSize: 12,
                             fontWeight:
@@ -137,10 +130,7 @@ class HomeBottomBarView extends GetView<HomeBottomBarController> {
                 Padding(
                   padding: const EdgeInsets.only(top: 15),
                   child: Text(
-                    storeSelectedModuleController.previousSelectedValue ==
-                            'As a Retailer'
-                        ? 'POS'
-                        : 'Appointment',
+                    box.read('user_role') == 'Vendor' ? 'POS' : 'Appointment',
                     style: GoogleFonts.montserrat(
                       fontSize: 12,
                       fontWeight:

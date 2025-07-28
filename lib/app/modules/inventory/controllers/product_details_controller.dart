@@ -64,7 +64,7 @@ class ProductDetailsController extends GetxController
   List<BottomSheetData> bottom_sheet_data = [
     BottomSheetData(
         icon: Icon(Icons.move_to_inbox_outlined), text: 'Move to\ninventry'),
-    BottomSheetData(icon: Icon(Icons.edit_outlined), text: "Edit"),
+    BottomSheetData(icon: Icon(Icons.edit_outlined), text: "Edit" ),
     BottomSheetData(icon: Icon(Icons.delete_outline), text: "Delete\nProduct"),
     BottomSheetData(icon: Icon(Icons.print_rounded), text: 'Print'),
   ];

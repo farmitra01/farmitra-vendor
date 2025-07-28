@@ -67,15 +67,14 @@ class StoreDetailsView extends GetView<StoreDetailsController> {
                       () => GestureDetector(
                         onTap: () => controller.selectItem(index),
                         child: Container(
-                          height: 100,
                           margin: const EdgeInsets.symmetric(vertical: 3.0),
                           decoration: BoxDecoration(
                             border: Border.all(
                               color:
                                   controller.selectedIndex.value == index
                                       ? AppColors.primaryGradinatMixColor
-                                      : AppColors.secondary,
-                              width: 1.0,
+                                      : AppColors.black,
+                              width: 1.50,
                             ),
                             borderRadius: BorderRadius.circular(15.0),
                           ),
@@ -87,17 +86,28 @@ class StoreDetailsView extends GetView<StoreDetailsController> {
                             ),
                             title: Text(
                               item.name ?? 'Unnamed',
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
+
+                              style: GoogleFonts.montserrat(
+                                color:
+                                    controller.selectedIndex.value == index
+                                        ? AppColors.primaryGradinatMixColor
+                                        : AppColors.textPrimary,
+                                fontSize: 15,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
+
                             subtitle: Text(
                               item.desc ?? 'No description',
-                              style: const TextStyle(
+                              textAlign: TextAlign.left,
+
+                              style: GoogleFonts.montserrat(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: AppColors.textSecondary,
+                                color:
+                                    controller.selectedIndex.value == index
+                                        ? AppColors.primaryGradinatMixColor
+                                        : AppColors.textPrimary,
                               ),
                             ),
                             trailing: Radio<int>(
@@ -126,16 +136,17 @@ class StoreDetailsView extends GetView<StoreDetailsController> {
         child: CustomGradientButton(
           text: 'Proceed',
           onPressed: () {
-            if (controller.selectedIndex.value == 2) {
-              print('Argument Data ${controller.previousSelectedValue.value}');
-              Get.snackbar(
-                'Note',
-                'Coming Soon ... 🙏🙏',
-                snackPosition: SnackPosition.TOP,
-                backgroundColor: AppColors.primaryGradinatMixColor,
-                colorText: AppColors.white,
-              );
-            } else if (controller.previousSelectedValue.value.isEmpty) {
+            // if (controller.selectedIndex.value == 2) {
+            //   print('Argument Data ${controller.previousSelectedValue.value}');
+            //   Get.snackbar(
+            //     'Note',
+            //     'Coming Soon ... 🙏🙏',
+            //     snackPosition: SnackPosition.TOP,
+            //     backgroundColor: AppColors.primaryGradinatMixColor,
+            //     colorText: AppColors.white,
+            //   );
+            // } else
+            if (controller.previousSelectedValue.value.isEmpty) {
               Get.snackbar(
                 'Please',
                 'Select Any Nature of Business',

@@ -24,7 +24,9 @@ class FaqGridPagesView extends GetView {
           padding: const EdgeInsets.only(left: 10, top: 10, bottom: 10),
           child: GestureDetector(
             onTap: () {
-              Get.back();
+              Get.closeAllSnackbars();
+              Get.back(closeOverlays: true);
+              ();
             },
             child: Container(
               decoration: BoxDecoration(
@@ -48,7 +50,7 @@ class FaqGridPagesView extends GetView {
                       color: Color(0xffDADADA),
                     ),
                   ),
-                ],   
+                ],
               ),
             ),
           ),
@@ -91,7 +93,7 @@ class FaqGridPagesView extends GetView {
                         collapsedIconColor: AppColors.primaryGradinatMixColor,
                         shape: Border.all(color: Colors.transparent),
                         title: Text(
-                          'Question:-   ${faq.question}',
+                          ' ${faq.question}',
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.montserrat(
@@ -109,7 +111,7 @@ class FaqGridPagesView extends GetView {
                                 vertical: 8,
                               ),
                               child: Text(
-                                'Answer:- ${faq.answer}',
+                                ' ${faq.answer}',
                                 style: GoogleFonts.montserrat(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,

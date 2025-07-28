@@ -42,7 +42,9 @@ class MedOrderDetails extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () {
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
               child: Container(
                 padding: const EdgeInsets.all(5),
@@ -1534,7 +1536,9 @@ Widget buildAlertBox() {
           Expanded(
             child: CustomOutlinedButton(
               onPressed: () {
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
@@ -1557,7 +1561,9 @@ Widget buildAlertBox() {
               onPressed: () {
                 // medOrderDetailsController.isOrderAccepted.value = false;
                 posCheckoutController.isChanged.value = false;
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
               height: 35,
             ),
@@ -1582,7 +1588,9 @@ Widget buildEstimatedTimerPopUp() {
             Icon(Icons.timer),
             GestureDetector(
               onTap: () {
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
               child: Icon(Icons.close, color: AppColors.error),
             ),
@@ -1618,7 +1626,9 @@ Widget buildEstimatedTimerPopUp() {
                 color: AppColors.primaryGradinatMixColor,
               ),
               onPressed: () {
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
@@ -1633,7 +1643,9 @@ Widget buildEstimatedTimerPopUp() {
             child: CustomGradientButton(
               text: 'Submit',
               onPressed: () {
-                Get.back();
+                Get.closeAllSnackbars();
+                Get.back(closeOverlays: true);
+                ();
               },
             ),
           ),

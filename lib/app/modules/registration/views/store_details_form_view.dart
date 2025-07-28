@@ -1,67 +1,60 @@
 import 'dart:io';
-
 import 'package:dotted_border/dotted_border.dart';
 import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:farmitra/app/data/models/store_category_model/store_template_model.dart';
-import 'package:farmitra/app/data/models/store_select_model/store_select_model.dart';
 import 'package:farmitra/app/modules/kyc_documents/views/rental_kyc.dart';
 import 'package:farmitra/app/modules/registration/controllers/store_category_controller.dart';
 import 'package:farmitra/app/modules/registration/controllers/store_details_form_controller.dart';
 import 'package:farmitra/app/modules/registration/controllers/store_location_controller.dart';
-import 'package:farmitra/app/modules/registration/controllers/store_selected_module_controller.dart';
-import 'package:farmitra/app/modules/registration/controllers/store_template_controller.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_dropdown.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_text_form_field.dart';
 import 'package:farmitra/app/utils/global_widgets/custome_appBar.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hive/hive.dart';
 
-class StoreDetailsFormView extends GetView {
-  StoreDetailsFormView({super.key});
-  final GlobalKey<FormState> formkey = GlobalKey<FormState>();
-  final StoreLocationController storeLocationController = Get.put(
-    StoreLocationController(),
-  );
-  final StoreDetailsFormController storeDetailsFormController = Get.put(
-    StoreDetailsFormController(),
-  );
-  final StoreTemplateController storeTemplateController = Get.put(
-    StoreTemplateController(),
-  );
-  final StoreCategoryController storeCategoryController = Get.put(
-    StoreCategoryController(),
-  );
-  final StoreSelectedModuleController storeSelectModelController = Get.put(
-    StoreSelectedModuleController(),
-  );
-  var previousPageGridTitle = Get.arguments;
+class StoreDetailsFormView extends StatelessWidget {
+  const StoreDetailsFormView({super.key});
+
   @override
   Widget build(BuildContext context) {
-    List<int> selectedIndexes = [];
-    final StoreTemplateModel? selectedTemplate =
-        Get.arguments is StoreTemplateModel
-            ? Get.arguments as StoreTemplateModel
-            : null;
-    // print('Received store template data: $selectedTemplate');
-    print('store details page type $previousPageGridTitle ');
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    final StoreLocationController storeLocationController = Get.put(
+      StoreLocationController(),
+    );
+    final StoreDetailsFormController storeDetailsFormController = Get.put(
+      StoreDetailsFormController(),
+    );
+    final StoreCategoryController storeCategoryController = Get.put(
+      StoreCategoryController(),
+    );
+
+    final arguments = Get.arguments ?? {};
+    print('StoreDetailsFormView: Arguments received: $arguments');
+
+    final String? logoImagePath = arguments['logoImage'] as String?;
+    final String? bannerImagePath = arguments['bannerImage'] as String?;
+    final StoreTemplateModel? logoTemplate =
+        arguments['logoTemplate'] as StoreTemplateModel?;
+    final StoreTemplateModel? bannerTemplate =
+        arguments['bannerTemplate'] as StoreTemplateModel?;
+    final String firstName = arguments['firstName'] as String? ?? 'Farmitra';
+    final String lastName =
+        arguments['lastName'] as String? ??
+        storeCategoryController.previousPageGridTitle ??
+        'Expert';
+
     return Scaffold(
       appBar: CustomAppBar(
         automaticallyImplyLeading: true,
-        onHelpTap: () {
-          Get.toNamed('/help-center');
-        },
-        onTranslateTap: () {
-          Get.toNamed('/add');
-        },
+        onHelpTap: () => Get.toNamed('/help-center'),
+        onTranslateTap: () => Get.toNamed('/add'),
       ),
       body: Form(
-        key: formkey,
+        key: formKey,
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
@@ -69,9 +62,9 @@ class StoreDetailsFormView extends GetView {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  previousPageGridTitle == 'Rental'
+                  storeCategoryController.previousPageGridTitle == 'Rental'
                       ? 'Enter Rental Details'
-                      : previousPageGridTitle == 'Drone'
+                      : storeCategoryController.previousPageGridTitle == 'Drone'
                       ? 'Enter Store Drone'
                       : 'Enter Expert Details',
                   style: GoogleFonts.montserrat(
@@ -84,19 +77,29 @@ class StoreDetailsFormView extends GetView {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// Profile Upload Section
                     Column(
                       children: [
                         Obx(() {
                           return GestureDetector(
                             onTap:
-                                () => storeDetailsFormController.pickImage(
-                                  'logo',
+                                () => Get.toNamed(
+                                  '/store_template',
+                                  arguments: {
+                                    'imageType': 'logo',
+                                    'firstName': firstName,
+                                    'lastName': lastName,
+                                    'category': arguments['category'],
+                                    'savedIndexes':
+                                        storeDetailsFormController
+                                            .selectedIndexes
+                                            .toList(),
+                                  },
                                 ),
                             child: DottedBorder(
                               color: AppColors.secondary,
+
                               strokeWidth: 1,
-                              dashPattern: [6, 3],
+                              dashPattern: const [6, 3],
                               borderType: BorderType.RRect,
                               radius: const Radius.circular(100),
                               child: Container(
@@ -109,88 +112,8 @@ class StoreDetailsFormView extends GetView {
                                     storeDetailsFormController
                                             .selectedLogoPath
                                             .value
-                                            .isEmpty
-                                        ? selectedTemplate != null
-                                            ? Stack(
-                                              alignment: Alignment.center,
-                                              children: [
-                                                Container(
-                                                  height: 125,
-                                                  width: 125,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color:
-                                                        selectedTemplate
-                                                            .backgroundColor,
-                                                  ),
-                                                ),
-
-                                                Positioned(
-                                                  // bottom: 10,
-                                                  child: Center(
-                                                    child: RichText(
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      text: TextSpan(
-                                                        children: [
-                                                          TextSpan(
-                                                            text: 'Farmitra',
-                                                            style: GoogleFonts.montserrat(
-                                                              fontSize: 14,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                              color:
-                                                                  selectedTemplate!
-                                                                      .spanTextColor,
-                                                            ),
-                                                          ),
-                                                          TextSpan(
-                                                            text: 'Expert',
-                                                            style: GoogleFonts.montserrat(
-                                                              fontSize: 14,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w500,
-                                                              color:
-                                                                  AppColors
-                                                                      .primaryGradinatMixColor,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                            : Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                SvgPicture.asset(
-                                                  'assets/icons/uploadicon.svg',
-                                                  color: AppColors.secondary,
-                                                ),
-                                                const SizedBox(height: 5),
-                                                Text(
-                                                  'Upload Profile',
-                                                  style: GoogleFonts.montserrat(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  'JPEG, PNG less\n    than 3MB',
-                                                  style: GoogleFonts.montserrat(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w400,
-                                                    color: AppColors.secondary,
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                        : ClipOval(
+                                            .isNotEmpty
+                                        ? ClipOval(
                                           child: Image.file(
                                             File(
                                               storeDetailsFormController
@@ -200,7 +123,134 @@ class StoreDetailsFormView extends GetView {
                                             fit: BoxFit.cover,
                                             height: 125,
                                             width: 125,
+                                            errorBuilder: (
+                                              context,
+                                              error,
+                                              stackTrace,
+                                            ) {
+                                              print(
+                                                'StoreDetailsFormView: Error loading logo image: $error',
+                                              );
+                                              return ClipOval(
+                                                child: Image.asset(
+                                                  'assets/images/Null_ticket.png',
+                                                  fit: BoxFit.cover,
+                                                  height: 125,
+                                                  width: 125,
+                                                ),
+                                              );
+                                            },
                                           ),
+                                        )
+                                        : logoTemplate != null
+                                        ? Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Container(
+                                              height: 125,
+                                              width: 125,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color:
+                                                    logoTemplate
+                                                        .backgroundColor,
+                                              ),
+                                              child: Image.network(
+                                                logoTemplate.bannerImage,
+                                                fit: BoxFit.cover,
+                                                height: 125,
+                                                width: 125,
+                                                loadingBuilder: (
+                                                  context,
+                                                  child,
+                                                  loadingProgress,
+                                                ) {
+                                                  if (loadingProgress == null)
+                                                    return child;
+                                                  return const CircularProgressIndicator();
+                                                },
+                                                errorBuilder: (
+                                                  context,
+                                                  error,
+                                                  stackTrace,
+                                                ) {
+                                                  print(
+                                                    'StoreDetailsFormView: Error loading logo template: $error',
+                                                  );
+                                                  return ClipOval(
+                                                    child: Image.asset(
+                                                      'assets/images/Null_ticket.png',
+                                                      fit: BoxFit.cover,
+                                                      height: 125,
+                                                      width: 125,
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                            Positioned(
+                                              child: Center(
+                                                child: RichText(
+                                                  textAlign: TextAlign.center,
+                                                  text: TextSpan(
+                                                    children: [
+                                                      TextSpan(
+                                                        text: firstName,
+                                                        style: GoogleFonts.montserrat(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color:
+                                                              logoTemplate
+                                                                  .spanTextColor,
+                                                        ),
+                                                      ),
+                                                      TextSpan(
+                                                        text: lastName,
+                                                        style: GoogleFonts.montserrat(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color:
+                                                              AppColors
+                                                                  .primaryGradinatMixColor,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                        : Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            SvgPicture.asset(
+                                              'assets/icons/uploadicon.svg',
+                                              color: AppColors.secondary,
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Text(
+                                              'Upload banner',
+                                              style: GoogleFonts.montserrat(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: AppColors.textPrimary,
+                                              ),
+                                            ),
+                                            Text(
+                                              'JPEG, PNG less than 5MB',
+                                              style: GoogleFonts.montserrat(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w300,
+                                                color: AppColors.textSecondary,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                               ),
                             ),
@@ -218,20 +268,28 @@ class StoreDetailsFormView extends GetView {
                       ],
                     ),
                     const SizedBox(width: 10),
-
-                    /// Banner Upload Section
                     Column(
                       children: [
                         Obx(() {
                           return GestureDetector(
                             onTap:
-                                () => storeDetailsFormController.pickImage(
-                                  'banner',
+                                () => Get.toNamed(
+                                  '/store_template',
+                                  arguments: {
+                                    'imageType': 'banner',
+                                    'firstName': firstName,
+                                    'lastName': lastName,
+                                    'category': arguments['category'],
+                                    'savedIndexes':
+                                        storeDetailsFormController
+                                            .selectedIndexes
+                                            .toList(),
+                                  },
                                 ),
                             child: DottedBorder(
                               color: AppColors.secondary,
                               strokeWidth: 1,
-                              dashPattern: [6, 3],
+                              dashPattern: const [6, 3],
                               borderType: BorderType.RRect,
                               radius: const Radius.circular(12),
                               child: Container(
@@ -241,101 +299,128 @@ class StoreDetailsFormView extends GetView {
                                     storeDetailsFormController
                                             .selectedBannerPath
                                             .value
-                                            .isEmpty
-                                        ? selectedTemplate != null
-                                            ? Stack(
-                                              children: [
-                                                Image.asset(
-                                                  selectedTemplate!.bannerImage,
-                                                  fit: BoxFit.cover,
-                                                  height: 125,
-                                                  width: 180,
-                                                ),
-                                                Positioned(
-                                                  top: 10,
-                                                  left: 35,
-                                                  child: RichText(
-                                                    text: TextSpan(
-                                                      children: [
-                                                        TextSpan(
-                                                          text: 'Farmitra',
-                                                          style: GoogleFonts.montserrat(
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            color:
-                                                                selectedTemplate!
-                                                                    .spanTextColor,
-                                                          ),
-                                                        ),
-                                                        TextSpan(
-                                                          text:
-                                                              storeCategoryController
-                                                                          .previousPageGridTitle ==
-                                                                      'Expert'
-                                                                  ? 'Expert'
-                                                                  : storeCategoryController
-                                                                          .previousPageGridTitle ==
-                                                                      'Rental'
-                                                                  ? 'Rental'
-                                                                  : storeCategoryController
-                                                                          .previousPageGridTitle ==
-                                                                      'Drone'
-                                                                  ? 'Drone'
-                                                                  : 'Retailer',
-                                                          style: GoogleFonts.montserrat(
-                                                            fontSize: 15,
-                                                            fontWeight:
-                                                                FontWeight.w500,
-                                                            color:
-                                                                AppColors
-                                                                    .primaryGradinatMixColor,
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                            : Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                SvgPicture.asset(
-                                                  'assets/icons/uploadicon.svg',
-                                                  color: AppColors.secondary,
-                                                ),
-                                                const SizedBox(height: 5),
-                                                Text(
-                                                  'Upload banner',
-                                                  style: GoogleFonts.montserrat(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w600,
-                                                    color:
-                                                        AppColors.textPrimary,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  'JPEG, PNG less than 5MB',
-                                                  style: GoogleFonts.montserrat(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w400,
-                                                    color:
-                                                        AppColors.textSecondary,
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                        : Image.file(
+                                            .isNotEmpty
+                                        ? Image.file(
                                           File(
                                             storeDetailsFormController
                                                 .selectedBannerPath
                                                 .value,
                                           ),
-                                          fit: BoxFit.cover,
+                                          fit: BoxFit.fill,
                                           height: 125,
                                           width: 180,
+                                          errorBuilder: (
+                                            context,
+                                            error,
+                                            stackTrace,
+                                          ) {
+                                            print(
+                                              'StoreDetailsFormView: Error loading banner image: $error',
+                                            );
+                                            return Image.asset(
+                                              'assets/images/Null_ticket.png',
+                                              fit: BoxFit.fill,
+                                              height: 125,
+                                              width: 180,
+                                            );
+                                          },
+                                        )
+                                        : bannerTemplate != null
+                                        ? Stack(
+                                          children: [
+                                            Image.network(
+                                              bannerTemplate.bannerImage,
+                                              fit: BoxFit.fill,
+                                              height: 125,
+                                              width: 180,
+                                              loadingBuilder: (
+                                                context,
+                                                child,
+                                                loadingProgress,
+                                              ) {
+                                                if (loadingProgress == null)
+                                                  return child;
+                                                return const Center(
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                );
+                                              },
+                                              errorBuilder: (
+                                                context,
+                                                error,
+                                                stackTrace,
+                                              ) {
+                                                print(
+                                                  'StoreDetailsFormView: Error loading banner template: $error',
+                                                );
+                                                return Image.asset(
+                                                  'assets/images/Null_ticket.png',
+                                                  fit: BoxFit.fill,
+                                                  height: 125,
+                                                  width: 180,
+                                                );
+                                              },
+                                            ),
+                                            Positioned(
+                                              top: 10,
+                                              left: 35,
+                                              child: RichText(
+                                                text: TextSpan(
+                                                  children: [
+                                                    TextSpan(
+                                                      text: firstName,
+                                                      style: GoogleFonts.montserrat(
+                                                        fontSize: 15,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color:
+                                                            bannerTemplate
+                                                                .spanTextColor,
+                                                      ),
+                                                    ),
+                                                    TextSpan(
+                                                      text: lastName,
+                                                      style: GoogleFonts.montserrat(
+                                                        fontSize: 15,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color:
+                                                            AppColors
+                                                                .primaryGradinatMixColor,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                        : Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SvgPicture.asset(
+                                              'assets/icons/uploadicon.svg',
+                                              color: AppColors.secondary,
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Text(
+                                              'Upload banner',
+                                              style: GoogleFonts.montserrat(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: AppColors.textPrimary,
+                                              ),
+                                            ),
+                                            Text(
+                                              'JPEG, PNG less than 5MB',
+                                              style: GoogleFonts.montserrat(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w300,
+                                                color: AppColors.textSecondary,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                               ),
                             ),
@@ -354,77 +439,91 @@ class StoreDetailsFormView extends GetView {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 20),
-                GestureDetector(
-                  onTap: () {
-                    Get.toNamed("/store_template");
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.star,
-                        size: 30,
-                        color: AppColors.primaryGradinatMixColor,
-                      ),
-                      Text(
-                        " If you don't have Profile & banner\n Use Farmitra Templates",
-                        style: GoogleFonts.montserrat(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.primaryGradinatMixColor,
-                          decoration: TextDecoration.underline,
-                          decorationColor: AppColors.primaryGradinatMixColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // SizedBox(height: 20),
-                // previousPageGridTitle.trim() == 'Rental'
-                //     ? Column(
-                //       crossAxisAlignment: CrossAxisAlignment.start,
-                //       children: [
-                //         CustomDropdown<String>(
-                //           hint: 'Choose Rental Services',
-                //           items: storeDetailsFormController.rentalItemlist,
-                //           selectedItem:
-                //               storeDetailsFormController
-                //                       .selectedRentalItem
-                //                       .value
-                //                       .isEmpty
-                //                   ? null
-                //                   : storeDetailsFormController
-                //                       .selectedRentalItem
-                //                       .value,
-                //           onChanged: (value) {
-                //             storeDetailsFormController
-                //                 .updatedselectedRentalItem(value ?? '');
-                //           },
-                //           itemBuilder: (item) => item,
+                // GestureDetector(
+                //   onTap:
+                //       () => Get.toNamed(
+                //         "/store_template",
+                //         arguments: {
+                //           'firstName': firstName,
+                //           'lastName': lastName,
+                //           'category': arguments['category'],
+                //           'savedIndexes':
+                //               storeDetailsFormController.selectedIndexes
+                //                   .toList(),
+                //         },
+                //       ),
+                //   child: Row(
+                //     mainAxisAlignment: MainAxisAlignment.center,
+                //     children: [
+                //       Icon(
+                //         Icons.star,
+                //         size: 30,
+                //         color: AppColors.primaryGradinatMixColor,
+                //       ),
+                //       Text(
+                //         " If you don't have Profile & banner\n Use Farmitra Templates",
+                //         style: GoogleFonts.montserrat(
+                //           fontSize: 12,
+                //           fontWeight: FontWeight.w500,
+                //           color: AppColors.primaryGradinatMixColor,
+                //           decoration: TextDecoration.underline,
+                //           decorationColor: AppColors.primaryGradinatMixColor,
                 //         ),
-                //         SizedBox(height: 10),
-                //         CustomTextFormField(
-                //           hintText: 'Other',
-                //           keyboardType: TextInputType.text,
-                //           controller: storeDetailsFormController.other,
-                //           validator: (value) {
-                //             if (value == null || value.isEmpty) {
-                //               return 'Please enter name';
-                //             }
-                //             return null;
-                //           },
-                //         ),
-                //       ],
-                //     )
-                //     : SizedBox.shrink(),
-                SizedBox(height: 10),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                // const SizedBox(height: 10),
+                // const SizedBox(height: 10),
+                storeCategoryController.previousPageGridTitle.trim() == 'Rental'
+                    ? Obx(
+                      () => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomDropdown<String >(
+                            hint: 'Choose Rental Services',
+                            items: storeDetailsFormController.rentalItemList,
+                            selectedItem:
+                                storeDetailsFormController
+                                        .selectedRentalItem
+                                        .value
+                                        .isEmpty
+                                    ? null
+                                    : storeDetailsFormController
+                                        .selectedRentalItem
+                                        .value,
+                            onChanged: (value) {
+                              storeDetailsFormController
+                                  .updateSelectedRentalItem(value ?? '');
+                            },
+                            itemBuilder: (item) => item,
+                          ),
+                          const SizedBox(height: 10),
+                          CustomTextFormField(
+                            hintText: 'Other',
+                            keyboardType: TextInputType.text,
+                            controller: storeDetailsFormController.other,
+                            validator: (value) {
+                              if (storeDetailsFormController
+                                          .selectedRentalItem
+                                          .value ==
+                                      'Others' &&
+                                  (value == null || value.isEmpty)) {
+                                return 'Please specify other rental item';
+                              }
+                              return null;
+                            },
+                          ),
+                        ],
+                      ),
+                    )
+                    : const SizedBox.shrink(),
+                const SizedBox(height: 10),
                 CustomTextFormField(
-                  hintText: ' Name ',
+                  hintText: 'Name',
                   keyboardType: TextInputType.text,
-                  controller: storeDetailsFormController.storeName,
+                  controller: storeDetailsFormController.name,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please Enter Name';
@@ -432,30 +531,7 @@ class StoreDetailsFormView extends GetView {
                     return null;
                   },
                 ),
-                SizedBox(height: 10),
-                //  Obx(
-                //     () => CustomDropdown<String>(
-                //       hint: 'Store Channel',
-                //       items:
-                //           retailerStoreDetailsFormController
-                //               .storeChannelList, // Keep it as List<String>
-                //       selectedItem:
-                //           retailerStoreDetailsFormController
-                //                   .selectedItem
-                //                   .value
-                //                   .isEmpty
-                //               ? null
-                //               : retailerStoreDetailsFormController
-                //                   .selectedItem
-                //                   .value,
-                //       onChanged: (value) {
-                //         retailerStoreDetailsFormController.updatedSelectedValue(
-                //           value ?? '',
-                //         );
-                //       },
-                //       itemBuilder: (item) => item, // Correct item mapping
-                //     ),
-                //   ),
+                const SizedBox(height: 10),
                 CustomTextFormField(
                   hintText: 'WhatsApp number',
                   keyboardType: TextInputType.number,
@@ -463,47 +539,38 @@ class StoreDetailsFormView extends GetView {
                   inputFormatters: [LengthLimitingTextInputFormatter(10)],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return null; // Field is optional, so empty is valid
+                      return null; // Optional field
                     }
                     if (value.length < 10) {
-                      return "Please enter a 10-digit WhatsApp number";
+                      return 'Please enter a 10-digit WhatsApp number';
                     }
-                    return null; // Valid input
+                    return null;
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 CustomTextFormField(
-                  hintText: ' Location',
+                  hintText: 'Location',
                   keyboardType: TextInputType.text,
                   controller: storeLocationController.combinedController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Please Enter Location";
+                      return 'Please Enter Location';
                     }
                     return null;
                   },
                   suffixIcon: Icons.location_on_sharp,
-                  onSuffixIconTap: () {
-                    Get.toNamed('/store_location');
-                  },
+                  onSuffixIconTap: () => Get.toNamed('/store_location'),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 CustomTextFormField(
-                  hintText: ' Email',
+                  hintText: 'Email',
                   keyboardType: TextInputType.emailAddress,
                   controller: storeDetailsFormController.email,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return ' Enter Expert Email';
-                    } else if (!RegExp(
-                      r'^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+',
-                    ).hasMatch(value)) {
-                      return 'Please Enter Valid Email';
-                    }
-                    return null;
-                  },
+                  validator:
+                      (value) =>
+                          storeDetailsFormController.validateEmail(value),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Obx(
                   () => Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -517,8 +584,8 @@ class StoreDetailsFormView extends GetView {
                             (value) =>
                                 storeDetailsFormController.changeGender(value!),
                       ),
-                      Text('Male'),
-                      SizedBox(width: 20),
+                      const Text('Male'),
+                      const SizedBox(width: 20),
                       Radio<String>(
                         activeColor: AppColors.primaryGradinatMixColor,
                         value: 'Female',
@@ -528,8 +595,8 @@ class StoreDetailsFormView extends GetView {
                             (value) =>
                                 storeDetailsFormController.changeGender(value!),
                       ),
-                      Text('Female'),
-                      SizedBox(width: 20),
+                      const Text('Female'),
+                      const SizedBox(width: 20),
                       Radio<String>(
                         activeColor: AppColors.primaryGradinatMixColor,
                         value: 'Other',
@@ -539,11 +606,11 @@ class StoreDetailsFormView extends GetView {
                             (value) =>
                                 storeDetailsFormController.changeGender(value!),
                       ),
-                      Text('Other'),
+                      const Text('Other'),
                     ],
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 CustomTextFormField(
                   hintText:
                       storeCategoryController.previousPageGridTitle == 'Expert'
@@ -554,21 +621,15 @@ class StoreDetailsFormView extends GetView {
                           : 'About Drone',
                   borderRadius: 10,
                   keyboardType: TextInputType.text,
-                  controller: storeDetailsFormController.About,
+                  controller: storeDetailsFormController.about,
                   maxLines: 3,
-                  validator: (p0) {},
-                  // (value) {
-                  //   if (value == null || value.isEmpty) {
-                  //     return 'Please Enter About Rental Item';
-                  //   }
-                  //   return null;
-                  // },
+                  validator: (value) => null, // Optional field
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Row(
                   children: [
-                    Text('Language Spoken'),
-                    Icon(Icons.arrow_forward_ios_outlined, size: 15),
+                    const Text('Language Spoken'),
+                    const Icon(Icons.arrow_forward_ios_outlined, size: 15),
                   ],
                 ),
                 SizedBox(
@@ -578,20 +639,21 @@ class StoreDetailsFormView extends GetView {
                     scrollDirection: Axis.horizontal,
                     itemCount: storeDetailsFormController.languages.length,
                     itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap:
-                            () => storeDetailsFormController.toggleSelection(
-                              index,
-                            ),
-                        child: Obx(() {
-                          bool isSelected = storeDetailsFormController
-                              .isSelected(index);
-                          return Container(
-                            padding: EdgeInsets.symmetric(
+                      return Obx(() {
+                        bool isSelected = storeDetailsFormController.isSelected(
+                          index,
+                        );
+                        return GestureDetector(
+                          onTap: () {
+                            print('ListView.builder: Tapped index $index');
+                            storeDetailsFormController.toggleSelection(index);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
                               horizontal: 15,
                               vertical: 8,
                             ),
-                            margin: EdgeInsets.symmetric(
+                            margin: const EdgeInsets.symmetric(
                               horizontal: 8,
                               vertical: 5,
                             ),
@@ -613,16 +675,15 @@ class StoreDetailsFormView extends GetView {
                               style: GoogleFonts.montserrat(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
-
                                 color:
                                     isSelected
                                         ? AppColors.white
                                         : AppColors.textPrimary,
                               ),
                             ),
-                          );
-                        }),
-                      );
+                          ),
+                        );
+                      });
                     },
                   ),
                 ),
@@ -631,19 +692,24 @@ class StoreDetailsFormView extends GetView {
           ),
         ),
       ),
-      bottomNavigationBar: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-              child: CustomGradientButton(
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomGradientButton(
                 text: 'Next',
                 onPressed: () {
-                  if (formkey.currentState!.validate()
-                  //  &&
-                  //     storeDetailsFormController.validateForm()
-                  ) {
-                    // If both form fields and image validation pass, close the form or proceed
+                  // bool isDropdownValid =
+                  //     storeDetailsFormController.validateDropdown();
+                  bool isRentalDropdownValid =
+                      storeCategoryController.previousPageGridTitle == 'Rental'
+                          ? storeDetailsFormController.validateRentalDropdown()
+                          : true;
+                  if (formKey.currentState!.validate() &&
+                      // isDropdownValid &&
+                      isRentalDropdownValid) {
                     storeCategoryController.previousPageGridTitle == 'Rental' ||
                             storeCategoryController.previousPageGridTitle ==
                                 'Drone'
@@ -658,38 +724,28 @@ class StoreDetailsFormView extends GetView {
                               storeCategoryController.previousPageGridTitle,
                         );
                   } else {
-                    // If either form or image validation fails, show error
                     Get.snackbar(
                       'Notice',
-                      "All fileds are required & mandatory ",
+                      'All required fields must be filled',
                       backgroundColor: AppColors.appBarColor,
                       colorText: AppColors.white,
                     );
                   }
                 },
               ),
-            ),
-            GestureDetector(
-              // onTap: () {
-              //   previousPageGridTitle == 'Rental' ||
-              //           previousPageGridTitle == 'Drone'
-              //       ? Get.to(() => RentalKyc())
-              //       : Get.toNamed(
-              //         '/kyc-documents',
-              //         arguments: previousPageGridTitle,
-              //       );
-              // },
-              child: Text(
-                "You Can’t Skip this step",
-                style: GoogleFonts.montserrat(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.primaryGradinatMixColor,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-          ],
+              const SizedBox(height: 5),
+              // GestureDetector(
+              //   child: Text(
+              //     "You Can’t Skip this step",
+              //     style: GoogleFonts.montserrat(
+              //       fontSize: 14,
+              //       fontWeight: FontWeight.w500,
+              //       color: AppColors.primaryGradinatMixColor,
+              //     ),
+              //   ),
+              // ),
+            ],
+          ),
         ),
       ),
     );

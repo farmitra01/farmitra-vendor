@@ -1,8 +1,11 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:farmitra/app/ApiModels/getModuleSubCategory.dart';
 import 'package:farmitra/app/constants/app_colors.dart';
+import 'package:farmitra/app/modules/kyc_documents/views/rental_kyc.dart';
 import 'package:farmitra/app/modules/registration/controllers/store_category_controller.dart';
 import 'package:farmitra/app/modules/registration/controllers/store_selected_module_controller.dart';
+import 'package:farmitra/app/modules/registration/views/retailer_store_details_form.dart';
+import 'package:farmitra/app/modules/registration/views/RetailerStoreDetailsFrom1.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/custome_appBar.dart';
 import 'package:flutter/material.dart';
@@ -23,18 +26,20 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
   Widget build(BuildContext context) {
     final previousPageGridTitle =
         Get.arguments?.toString() ?? 'id:0,name:Default Category';
-    String? categoryId;
+    String? argumentedBusinessModuleId;
     String? categoryName;
     if (previousPageGridTitle.isNotEmpty) {
       final parts = previousPageGridTitle.split(',');
       for (var part in parts) {
         if (part.startsWith('id:')) {
-          categoryId = part.split(':')[1];
+          argumentedBusinessModuleId = part.split(':')[1];
         } else if (part.startsWith('name:')) {
           categoryName = part.split(':')[1];
         }
       }
     }
+    // String? argumentedModuleCategoryId;
+    // String? argumentCategoryName;
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -149,7 +154,7 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
               ),
               const SizedBox(height: 5),
               Text(
-                'Select Expert Service Categories -',
+                'Select  ${categoryName}  Categories -',
                 style: GoogleFonts.montserrat(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -217,24 +222,38 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (item.imagePath != null &&
-                                      item.imagePath!.isNotEmpty)
-                                    SvgPicture.asset(
-                                      item.imagePath!,
-                                      height: 28,
-                                      color:
-                                          isSelected
-                                              ? AppColors.textPrimary
-                                              : AppColors.textSecondary,
-                                    )
-                                  else
-                                    Icon(
-                                      Icons.category,
-                                      color:
-                                          isSelected
-                                              ? AppColors.textPrimary
-                                              : AppColors.textSecondary,
-                                    ),
+                                  Image.network(
+                                    'https://api.farmitra.in/storage/${item.image}',
+                                    height: 35,
+                                    width: double.infinity,
+                                    fit: BoxFit.contain,
+                                    alignment: Alignment.bottomLeft,
+                                    color:
+                                        isSelected
+                                            ? AppColors.textPrimary
+                                            : AppColors.textSecondary,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Icon(Icons.broken_image),
+                                  ),
+                                  // if (item.imagePath != null &&
+                                  //     item.imagePath!.isNotEmpty)
+                                  //   SvgPicture.asset(
+                                  //     item.imagePath!,
+                                  //     height: 28,
+                                  //     color: isSelected
+                                  // ? AppColors.textPrimary
+                                  // : AppColors.textSecondary,
+
+                                  //   )
+                                  // else
+                                  //   Icon(
+                                  //     Icons.category,
+                                  //     color:
+                                  //         isSelected
+                                  //             ? AppColors.textPrimary
+                                  //             : AppColors.textSecondary,
+                                  //   ),
                                   const SizedBox(height: 5),
                                   Text(
                                     item.name ?? 'Unknown',
@@ -258,7 +277,11 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
                                       ),
                                       child: GestureDetector(
                                         onTap:
-                                            () => showInfoBottomSheet(context),
+                                            () => showInfoBottomSheet(
+                                              items: controller.gridContent,
+                                              selectedIndex:
+                                                  controller.selectedIndex,
+                                            ),
                                         child: const Icon(
                                           Icons.error_outline_rounded,
                                           size: 20,
@@ -279,7 +302,11 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
               }),
               SizedBox(height: 10),
               GestureDetector(
-                onTap: () => showBottomSheet(context, categoryId: categoryId),
+                onTap:
+                    () => showBottomSheet(                  
+                      context,
+                      categoryId: argumentedBusinessModuleId,
+                    ),
                 child: DottedBorder(
                   borderType: BorderType.RRect,
                   color: AppColors.border,
@@ -328,16 +355,27 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
                     controller.gridContent.isNotEmpty) {
                   final selectedItem =
                       controller.gridContent[controller.selectedIndex.value];
-                  final argument =
-                      'id:${selectedItem.id},name:${selectedItem.name ?? 'Unknown'}';
-                  if (storeSelectedModuleController.previousSelectedValue ==
-                      'As a Retailer') {
-                    Get.toNamed(
-                      '/retailer_store_details_form',
-                      arguments: argument,
-                    );
+                  // Get.toNamed('/retailer_store_details_form');
+                  // Get.to(SampleView());
+                  // Get.to(() => RentalKyc());
+                  // Get.toNamed('/store_details_form');
+
+                  if (categoryName == 'Expert') {
+                    // Get.to(RetailerStoreDetailsFrom());
+                    Get.toNamed('/store_details_form');
+
+                    print('argument of Nature of Business ${categoryName}');
                   } else {
-                    Get.toNamed('/store_details_form', arguments: argument);
+                    Get.to(
+                      () => RetailerStoreDetailsFrom1(),
+                      arguments: {
+                        'moduleCategoryId': controller.moduleCategoryId,
+                        'argumentedBusinessModuleId':
+                            controller.businessModuleId,
+                      },
+                    );
+
+                    // print('argument of Nature of Business ${categoryName}');
                   }
                 } else {
                   Get.snackbar('Error', 'Please select a category');
@@ -345,14 +383,14 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
               },
             ),
             const SizedBox(height: 10),
-            Text(
-              "You Can’t Skip this step",
-              style: GoogleFonts.montserrat(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textSecondary,
-              ),
-            ),
+            // Text(
+            //   "You Can’t Skip this step",
+            //   style: GoogleFonts.montserrat(
+            //     fontSize: 14,
+            //     fontWeight: FontWeight.w500,
+            //     color: AppColors.textSecondary,
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -360,7 +398,11 @@ class StoreCategoryView extends GetView<StoreCategoryController> {
   }
 }
 
-void showBottomSheet(BuildContext context, {String? categoryId}) {
+void showBottomSheet(
+  BuildContext context, {
+  String? categoryId,
+  String? businessModuleId,
+}) {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final StoreCategoryController controller = Get.find();
 
@@ -476,12 +518,14 @@ void showBottomSheet(BuildContext context, {String? categoryId}) {
                     final item = ModuleSubCategory(
                       id: -(controller.gridContent.length + 1),
                       name: controller.customeCategory.text,
+                      business_module_id:
+                          int.tryParse(businessModuleId ?? '0') ?? 0,
                       moduleCategoryId: int.tryParse(categoryId ?? '0') ?? 0,
                       description: 'Custom category',
                       status: 'active',
                       createdAt: now,
                       updatedAt: now,
-                      imagePath: 'assets/svgs/default_category.svg',
+                      image: 'assets/svgs/default_category.svg',
                     );
                     controller.addGridItem(item);
                     controller.selectItem(controller.gridContent.length - 1);
@@ -514,89 +558,122 @@ void showBottomSheet(BuildContext context, {String? categoryId}) {
   );
 }
 
-void showInfoBottomSheet(BuildContext context) {
+void showInfoBottomSheet({
+  required List<dynamic> items,
+  required RxInt selectedIndex,
+}) {
   Get.bottomSheet(
-    Container(
-      height: 200,
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              ShaderMask(
-                shaderCallback:
-                    (bounds) => const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        AppColors.primaryFirstGradiant,
-                        AppColors.primarySecondGradiant,
-                      ],
-                    ).createShader(
-                      Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-                    ),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/registration_stepper_icons/store.svg',
-                      height: 25,
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      'Shop',
-                      style: GoogleFonts.montserrat(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: () => Get.back(),
-                child: const Icon(
-                  Icons.cancel_sharp,
-                  color: AppColors.primaryGradinatMixColor,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 15),
-          Center(
-            child: Text(
-              'Select a subcategory that best describes your service or product.',
-              style: GoogleFonts.montserrat(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: AppColors.primaryGradinatMixColor,
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
+    Obx(() {
+      final item = items[selectedIndex.value];
+
+      return Container(
+        constraints: BoxConstraints(
+          maxHeight: Get.height * .25,
+          minHeight: 150,
+        ),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header with name and close
+            Row(
               children: [
-                const CircleAvatar(
-                  child: Icon(Icons.arrow_back, color: AppColors.white),
-                  backgroundColor: AppColors.primaryGradinatMixColor,
+                Image.network(
+                  'https://api.farmitra.in/storage/${item.image ?? ''}',
+                  height: 50,
+                  width: 50,
+                  fit: BoxFit.contain,
+                  errorBuilder:
+                      (context, error, stackTrace) =>
+                          const Icon(Icons.broken_image, size: 50),
+                ),
+                const SizedBox(width: 5),
+
+                ShaderMask(
+                  shaderCallback:
+                      (bounds) => const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          AppColors.primaryFirstGradiant,
+                          AppColors.primarySecondGradiant,
+                        ],
+                      ).createShader(
+                        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                      ),
+                  child: Text(
+                    item.name ?? '',
+                    style: GoogleFonts.montserrat(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
                 const Spacer(),
-                const CircleAvatar(
-                  child: Icon(Icons.arrow_forward, color: AppColors.white),
-                  backgroundColor: AppColors.primaryGradinatMixColor,
+                GestureDetector(
+                  onTap: () => Get.back(),
+                  child: const Icon(
+                    Icons.cancel_sharp,
+                    color: AppColors.primaryGradinatMixColor,
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    ),
-    backgroundColor: Colors.white,
+
+            const SizedBox(height: 15),
+
+            Expanded(
+              child: SingleChildScrollView(
+                child: Text(
+                  item.description ?? 'No description available',
+                  textAlign: TextAlign.start,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.primaryGradinatMixColor,
+                  ),
+                ),
+              ),
+            ),
+
+            // Arrows
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  if (selectedIndex.value > 0)
+                    GestureDetector(
+                      onTap: () => selectedIndex.value--,
+                      child: const CircleAvatar(
+                        child: Icon(Icons.arrow_back, color: AppColors.white),
+                        backgroundColor: AppColors.primaryGradinatMixColor,
+                      ),
+                    ),
+                  const Spacer(),
+                  if (selectedIndex.value < items.length - 1)
+                    GestureDetector(
+                      onTap: () => selectedIndex.value++,
+                      child: const CircleAvatar(
+                        child: Icon(
+                          Icons.arrow_forward,
+                          color: AppColors.white,
+                        ),
+                        backgroundColor: AppColors.primaryGradinatMixColor,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }),
     isScrollControlled: true,
   );
 }

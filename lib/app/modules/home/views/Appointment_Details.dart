@@ -401,6 +401,7 @@ class AppointmentDetails extends StatelessWidget {
     );
   }
 }
+
 Widget buildCaution(int globalIndex, AppointmentController controller) {
   return AlertDialog(
     title: Row(

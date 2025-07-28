@@ -9,6 +9,7 @@ import 'package:flutter_svg/svg.dart';
 
 import 'package:get/get.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:marquee/marquee.dart';
 
@@ -21,6 +22,8 @@ class HomeAppbarView extends GetView implements PreferredSizeWidget {
     final StoreCategoryController storeCategoryController = Get.put(
       StoreCategoryController(),
     );
+    final box = GetStorage();
+
     return AppBar(
       backgroundColor: AppColors.appBarColor,
       automaticallyImplyLeading: false,
@@ -29,27 +32,21 @@ class HomeAppbarView extends GetView implements PreferredSizeWidget {
         children: [
           SizedBox(
             height: 20,
-            width: 100, // Set your desired width
+            // width: 200, // Set your desired width
             child: Marquee(
-              text:
-                  storeCategoryController.previousPageGridTitle == 'Rental' ||
-                          storeCategoryController.previousPageGridTitle ==
-                              'Drone'
-                      ? 'JP Rental Store'
-                      : storeCategoryController.previousPageGridTitle ==
-                          'Expert'
-                      ? 'jai Prakash'
-                      : 'Jai Prakash Sisodia General Store',
+              text: '${box.read('user_details')['store_name']}' ?? 'Store Name',
+
               style: GoogleFonts.montserrat(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: AppColors.white,
               ),
+
               scrollAxis: Axis.horizontal,
               blankSpace: 20.0,
               velocity: 40.0,
               pauseAfterRound: Duration(seconds: 3),
-              startPadding: 10.0,
+              startPadding: 0.0,
               accelerationDuration: Duration(seconds: 1),
               accelerationCurve: Curves.linear,
               decelerationDuration: Duration(milliseconds: 500),
@@ -61,9 +58,9 @@ class HomeAppbarView extends GetView implements PreferredSizeWidget {
             storeCategoryController.previousPageGridTitle == 'Rental' ||
                     storeCategoryController.previousPageGridTitle == 'Drone'
                 ? ''
-                : storeCategoryController.previousPageGridTitle == 'Expert'
-                ? '    Agriculture | Field Expert'
-                : '    Grocery | Stationary',
+                : box.read('user_role') == 'Expert'
+                ? 'Agriculture | Field Expert'
+                : 'Agri Inputs | Seeds ',
             style: GoogleFonts.montserrat(
               fontSize: 12,
               fontWeight: FontWeight.w500,

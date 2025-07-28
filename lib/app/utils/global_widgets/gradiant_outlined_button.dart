@@ -22,16 +22,13 @@ class GradientOutlinedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        gradient: gradient,
-        borderRadius: borderRadius,
-      ),
+      decoration: BoxDecoration(gradient: gradient, borderRadius: borderRadius),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 0.5),
         child: Container(
           decoration: BoxDecoration(
             color: AppColors.background,
-            
+
             borderRadius: borderRadius,
           ),
           child: OutlinedButton(
@@ -40,16 +37,19 @@ class GradientOutlinedButton extends StatelessWidget {
               shape: RoundedRectangleBorder(borderRadius: borderRadius),
             ),
             onPressed: onPressed,
-            child: showText && text != null
-                ? Text(
-                    text!,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.primaryGradinatMixColor,
-                    ),
-                  )
-                : customChild ?? Container(), // Use customChild or empty if null
+            child:
+                showText && text != null
+                    ? Text(
+                      text!,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.primaryGradinatMixColor,
+                      ),
+                    )
+                    : customChild ??
+                        Container(), // Use customChild or empty if null
           ),
         ),
       ),

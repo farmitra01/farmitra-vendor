@@ -1,6 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:farmitra/app/modules/kyc_documents/controllers/rental_kyc_controller.dart';
+import 'package:farmitra/app/modules/kyc_documents/views/owner_upload_doc.dart';
 import 'package:farmitra/app/modules/kyc_documents/views/owners_details.dart';
 import 'package:farmitra/app/utils/global_widgets/custome_appBar.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,7 +16,7 @@ class RentalKyc extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final RentalKycController rentalKycController = Get.put(
-      RentalKycController(), 
+      RentalKycController(),
     );
     var previousPageGridTitle = Get.arguments;
 
@@ -26,7 +27,7 @@ class RentalKyc extends StatelessWidget {
           Get.toNamed('/help-center');
         },
         onTranslateTap: () {
-          Get.toNamed('/add'); 
+          Get.toNamed('/add');
         },
       ),
       body: SingleChildScrollView(
@@ -420,16 +421,17 @@ class RentalKyc extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: 10),
-                      Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
-                          border: Border.all(color: Color(0xffDADADA)),
-                        ),
-                        child: GestureDetector(
-                          onTap: () {
-                            Get.to(OwnersDetails());
-                          },
+                      GestureDetector(
+                        onTap: () {
+                          Get.to(OwnersDetails());
+                          // Get.to(OwnerUploadDoc());
+                        },
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(25),
+                            border: Border.all(color: Color(0xffDADADA)),
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -802,8 +804,8 @@ void _showImagePickerDialog(String type) {
             fontWeight: FontWeight.w600,
             color: AppColors.primaryGradinatMixColor,
           ),
-        ),          
-        // content: Column(         
+        ),
+        // content: Column(
         //   mainAxisSize: MainAxisSize.min, // To avoid the dialog being too large
         //   crossAxisAlignment: CrossAxisAlignment.start,
         //   children: [
@@ -816,7 +818,9 @@ void _showImagePickerDialog(String type) {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  (); // Close dialog
                   rentalKycController.captureImage(type);
                 },
                 child: Text(
@@ -830,7 +834,9 @@ void _showImagePickerDialog(String type) {
               ),
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  (); // Close dialog
                   rentalKycController.uploadFromGallery(type);
                 },
                 child: Text(

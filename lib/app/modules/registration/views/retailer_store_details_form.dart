@@ -25,7 +25,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class RetailerStoreDetailsFrom extends StatelessWidget {
   RetailerStoreDetailsFrom({super.key});
-  final GlobalKey<FormState> formkey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formkey = GlobalKey<FormState>();
   final StoreLocationController storeLocationController = Get.put(
     StoreLocationController(),
   );
@@ -379,7 +379,7 @@ class RetailerStoreDetailsFrom extends StatelessWidget {
                 CustomTextFormField(
                   hintText: 'Store Name ',
                   keyboardType: TextInputType.text,
-                  controller: retailerStoreDetailsFormController.storeName,
+                  controller: retailerStoreDetailsFormController.businessName,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please Enter Store Name';
@@ -391,7 +391,7 @@ class RetailerStoreDetailsFrom extends StatelessWidget {
                 CustomTextFormField(
                   hintText: 'Store Owner ',
                   keyboardType: TextInputType.text,
-                  controller: retailerStoreDetailsFormController.storeOwner,
+                  controller: retailerStoreDetailsFormController.businessName,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please Enter Store Name';
@@ -399,30 +399,30 @@ class RetailerStoreDetailsFrom extends StatelessWidget {
                     return null;
                   },
                 ),
-                SizedBox(height: 10),
-                Obx(
-                  () => CustomDropdown<String>(
-                    hint: 'Store Channel',
-                    items:
-                        retailerStoreDetailsFormController
-                            .storeChannelList, // Keep it as List<String>
-                    selectedItem:
-                        retailerStoreDetailsFormController
-                                .selectedItem
-                                .value
-                                .isEmpty
-                            ? null
-                            : retailerStoreDetailsFormController
-                                .selectedItem
-                                .value,
-                    onChanged: (value) {
-                      retailerStoreDetailsFormController.updatedSelectedValue(
-                        value ?? '',
-                      );
-                    },
-                    itemBuilder: (item) => item, // Correct item mapping
-                  ),
-                ),
+                // SizedBox(height: 10),
+                // Obx(
+                //   () => CustomDropdown<String>(
+                //     hint: 'Store Channel',
+                //     items:
+                //         retailerStoreDetailsFormController
+                //             .storeChannelList, // Keep it as List<String>
+                //     selectedItem:
+                //         retailerStoreDetailsFormController
+                //                 .selectedItem
+                //                 .value
+                //                 .isEmpty
+                //             ? null
+                //             : retailerStoreDetailsFormController
+                //                 .selectedItem
+                //                 .value,
+                //     onChanged: (value) {
+                //       retailerStoreDetailsFormController.updatedSelectedValue(
+                //         value ?? '',
+                //       );
+                //     },
+                //     itemBuilder: (item) => item, // Correct item mapping
+                //   ),
+                // ),
                 SizedBox(height: 10),
                 CustomTextFormField(
                   hintText: 'Store Whats app number',

@@ -13,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -23,6 +24,7 @@ class OwnerProfileView extends GetView<OwnerProfileController> {
   final OwnerProfileController ownerProfileController = Get.put(
     OwnerProfileController(),
   );
+  final box = GetStorage();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,7 +91,19 @@ class OwnerProfileView extends GetView<OwnerProfileController> {
                           Stack(
                             children: [
                               CircleAvatar(
-                                backgroundColor: AppColors.background,
+                                backgroundColor: AppColors.lightGrey,
+                                child: ClipRRect(
+                                  child: Image.network(
+                                    'https://api.farmitra.in/storage/${box.read('user_details')['logo']}',
+                                    height: 75,
+                                    width: double.infinity,
+                                    fit: BoxFit.contain,
+                                    alignment: Alignment.bottomLeft,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Icon(Icons.broken_image),
+                                  ),
+                                ),
                                 radius: 35,
                               ),
                               Positioned(
@@ -1925,7 +1939,9 @@ void _uploadCertificateDialog() {
             children: [
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  (); // Close dialog
                   ownerProfileController.pickImage(ImageSource.camera);
                 },
                 child: Text(
@@ -1939,7 +1955,9 @@ void _uploadCertificateDialog() {
               ),
               TextButton(
                 onPressed: () {
-                  Get.back(); // Close dialog
+                  Get.closeAllSnackbars();
+                  Get.back(closeOverlays: true);
+                  (); // Close dialog
                   ownerProfileController.pickImage(ImageSource.gallery);
                 },
                 child: Text(

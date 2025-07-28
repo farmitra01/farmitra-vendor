@@ -15,6 +15,7 @@ import 'package:get/instance_manager.dart';
 import 'package:get/utils.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class ExpertProfile extends StatelessWidget {
   const ExpertProfile({super.key});
@@ -331,15 +332,21 @@ class ExpertProfile extends StatelessWidget {
               child: CustomGradientButton(
                 text: 'Log Out',
                 onPressed: () {
-                  final storage = GetStorage();
-                  storage.remove('user_token');
+                  final box = GetStorage();
+                  box.erase();
 
-                  Get.offAllNamed('/login');
                   Get.snackbar(
                     'Logged Out',
                     'You have been successfully logged out.',
                     snackPosition: SnackPosition.BOTTOM,
                   );
+                  CircularProgressIndicator(
+                    color: AppColors.primaryGradinatMixColor,
+                  );
+                  // 🔁 Delay navigation to allow gesture + widget cleanup
+                  Future.delayed(Duration(milliseconds: 500), () {
+                    Get.toNamed('/login');
+                  });
                 },
               ),
             ),
