@@ -210,7 +210,7 @@ class HomeController extends GetxController {
       gridItemText: 'POS',
       gridItemIcon: Icons.storefront_outlined,
     ),
-    QuickAccessModel(gridItemText: 'Ledger', gridItemIcon: Icons.receipt_long),
+    // QuickAccessModel(gridItemText: 'Ledger', gridItemIcon: Icons.receipt_long),
     QuickAccessModel(
       gridItemText: 'Khata Book',
       gridItemIcon: Icons.contact_mail_outlined,

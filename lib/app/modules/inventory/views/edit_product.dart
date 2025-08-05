@@ -335,6 +335,18 @@ class EditProduct extends StatelessWidget {
               ),
               SizedBox(height: 20),
               CustomTextFormField(
+                hintText: 'Assign Barcode',
+                keyboardType: TextInputType.streetAddress,
+                inputFormatters: [],
+                controller: editProductController.assign_barcode,
+                validator: (value) {},
+                suffixWidget: Icon(
+                  Icons.barcode_reader,
+                  color: AppColors.primaryGradinatMixColor,
+                ),
+              ),
+              SizedBox(height: 10),
+              CustomTextFormField(
                 hintText: "Product Name",
                 keyboardType: TextInputType.text,
                 inputFormatters: [],
@@ -367,73 +379,214 @@ class EditProduct extends StatelessWidget {
               //   );
               // }),
               SizedBox(height: 10),
-              Obx(() {
-                return CustomDropdown(
-                  hint: "Brand",
-                  items: ['FlipKart', 'Amazon', 'Meesho', 'BlinkIt', 'Zepto'],
-                  selectedItem: editProductController.brand.value,
-                  onChanged: (value) {
-                    if (value != null) {
-                      editProductController.brand.value = value;
-                    }
-                  },
-                  itemBuilder: (item) => item,
-                );
-              }),
+              // Obx(() {
+              //   return CustomDropdown(
+              //     hint: "Brand",
+              //     items: ['FlipKart', 'Amazon', 'Meesho', 'BlinkIt', 'Zepto'],
+              //     selectedItem: editProductController.brand.value,
+              //     onChanged: (value) {
+              //       if (value != null) {
+              //         editProductController.brand.value = value;
+              //       }
+              //     },
+              //     itemBuilder: (item) => item,
+              //   );
+              // }),
+              InkWell(
+                onTap: () {
+                  Get.bottomSheet(
+                    buildBottomSheet(
+                      context: context,
+                      title: 'Select Brand',
+                      items: editProductController.brands,
+                      onItemSelected: (selected) {
+                        editProductController.selectedBrand.value = selected;
+                      },
+                    ), // <- Don't pass context; refactor function
+                    isScrollControlled: true,
+                    backgroundColor: Colors.white, // Optional
+                  );
+                },
+                child: Obx(
+                  () => Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: AppColors.border),
+                      color: AppColors.white,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          editProductController.selectedBrand.value.isEmpty
+                              ? 'Brand'
+                              : editProductController.selectedBrand.value,
+                          style: GoogleFonts.montserrat(
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: AppColors.textSecondary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
               SizedBox(height: 10),
-              Obx(() {
-                return CustomDropdown(
-                  hint: 'Category',
-                  items: [
-                    'Category-1',
-                    'Category-2',
-                    'Category-3',
-                    'Category-4',
-                    'Category-4',
-                  ],
-                  selectedItem: editProductController.category.value,
-                  onChanged: (value) {
-                    if (value != null) {
-                      editProductController.category.value = value;
-                    }
-                  },
-                  itemBuilder: (item) => item,
-                );
-              }),
+              InkWell(
+                onTap: () {
+                  Get.bottomSheet(
+                    buildBottomSheet(
+                      context: context,
+                      title: 'Select Category',
+                      items: editProductController.categories,
+                      onItemSelected: (selected) {
+                        editProductController.selectedCategory.value = selected;
+                      },
+                    ), // <- Don't pass context; refactor function
+                    isScrollControlled: true,
+                    backgroundColor: Colors.white, // Optional
+                  );
+                },
+                child: Obx(
+                  () => Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: AppColors.border),
+                      color: AppColors.white,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          editProductController.selectedCategory.value.isEmpty
+                              ? 'Category'
+                              : editProductController.selectedCategory.value,
+                          style: GoogleFonts.montserrat(
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: AppColors.textSecondary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
               SizedBox(height: 10),
-              Obx(() {
-                return CustomDropdown(
-                  hint: 'Sub-Category',
-                  items: [
-                    'Sub-Category-1',
-                    'Sub-Category-2',
-                    'Sub-Category-3',
-                    'Sub-Category-4',
-                    'Sub-Category-4',
-                  ],
-                  selectedItem: editProductController.sub_category.value,
-                  onChanged: (value) {
-                    if (value != null) {
-                      editProductController.sub_category.value = value;
-                    }
-                  },
-                  itemBuilder: (item) => item,
-                );
-              }),
+              InkWell(
+                onTap: () {
+                  Get.bottomSheet(
+                    buildBottomSheet(
+                      context: context,
+
+                      title: 'Select Sub Category',
+                      items: editProductController.subCatogory,
+                      onItemSelected: (selected) {
+                        editProductController.selectedSubCategory.value =
+                            selected;
+                      },
+                    ),
+                    isScrollControlled: true,
+                    backgroundColor: Colors.white, // Optional
+                  );
+                },
+
+                child: Obx(
+                  () => Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: AppColors.border),
+                      color: AppColors.white,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          editProductController
+                                  .selectedSubCategory
+                                  .value
+                                  .isEmpty
+                              ? 'Sub-Category'
+                              : editProductController.selectedSubCategory.value,
+                          style: GoogleFonts.montserrat(
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: AppColors.textSecondary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
               SizedBox(height: 10),
-              // CustomTextFormField(
-              //   hintText: 'Product Price in INR(₹)',
-              //   keyboardType: TextInputType.number,
-              //   inputFormatters: [],
-              //   controller: editProductController.,
-              //   validator: (p0) {},
-              // ),
+              CustomTextFormField(
+                hintText: 'Product Price in INR(₹)',
+                keyboardType: TextInputType.number,
+                inputFormatters: [],
+                controller: editProductController.product_price,
+                validator: (p0) {},
+              ),
+              // Obx(() {
+              //   return CustomTextFormField(
+              //     hintText: ' Sale Price in INR(₹)',
+              //     keyboardType: TextInputType.number,
+              //     inputFormatters: [],
+              //     controller: editProductController.product_price,
+              //     validator: (value) {
+              //       if (value == null || value.isEmpty) {
+              //         return 'Please enter purchase price';
+              //       }
+              //       return null;
+              //     },
+              //     maxLines: 1,
+              //     minLines: 1,
+              //     suffixWidget: SizedBox(
+              //       height: 20,
+              //       width: 135,
+              //       child: Padding(
+              //         padding: const EdgeInsets.all(8.0),
+              //         child: CustomDropdown(
+              //           hint: 'Tax',
+              //           items: ['0%', '5%', '12%', '18%', '28%'],
+              //           selectedItem:
+              //               ['0%', '5%', '12%', '18%', '28%'].contains(
+              //                     editProductController.product_priceTax.value,
+              //                   )
+              //                   ? editProductController.product_priceTax.value
+              //                   : '0%', // Default fallback value
+              //           onChanged: (value) {
+              //             if (value != null) {
+              //               editProductController.product_priceTax.value =
+              //                   value;
+              //             }
+              //           },
+              //           itemBuilder: (item) => item,
+              //           showBorder: false,
+              //           selectedItemColor: AppColors.primaryGradinatMixColor,
+              //         ),
+              //       ),
+              //     ),
+              //   );
+              // }),
+              SizedBox(height: 10),
+
               Obx(() {
                 return CustomTextFormField(
-                  hintText: 'Product Price in INR(₹)',
+                  hintText: 'Discount By',
                   keyboardType: TextInputType.number,
                   inputFormatters: [],
-                  controller: editProductController.product_price,
+                  controller: editProductController.purchase_price_tax,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter purchase price';
@@ -443,22 +596,22 @@ class EditProduct extends StatelessWidget {
                   maxLines: 1,
                   minLines: 1,
                   suffixWidget: SizedBox(
-                    height: 20,
-                    width: 135,
+                    height: 30,
+                    width: 170,
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(3.5),
                       child: CustomDropdown(
                         hint: 'Tax',
-                        items: ['0%', '5%', '12%', '18%', '28%'],
+                        items: ['Percent', 'Rupees'],
                         selectedItem:
-                            ['0%', '5%', '12%', '18%', '28%'].contains(
-                                  editProductController.product_priceTax.value,
+                            ['Percent', 'Rupees'].contains(
+                                  editProductController.purchasePriceTax.value,
                                 )
-                                ? editProductController.product_priceTax.value
-                                : '0%', // Default fallback value
+                                ? editProductController.purchasePriceTax.value
+                                : 'Percent',
                         onChanged: (value) {
                           if (value != null) {
-                            editProductController.product_priceTax.value =
+                            editProductController.purchasePriceTax.value =
                                 value;
                           }
                         },
@@ -470,38 +623,73 @@ class EditProduct extends StatelessWidget {
                   ),
                 );
               }),
+              // CustomTextFormField(
+              //   hintText: 'Discount (In Percentage/Rupees)',
+              //   keyboardType: TextInputType.number,
+              //   inputFormatters: [],
+              //   controller: editProductController.discount,
+              //   validator: (value) {},
+              // ),
+              SizedBox(height: 10),
+              // Obx(() {
+              //   return CustomDropdown(
+              //     hint: 'Product Unit',
+              //     items: ['Mili Gram', 'Kilo Gram', 'Quintal', 'Tonne'],
+              //     selectedItem: editProductController.product_unit.value,
+              //     onChanged: (value) {
+              //       if (value != null) {
+              //         editProductController.product_unit.value = value;
+              //       }
+              //     },
+              //     itemBuilder: (item) => item,
+              //   );
+              // }),
+              InkWell(
+                onTap: () {
+                  Get.bottomSheet(
+                    buildBottomSheet(
+                      context: context,
+                      title: 'Product Unit',
+                      items: editProductController.productUnit,
+                      onItemSelected: (selected) {
+                        editProductController.selectedUnit.value = selected;
+                      },
+                    ), // <- Don't pass context; refactor function
+                    isScrollControlled: true,
+                    backgroundColor: Colors.white, // Optional
+                  );
+                },
 
-              SizedBox(height: 10),
-              CustomTextFormField(
-                hintText: 'Tax Amount Included',
-                keyboardType: TextInputType.number,
-                inputFormatters: [],
-                controller: editProductController.tax_amount,
-                validator: (p0) {},
+                child: Obx(
+                  () => Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: AppColors.border),
+                      color: AppColors.white,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          editProductController.selectedUnit.value.isEmpty
+                              ? 'Product-Unit'
+                              : editProductController.selectedUnit.value,
+                          style: GoogleFonts.montserrat(
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: AppColors.textSecondary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
               SizedBox(height: 10),
-              Obx(() {
-                return CustomDropdown(
-                  hint: 'Product Unit',
-                  items: ['Mili Gram', 'Kilo Gram', 'Quintal', 'Tonne'],
-                  selectedItem: editProductController.product_unit.value,
-                  onChanged: (value) {
-                    if (value != null) {
-                      editProductController.product_unit.value = value;
-                    }
-                  },
-                  itemBuilder: (item) => item,
-                );
-              }),
-              SizedBox(height: 10),
-              CustomTextFormField(
-                hintText: 'Discount (In Percentage/Rupees)',
-                keyboardType: TextInputType.number,
-                inputFormatters: [],
-                controller: editProductController.discount,
-                validator: (value) {},
-              ),
-              SizedBox(height: 10),
+
               CustomTextFormField(
                 hintText: 'Max Purchase Limit (Count)',
                 keyboardType: TextInputType.number,
@@ -518,19 +706,19 @@ class EditProduct extends StatelessWidget {
                 validator: (value) {},
               ),
               SizedBox(height: 10),
-              Obx(() {
-                return CustomDropdown(
-                  hint: 'Availability',
-                  items: ['For take away only', 'Dine-in only', 'Both options'],
-                  selectedItem: editProductController.availbility.value,
-                  onChanged: (value) {
-                    if (value != null) {
-                      editProductController.availbility.value = value;
-                    }
-                  },
-                  itemBuilder: (item) => item,
-                );
-              }),
+              // Obx(() {
+              //   return CustomDropdown(
+              //     hint: 'Availability',
+              //     items: ['For take away only', 'Dine-in only', 'Both options'],
+              //     selectedItem: editProductController.availbility.value,
+              //     onChanged: (value) {
+              //       if (value != null) {
+              //         editProductController.availbility.value = value;
+              //       }
+              //     },
+              //     itemBuilder: (item) => item,
+              //   );
+              // }),
               SizedBox(height: 20),
               Text(
                 "B. Additional Details:",
@@ -540,6 +728,56 @@ class EditProduct extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 20),
+              // CustomTextFormField(
+              //   hintText: 'Tax Amount Included',
+              //   keyboardType: TextInputType.number,
+              //   inputFormatters: [],
+              //   controller: editProductController.tax_amount,
+              //   validator: (p0) {},
+              // ),
+              Obx(() {
+                return CustomTextFormField(
+                  hintText: 'Sale Price(Tax)',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [],
+                  controller: editProductController.purchase_price_tax,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter purchase price';
+                    }
+                    return null;
+                  },
+                  maxLines: 1,
+                  minLines: 1,
+                  suffixWidget: SizedBox(
+                    height: 30,
+                    width: 170,
+                    child: Padding(
+                      padding: const EdgeInsets.all(3.5),
+                      child: CustomDropdown(
+                        hint: 'Tax',
+                        items: ['Tax Included', 'Tax Excluded'],
+                        selectedItem:
+                            ['Tax Included', 'Tax Excluded'].contains(
+                                  editProductController.purchasePriceTax.value,
+                                )
+                                ? editProductController.purchasePriceTax.value
+                                : 'Tax Included',
+                        onChanged: (value) {
+                          if (value != null) {
+                            editProductController.purchasePriceTax.value =
+                                value;
+                          }
+                        },
+                        itemBuilder: (item) => item,
+                        showBorder: false,
+                        selectedItemColor: AppColors.primaryGradinatMixColor,
+                      ),
+                    ),
+                  ),
+                );
+              }),
+              SizedBox(height: 10),
               Obx(() {
                 return CustomTextFormField(
                   hintText: 'Purchase Price(Tax)',
@@ -583,6 +821,8 @@ class EditProduct extends StatelessWidget {
                 );
               }),
               SizedBox(height: 10),
+
+              SizedBox(height: 10),
               CustomTextFormField(
                 hintText: 'HSN Code (Product)/SAC Code (Service)',
                 keyboardType: TextInputType.number,
@@ -591,18 +831,51 @@ class EditProduct extends StatelessWidget {
                 validator: (value) {},
               ),
               SizedBox(height: 10),
-              CustomTextFormField(
-                hintText: 'Assign Barcode',
-                keyboardType: TextInputType.streetAddress,
-                inputFormatters: [],
-                controller: editProductController.assign_barcode,
-                validator: (value) {},
-                suffixWidget: Icon(
-                  Icons.barcode_reader,
-                  color: AppColors.primaryGradinatMixColor,
+              InkWell(
+                onTap: () {
+                  Get.bottomSheet(
+                    buildBottomSheet(
+                      context: context,
+                      title: 'GST Rate',
+                      items: editProductController.gstRate,
+                      onItemSelected: (selected) {
+                        editProductController.selectedUnit.value = selected;
+                      },
+                    ), // <- Don't pass context; refactor function
+                    isScrollControlled: true,
+                    backgroundColor: Colors.white, // Optional
+                  );
+                },
+
+                child: Obx(
+                  () => Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: AppColors.border),
+                      color: AppColors.white,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          editProductController.selectedUnit.value.isEmpty
+                              ? 'GST Rate'
+                              : editProductController.selectedUnit.value,
+                          style: GoogleFonts.montserrat(
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_drop_down,
+                          color: AppColors.textSecondary,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              SizedBox(height: 20),
+
               Text(
                 "C. Search Tags:",
                 style: GoogleFonts.montserrat(
@@ -828,5 +1101,93 @@ Widget buildAlertBox(BuildContext context) {
         onPressed: () => Get.back(), // Use GetX to close the dialog
       ),
     ],
+  );
+}
+
+Widget buildBottomSheet({
+  required BuildContext context,
+  required String title,
+  required List<String> items,
+  required Function(String) onItemSelected,
+}) {
+  final EditProductController editProductController = Get.put(
+    EditProductController(),
+  );
+
+  editProductController.filteredSuggestions.clear();
+  editProductController.search.clear();
+
+  return Container(
+    height: MediaQuery.of(context).size.height * 0.7,
+    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+    decoration: const BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Center(
+          child: Text(
+            title,
+            style: GoogleFonts.montserrat(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        CustomTextFormField(
+          hintText: 'Search',
+          keyboardType: TextInputType.text,
+          controller: editProductController.search,
+          validator: (p0) {},
+          suffixWidget: const Icon(Icons.search),
+          onChanged: (value) {
+            editProductController.updateSuggestions(items, value);
+          },
+        ),
+        const SizedBox(height: 10),
+        Obx(() {
+          final suggestions = editProductController.filteredSuggestions;
+          if (suggestions.isEmpty) return const SizedBox.shrink();
+          return Expanded(
+            child: ListView.builder(
+              itemCount: suggestions.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(suggestions[index]),
+                  onTap: () {
+                    onItemSelected(suggestions[index]);
+                    editProductController.clearSuggestions();
+                    Get.back();
+                  },
+                );
+              },
+            ),
+          );
+        }),
+        Obx(() {
+          if (editProductController.filteredSuggestions.isNotEmpty)
+            return const SizedBox.shrink();
+          return Expanded(
+            child: ListView.builder(
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(items[index]),
+                  onTap: () {
+                    onItemSelected(items[index]);
+                    editProductController.clearSuggestions();
+                    Get.back();
+                  },
+                );
+              },
+            ),
+          );
+        }),
+      ],
+    ),
   );
 }

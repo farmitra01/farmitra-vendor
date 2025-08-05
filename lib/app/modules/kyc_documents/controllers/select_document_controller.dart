@@ -21,16 +21,20 @@ class SelectDocumentController extends GetxController {
 
   void increment() => count.value++;
 
-   
   var selectedDocument = ''.obs;
 
-List<String> documentsList = [
-  'GST-C OTP Varification',
-  "Shop's Establishment License",
-  'UDYOG/UDYAM',
-  'Food/Drug License',
-  'Trade License',
-  'Other Document(if any)',
-];
+  List<String> documentsList = [
+    'GST-C OTP Varification',
+    "Shop's Establishment License",
+    'UDYOG/UDYAM',
+    'Food/Drug License',
+    'Trade License',
+    'Other Document(if any)',
+  ];
+  List<String> qualificationsList = [
+    'Doctrate',
+    'Masters',
+    'Graduate',
+    'Others',
+  ];
 }
-

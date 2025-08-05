@@ -337,7 +337,7 @@ class BulkUpload extends StatelessWidget {
                       if (bulkUploadController.selectedFile.value != null)
                         Column(
                           children: [
-                            const Divider(
+                             Divider(
                               color: AppColors.containerShadowColor,
                             ),
                             SizedBox(height: 5),

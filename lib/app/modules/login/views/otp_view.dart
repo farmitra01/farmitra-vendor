@@ -14,12 +14,12 @@ class OtpView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // var validate = false.obs;
     final OtpController otpController = Get.put(OtpController());
     final LoginController loginController = Get.put(LoginController());
-    // final receivedNumber = Get.arguments; // Receiving from LoginView
+
     bool isOtpComplete() =>
         otpController.OTPcontrollers.every((c) => c.text.trim().isNotEmpty);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.appBarColor,
@@ -33,7 +33,7 @@ class OtpView extends StatelessWidget {
                 border: Border.all(color: AppColors.white),
               ),
               child: const Center(
-                child: Icon(Icons.arrow_back, size: 20, color: Colors.white),
+                child: Icon(Icons.arrow_back, size: 20, color: AppColors.white),
               ),
             ),
           ),
@@ -150,7 +150,6 @@ class OtpView extends StatelessWidget {
                             )
                             : const SizedBox();
                       }),
-                      // SizedBox(height: 10),
                       const SizedBox(height: 30),
                       Obx(
                         () => CustomGradientButton(
@@ -161,27 +160,39 @@ class OtpView extends StatelessWidget {
                                     AppColors.primaryFirstGradiant,
                                     AppColors.primarySecondGradiant,
                                   ]
-                                  : [AppColors.lightGrey, AppColors.secondary],
+                                  : [AppColors.border, AppColors.border],
                           onPressed: () {
-                            if (!otpController.isOtpFilled.value) {
-                              otpController.showOtpError(
-                                "Please enter 4-digit Valid OTP",
+                            if (!otpController.isOtpFilled.value) return;
+
+                            Future(() async {
+                              Get.dialog(
+                                Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.primaryGradinatMixColor,
+                                  ),
+                                ),
+                                barrierDismissible: false,
                               );
 
-                              return;
-                            }
+                              try {
+                                await Future.delayed(
+                                  const Duration(seconds: 3),
+                                );
 
-                            if (_formkey.currentState!.validate()) {
-                              otpController.submitOtp();
-                            } else {
-                              otpController.OTPValidation();
-                            }
+                                if (_formkey.currentState!.validate()) {
+                                  otpController.submitOtp();
+                                } else {
+                                  otpController.OTPValidation();
+                                }
+                              } finally {
+                                if (Get.isDialogOpen ?? false) Get.back();
+                              }
+                            });
                           },
                         ),
                       ),
 
                       const SizedBox(height: 30),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -197,9 +208,44 @@ class OtpView extends StatelessWidget {
                             () => InkWell(
                               onTap:
                                   otpController.isButtonEnabled.value
-                                      ? () {
-                                        loginController.loginWithOtp();
-                                        otpController.startTimer();
+                                      ? () async {
+                                        otpController.isButtonEnabled.value =
+                                            false;
+
+                                        Get.dialog(
+                                          Center(
+                                            child: CircularProgressIndicator(
+                                              color:
+                                                  AppColors
+                                                      .primaryGradinatMixColor,
+                                            ),
+                                          ),
+                                          barrierDismissible: false,
+                                        );
+
+                                        try {
+                                          await loginController.loginWithOtp();
+
+                                          await Future.delayed(
+                                            const Duration(seconds: 3),
+                                          );
+
+                                          otpController.startTimer();
+                                        } catch (e) {
+                                          otpController.isButtonEnabled.value =
+                                              true;
+
+                                          Get.snackbar(
+                                            "Error",
+                                            "Failed to resend OTP. Please try again.",
+                                            backgroundColor: Colors.red
+                                                .withOpacity(0.8),
+                                            colorText: Colors.white,
+                                          );
+                                        } finally {
+                                          if (Get.isDialogOpen ?? false)
+                                            Get.back();
+                                        }
                                       }
                                       : null,
                               child: Text(
@@ -216,78 +262,6 @@ class OtpView extends StatelessWidget {
                           ),
                         ],
                       ),
-                      // Row(
-                      //   children: [
-                      //     Obx(
-                      //       () => Expanded(
-                      //         child: GradientOutlinedButton(
-                      //           borderRadius: BorderRadius.circular(25),
-
-                      //           text:
-                      //               otpController.isButtonEnabled.value
-                      //                   ? "Resend OTP"
-                      //                   : 'Resend OTP in ${otpController.formattedTime}s',
-                      //           gradient:
-                      //               otpController.isButtonEnabled.value
-                      //                   ? LinearGradient(
-                      //                     colors: [
-                      //                       AppColors.primaryFirstGradiant,
-                      //                       AppColors.primarySecondGradiant,
-                      //                     ],
-                      //                   )
-                      //                   : LinearGradient(
-                      //                     colors: [
-                      //                       AppColors.border,
-                      //                       AppColors.border,
-                      //                     ],
-                      //                   ),
-                      //           onPressed: () {
-                      //             otpController.isButtonEnabled.value
-                      //                 ? loginController.loginWithOtp()
-                      //                 : null;
-                      //             otpController.isButtonEnabled.value
-                      //                 ? otpController.startTimer()
-                      //                 : null;
-
-                      //             // Get.snackbar(
-                      //             //   'Notice',
-                      //             //   otpController.isButtonEnabled.value == true
-                      //             //       ? 'Requested for new OTP on ${otpController.mobile}'
-                      //             //       : 'Wait For 2 Minustes',
-                      //             //   backgroundColor:
-                      //             //       AppColors.primaryGradinatMixColor,
-                      //             //   colorText: AppColors.white,
-                      //             //   snackPosition: SnackPosition.TOP,
-                      //             // );
-                      //           },
-                      //         ),
-                      //       ),
-                      //     ),
-                      //     const SizedBox(width: 15),
-                      //     Expanded(
-                      //       child: GradientOutlinedButton(
-                      //         borderRadius: BorderRadius.circular(25),
-                      //         text: "Call me",
-                      //         gradient: LinearGradient(
-                      //           colors: [
-                      //             AppColors.primaryFirstGradiant,
-                      //             AppColors.primarySecondGradiant,
-                      //           ],
-                      //         ),
-                      //         onPressed: () {
-                      //           Get.snackbar(
-                      //             'Notice',
-                      //             'Requested for call on ${otpController.mobile}',
-                      //             backgroundColor:
-                      //                 AppColors.primaryGradinatMixColor,
-                      //             colorText: AppColors.white,
-                      //             snackPosition: SnackPosition.TOP,
-                      //           );
-                      //         },
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
                     ],
                   ),
                 ),

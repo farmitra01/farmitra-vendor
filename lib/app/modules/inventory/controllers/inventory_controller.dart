@@ -40,10 +40,11 @@ class InventoryController extends GetxController
     //     bgColor: Color(0xffedf7f1),
     //     borderColor: Color(0xffc5e5d1)),
     InventoryModel(
-        text: "Bulk Upload Product",
-        imagePath: 'assets/svgs/bulk_upload.svg',
-        bgColor: Color(0xffedf7f1),
-        borderColor: Color(0xffc5e5d1)),
+      text: "Bulk Upload Product",
+      imagePath: 'assets/svgs/bulk_upload.svg',
+      bgColor: Color(0xffedf7f1),
+      borderColor: Color(0xffc5e5d1),
+    ),
     // bgColor: Color(0xfffef5ed),
     // borderColor: Color(0xfffcd2a7)),
     // InventoryModel(
@@ -52,24 +53,27 @@ class InventoryController extends GetxController
     //     bgColor: Color(0xfffce7e3),
     //     borderColor: Color(0xfff8b5a7)),
     InventoryModel(
-        text: 'Export My Product',
-        imagePath: 'assets/svgs/export_product.svg',
-        bgColor: Color(0xfffce7e3),
-        borderColor: Color(0xfff8b5a7)),
+      text: 'Export My Product',
+      imagePath: 'assets/svgs/export_product.svg',
+      bgColor: Color(0xfffce7e3),
+      borderColor: Color(0xfff8b5a7),
+    ),
     // bgColor: Color(0xfff3eaf6),
     // borderColor: Color(0xffe1cbea)),
   ];
 
   List<BottomSheetData> bottom_sheet_data = [
     BottomSheetData(
-        icon: Icon(Icons.move_to_inbox_outlined), text: 'Move to\ninventry'),
+      icon: Icon(Icons.move_to_inbox_outlined),
+      text: 'Move to\ninventry',
+    ),
     BottomSheetData(icon: Icon(Icons.edit_outlined), text: "Edit"),
     BottomSheetData(icon: Icon(Icons.delete_outline), text: "Delete\nProduct"),
     BottomSheetData(icon: Icon(Icons.print_rounded), text: 'Print'),
   ];
 
   RxBool isSwitched = false.obs;
- 
+
   RxBool isCheck = false.obs;
   RxList<bool> switchStates = List.generate(15, (index) => false).obs;
   RxBool isAllSelected = false.obs; // To track "select all" checkbox state
@@ -98,12 +102,12 @@ class InventoryController extends GetxController
     isCheck.value = !isCheck.value;
   }
 
-//  switck
+  //  switck
   void toggleSwitch(int index, bool value) {
     switchStates[index] = value;
   }
 
-//  on hold press check box
+  //  on hold press check box
   void toggleSelection(int index) {
     selectedItems[index] = !selectedItems[index]; // Toggle selection
   }
@@ -114,4 +118,18 @@ class InventoryController extends GetxController
     isTabActiev.value = !isTabActiev.value;
     // return isTabActiev.value ? Colors.black : Colors.grey;
   }
+
+  List<Map<String, dynamic>> seeOptionList = [
+    {'text': 'Edit', 'icon': Icons.edit_outlined},
+    {
+      'text': 'Out of\nStock',
+      'icon': Icons.shopping_cart_checkout,
+    }, // ✅ Fixed key
+    {
+      'text': 'Add to\nCollection',
+      'icon': Icons.dataset_outlined,
+    }, // ✅ Fixed key
+    {'text': 'Delete\nProduct', 'icon': Icons.delete_outline},
+    {'text': 'Print', 'icon': Icons.print_rounded},
+  ];
 }

@@ -120,7 +120,7 @@ class OtpController extends GetxController {
       final responseData = response['data'] ?? {};
 
       if (statusCode == 401) {
-        showOtpError("Entered OTP Incorrect");
+        showOtpError("Incorrect OTP Entered");
         return;
       }
 
@@ -132,7 +132,7 @@ class OtpController extends GetxController {
         //   colorText: AppColors.white,
         //   snackPosition: SnackPosition.TOP,
         // );
-        showOtpError("Please enter 4-digit Valid OTP");
+        // showOtpError("Vendor Not Found,Please Complete your Registra ");
         final token = responseData['errors']?['token'];
         if (token != null) {
           box.write('user_token', token);
@@ -178,7 +178,7 @@ class OtpController extends GetxController {
         for (final controller in OTPcontrollers) {
           controller.clear();
         }
-        Future.delayed(const Duration(seconds: 1), () {
+        Future.delayed(const Duration(milliseconds: 100), () {
           if (role != null) {
             Get.offAll(() => HomeBottomBarView());
           } else {

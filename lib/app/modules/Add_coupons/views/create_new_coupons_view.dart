@@ -15,7 +15,9 @@ class create_new_coupons_view extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final CreateNewCouponController createNewCouponController = Get.put(CreateNewCouponController());
+    final CreateNewCouponController createNewCouponController = Get.put(
+      CreateNewCouponController(),
+    );
 
     return Scaffold(
       appBar: VendorAppBar(title: 'Create New Coupon'),
@@ -65,11 +67,19 @@ class create_new_coupons_view extends StatelessWidget {
                           () => CustomDropdown<String>(
                             hint: 'Coupon Type',
                             items: createNewCouponController.couponTypes,
-                            selectedItem: createNewCouponController.selectedItem.value.isEmpty
-                                ? null
-                                : createNewCouponController.selectedItem.value,
+                            selectedItem:
+                                createNewCouponController
+                                        .selectedItem
+                                        .value
+                                        .isEmpty
+                                    ? null
+                                    : createNewCouponController
+                                        .selectedItem
+                                        .value,
                             onChanged: (value) {
-                              createNewCouponController.updatedSelectedValue(value ?? '');
+                              createNewCouponController.updatedSelectedValue(
+                                value ?? '',
+                              );
                             },
                             itemBuilder: (item) => item,
                             // errorText: createNewCouponController.isDropdownValid.value
@@ -100,7 +110,9 @@ class create_new_coupons_view extends StatelessWidget {
                           controller: createNewCouponController.couponcode,
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(6),
-                            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r'[a-zA-Z0-9]'),
+                            ),
                           ],
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
@@ -145,7 +157,8 @@ class create_new_coupons_view extends StatelessWidget {
                             if (value == null || value.trim().isEmpty) {
                               return 'Max discount is required';
                             }
-                            if (int.tryParse(value.trim()) == null || int.parse(value.trim()) <= 0) {
+                            if (int.tryParse(value.trim()) == null ||
+                                int.parse(value.trim()) <= 0) {
                               return 'Enter a valid number';
                             }
                             return null;
@@ -180,7 +193,8 @@ class create_new_coupons_view extends StatelessWidget {
                             if (value == null || value.trim().isEmpty) {
                               return 'Min purchase is required';
                             }
-                            if (int.tryParse(value.trim()) == null || int.parse(value.trim()) <= 0) {
+                            if (int.tryParse(value.trim()) == null ||
+                                int.parse(value.trim()) <= 0) {
                               return 'Enter a valid number';
                             }
                             return null;
@@ -219,7 +233,8 @@ class create_new_coupons_view extends StatelessWidget {
                             if (value == null || value.trim().isEmpty) {
                               return 'Discount is required';
                             }
-                            if (int.tryParse(value.trim()) == null || int.parse(value.trim()) <= 0) {
+                            if (int.tryParse(value.trim()) == null ||
+                                int.parse(value.trim()) <= 0) {
                               return 'Enter a valid number';
                             }
                             return null;
@@ -246,11 +261,19 @@ class create_new_coupons_view extends StatelessWidget {
                           () => CustomDropdown<String>(
                             hint: 'Select Type',
                             items: createNewCouponController.discountTypes,
-                            selectedItem: createNewCouponController.selectedDiscount.value.isEmpty
-                                ? null
-                                : createNewCouponController.selectedDiscount.value,
+                            selectedItem:
+                                createNewCouponController
+                                        .selectedDiscount
+                                        .value
+                                        .isEmpty
+                                    ? null
+                                    : createNewCouponController
+                                        .selectedDiscount
+                                        .value,
                             onChanged: (value) {
-                              createNewCouponController.updateSelectedDiscount(value ?? '');
+                              createNewCouponController.updateSelectedDiscount(
+                                value ?? '',
+                              );
                             },
                             itemBuilder: (item) => item,
                             // Text: createNewCouponController.selectedDiscount.value.isEmpty &&
@@ -286,7 +309,8 @@ class create_new_coupons_view extends StatelessWidget {
                   if (value == null || value.trim().isEmpty) {
                     return 'User limit is required';
                   }
-                  if (int.tryParse(value.trim()) == null || int.parse(value.trim()) <= 0) {
+                  if (int.tryParse(value.trim()) == null ||
+                      int.parse(value.trim()) <= 0) {
                     return 'Enter a valid number';
                   }
                   return null;
@@ -311,10 +335,11 @@ class create_new_coupons_view extends StatelessWidget {
                         Obx(
                           () => TextFormField(
                             readOnly: true,
-                            onTap: () => createNewCouponController.pickDate(
-                              isStartDate: true,
-                              context: context,
-                            ),
+                            onTap:
+                                () => createNewCouponController.pickDate(
+                                  isStartDate: true,
+                                  context: context,
+                                ),
                             decoration: const InputDecoration(
                               hintText: 'Select Start Date',
                               border: OutlineInputBorder(),
@@ -350,10 +375,11 @@ class create_new_coupons_view extends StatelessWidget {
                         Obx(
                           () => TextFormField(
                             readOnly: true,
-                            onTap: () => createNewCouponController.pickDate(
-                              isStartDate: false,
-                              context: context,
-                            ),
+                            onTap:
+                                () => createNewCouponController.pickDate(
+                                  isStartDate: false,
+                                  context: context,
+                                ),
                             decoration: const InputDecoration(
                               hintText: 'Select End Date',
                               border: OutlineInputBorder(),
@@ -387,7 +413,7 @@ class create_new_coupons_view extends StatelessWidget {
               final couponData = createNewCouponController.collectCouponData();
               // print('Sending coupon data: $couponData');
               // Wrap couponData in a list
-              Get.to(() => const AddCouponsView(), arguments: [couponData]);
+              Get.to(() => const AddCouponsView(), arguments: couponData);
             }
           },
         ),

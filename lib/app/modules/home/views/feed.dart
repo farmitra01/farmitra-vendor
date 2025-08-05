@@ -31,7 +31,7 @@ class Feed extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
             child: CustomTextFormField(
-              prefixIcon: const Icon(
+              prefixIcon:  Icon(
                 Icons.search,
                 color: AppColors.primaryGradinatMixColor,
               ),
@@ -39,7 +39,7 @@ class Feed extends StatelessWidget {
               keyboardType: TextInputType.text,
               controller: feedController.search,
               validator: (p0) => null,
-              suffixWidget: const Icon(
+              suffixWidget:  Icon(
                 Icons.mic,
                 color: AppColors.primaryGradinatMixColor,
               ),
@@ -91,7 +91,7 @@ class Feed extends StatelessWidget {
     final FeedController feedController = Get.find<FeedController>();
     return Obx(() {
       if (feedController.isLoading.value) {
-        return const Center(
+        return  Center(
           child: CircularProgressIndicator(
             color: AppColors.primaryGradinatMixColor,
           ),
@@ -122,7 +122,7 @@ class Feed extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: AppColors.white,
-        boxShadow: const [
+        boxShadow:  [
           BoxShadow(
             blurRadius: 2.5,
             color: AppColors.containerShadowColor,
@@ -292,7 +292,7 @@ class Feed extends StatelessWidget {
                                   loadingProgress,
                                 ) {
                                   if (loadingProgress == null) return child;
-                                  return const Center(
+                                  return  Center(
                                     child: CircularProgressIndicator(
                                       color: AppColors.primaryGradinatMixColor,
                                     ),
@@ -403,7 +403,7 @@ class Feed extends StatelessWidget {
 
     return Obx(() {
       if (feedController.isLoading.value) {
-        return const Center(
+        return  Center(
           child: CircularProgressIndicator(
             color: AppColors.primaryGradinatMixColor,
           ),
@@ -441,7 +441,7 @@ class Feed extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.circular(10),
-              boxShadow: const [
+              boxShadow:  [
                 BoxShadow(
                   color: AppColors.containerShadowColor,
                   blurRadius: 2.5,
@@ -691,7 +691,7 @@ class Feed extends StatelessWidget {
       );
 
       if (isLoading) {
-        return const Center(
+        return  Center(
           child: CircularProgressIndicator(
             color: AppColors.primaryGradinatMixColor,
           ),
@@ -1005,7 +1005,7 @@ class Feed extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          const CircleAvatar(
+                           CircleAvatar(
                             backgroundColor: AppColors.primaryGradinatMixColor,
                           ),
                           const SizedBox(width: 5),
@@ -1084,7 +1084,7 @@ class Feed extends StatelessWidget {
                   Expanded(
                     child:
                         feedController.isLoading.value
-                            ? const Center(
+                            ?  Center(
                               child: CircularProgressIndicator(
                                 color: AppColors.primaryGradinatMixColor,
                               ),
@@ -1197,7 +1197,7 @@ class Feed extends StatelessWidget {
                         width: 50,
                         child:
                             feedController.isLoading.value
-                                ? const CircularProgressIndicator(
+                                ?  CircularProgressIndicator(
                                   color: AppColors.primaryGradinatMixColor,
                                 )
                                 : IconButton(

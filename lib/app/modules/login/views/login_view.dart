@@ -81,13 +81,14 @@ class LoginView extends GetView<LoginController> {
                     print(
                       'Stored Login Mobile Number ${box.read('login_mobileNumber')}',
                     );
+                    
                     // Hide keyboard before proceeding
                     FocusScope.of(context).unfocus();
 
                     final mobileNumber = loginController.mobileNumber.text;
 
                     Get.dialog(
-                      const Center(
+                       Center(
                         child: CircularProgressIndicator(
                           color: AppColors.primaryGradinatMixColor,
                         ),
@@ -109,7 +110,7 @@ class LoginView extends GetView<LoginController> {
                         duration: const Duration(seconds: 3),
                       );
                       return;
-                    }
+                    } 
 
                     await loginController.loginWithOtp();
 
@@ -147,7 +148,7 @@ class LoginView extends GetView<LoginController> {
                   children: <TextSpan>[
                     TextSpan(
                       text: '\n    Terms of Services',
-                      style: const TextStyle(
+                      style:  TextStyle(
                         color: AppColors.primaryGradinatMixColor,
                       ),
                       recognizer:
@@ -160,7 +161,7 @@ class LoginView extends GetView<LoginController> {
                     ),
                     TextSpan(
                       text: 'Privacy Policy',
-                      style: const TextStyle(
+                      style:  TextStyle(
                         color: AppColors.primaryGradinatMixColor,
                       ),
                       recognizer:

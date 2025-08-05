@@ -21,7 +21,7 @@ class FaqView extends GetView {
 
       body: Obx(() {
         if (faqController.isLoading.value) {
-          return const Center(
+          return  Center(
             child: CircularProgressIndicator(
               color: AppColors.primaryGradinatMixColor,
             ),

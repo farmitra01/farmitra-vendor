@@ -94,6 +94,7 @@ class LoginController extends GetxController {
   /// ✅ New login with OTP
   Future<void> loginWithOtp() async {
     final mobile = mobileNumber.text.trim();
+    print('login with otp function start');
 
     final validationMessage = validateMobileNumber(mobile);
     if (validationMessage != null) {
@@ -115,6 +116,7 @@ class LoginController extends GetxController {
         method: 'POST',
         body: body,
       );
+      print('Response ${response}');
 
       if (response['success'] == true) {
         // print('');

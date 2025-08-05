@@ -55,11 +55,6 @@ class StoreSelectedModuleController extends GetxController {
       fetchModuleCategories2(categoryId, categoryName: categoryName);
     } else {
       debugPrint('❌ Missing ID: fallback triggered, instance=$hashCode');
-      Get.snackbar(
-        'Error',
-        'Invalid category selection.',
-        snackPosition: SnackPosition.TOP,
-      );
     }
   }
 
@@ -117,13 +112,10 @@ class StoreSelectedModuleController extends GetxController {
   }
 
   void _sendDefaultArgument() {
-    // Send the data of index 0 as an argument (e.g., to another screen or controller)
     if (items3.isNotEmpty) {
       final defaultData =
           'id:${items3[0].id},name:${items3[0].name ?? 'Unknown'}';
       debugPrint('Sending default argument: $defaultData');
-      // Example: You can use Get.to or Get.off to pass the argument to another screen
-      // Get.to(() => NextScreen(), arguments: defaultData);
     }
   }
 

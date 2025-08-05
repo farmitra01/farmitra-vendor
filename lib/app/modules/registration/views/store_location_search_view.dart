@@ -137,7 +137,7 @@ class StoreLocationSearchView extends StatelessWidget {
           },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            margin: EdgeInsets.only(bottom: 135, left: 20),
+            margin: EdgeInsets.only(bottom: 180, left: 20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(25),
               color: Colors.white70,
@@ -185,7 +185,7 @@ class StoreLocationSearchView extends StatelessWidget {
               ),
             ],
           ),
-          height: 150,
+          height: 175,
           child: Column(
             children: [
               Row(
@@ -205,6 +205,7 @@ class StoreLocationSearchView extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                         color: AppColors.primaryGradinatMixColor,
                       ),
+
                       maxLines: 5,
                       overflow: TextOverflow.ellipsis,
                       softWrap: true,

@@ -17,6 +17,7 @@ class OrderView extends GetView {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.lightGrey,
       appBar: AppBar(
         backgroundColor: AppColors.appBarColor,
         automaticallyImplyLeading: false,

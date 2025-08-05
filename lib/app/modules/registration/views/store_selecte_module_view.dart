@@ -91,7 +91,7 @@ class StoreSelectedModuleView extends GetView<StoreSelectedModuleController> {
                   bottom: 45,
                   child: Container(
                     padding: const EdgeInsets.all(2.0),
-                    decoration: const BoxDecoration(
+                    decoration:  BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
@@ -110,7 +110,7 @@ class StoreSelectedModuleView extends GetView<StoreSelectedModuleController> {
                         child: Container(
                           height: 25,
                           width: 25,
-                          decoration: const BoxDecoration(
+                          decoration:  BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
@@ -163,7 +163,7 @@ class StoreSelectedModuleView extends GetView<StoreSelectedModuleController> {
                 return Stack(
                   children: [
                     if (controller.isLoading.value)
-                      const Center(
+                       Center(
                         child: CircularProgressIndicator(
                           color: AppColors.primaryGradinatMixColor,
                         ),
@@ -378,7 +378,7 @@ void showInfoBottomSheet({
 
                 ShaderMask(
                   shaderCallback:
-                      (bounds) => const LinearGradient(
+                      (bounds) =>  LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
@@ -400,7 +400,7 @@ void showInfoBottomSheet({
                 const Spacer(),
                 GestureDetector(
                   onTap: () => Get.back(),
-                  child: const Icon(
+                  child:  Icon(
                     Icons.cancel_sharp,
                     color: AppColors.primaryGradinatMixColor,
                   ),
@@ -432,7 +432,7 @@ void showInfoBottomSheet({
                   if (selectedIndex.value > 0)
                     GestureDetector(
                       onTap: () => selectedIndex.value--,
-                      child: const CircleAvatar(
+                      child:  CircleAvatar(
                         child: Icon(Icons.arrow_back, color: AppColors.white),
                         backgroundColor: AppColors.primaryGradinatMixColor,
                       ),
@@ -441,7 +441,7 @@ void showInfoBottomSheet({
                   if (selectedIndex.value < items.length - 1)
                     GestureDetector(
                       onTap: () => selectedIndex.value++,
-                      child: const CircleAvatar(
+                      child:  CircleAvatar(
                         child: Icon(
                           Icons.arrow_forward,
                           color: AppColors.white,

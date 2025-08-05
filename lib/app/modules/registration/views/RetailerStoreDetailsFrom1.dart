@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:farmitra/app/constants/app_colors.dart';
-import 'package:farmitra/app/data/models/store_category_model/store_template_model.dart';
+// import 'package:farmitra/app/data/models/store_category_model/store_template_model.dart';
 import 'package:farmitra/app/modules/kyc_documents/views/rental_kyc.dart';
 import 'package:farmitra/app/modules/registration/controllers/retailer_store_details_form_controller.dart';
 import 'package:farmitra/app/modules/registration/controllers/store_category_controller.dart';
@@ -334,7 +334,6 @@ class RetailerStoreDetailsFrom1 extends StatelessWidget {
                   return null;
                 },
               ),
-
               const SizedBox(height: 10),
             ],
           ),

@@ -22,10 +22,10 @@ class CustomGradientButton extends StatelessWidget {
     this.width,
     this.height,
     this.borderRadius = 25,
-    this.gradientColors = const [
-      AppColors.primaryFirstGradiant,
-      AppColors.primarySecondGradiant,
-    ],
+   this.gradientColors =  const [
+  AppColors.primaryFirstGradiant,
+  AppColors.primarySecondGradiant,
+],
     this.iconSpacing = 8.0,
   }) : super(key: key);
 

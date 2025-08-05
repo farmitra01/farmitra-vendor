@@ -19,6 +19,7 @@ class OrderHistory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.lightGrey,
       appBar: VendorAppBar(
         title: "Order History",
         actions: [
@@ -28,7 +29,7 @@ class OrderHistory extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
               border: Border.all(color: AppColors.border),
             ),
-            child: Row( 
+            child: Row(
               children: [
                 SvgPicture.asset(
                   'assets/svgs/download_report.svg',

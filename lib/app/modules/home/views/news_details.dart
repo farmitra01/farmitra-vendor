@@ -77,7 +77,7 @@ class NewsDetails extends StatelessWidget {
                     const SizedBox(height: 20),
                     Row(
                       children: [
-                        const CircleAvatar(
+                         CircleAvatar(
                           backgroundColor: AppColors.primaryGradinatMixColor,
                           child: Icon(
                             Icons.person_2_outlined,

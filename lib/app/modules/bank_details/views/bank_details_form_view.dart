@@ -61,6 +61,7 @@ class BankDetailsFormView extends GetView {
       body: Form(
         key: formkey,
         child: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
             child: Column(

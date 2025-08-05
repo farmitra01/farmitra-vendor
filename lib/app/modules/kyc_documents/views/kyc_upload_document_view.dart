@@ -187,6 +187,15 @@ class KycUploadDocumentView extends GetView {
                   ),
                 ),
                 SizedBox(height: 15),
+                Text(
+                  'Fill the ${kycUploadDocumentController.documentName} Details Below',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                SizedBox(height: 10),
                 CustomTextFormField(
                   hintText: "Enter Document ID/No.",
                   keyboardType: TextInputType.number,
@@ -199,7 +208,6 @@ class KycUploadDocumentView extends GetView {
                   },
                   inputFormatters: [LengthLimitingTextInputFormatter(12)],
                 ),
-
                 SizedBox(height: 10),
                 Text(
                   'Upload your document here (2:1)',

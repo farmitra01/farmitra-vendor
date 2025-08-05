@@ -65,11 +65,7 @@ class StoreCategoryController extends GetxController {
       fetchModuleSubCategory(categoryId, name: categoryName);
     } else {
       debugPrint('❌ Missing ID: fallback triggered');
-      Get.snackbar(
-        'Error',
-        'Invalid category selection.',
-        snackPosition: SnackPosition.TOP,
-      );
+    
     }
   }
 
@@ -134,7 +130,7 @@ class StoreCategoryController extends GetxController {
       );
     }
   }
-
+ 
   // Send default values (first item)
   void _sendDefaultArgument() {
     if (subCategories.isNotEmpty) {

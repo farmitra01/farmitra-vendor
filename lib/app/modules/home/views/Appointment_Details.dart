@@ -151,7 +151,7 @@ class AppointmentDetails extends StatelessWidget {
                 ],
               ),
             ),
-            const Divider(color: AppColors.primaryGradinatMixColor),
+             Divider(color: AppColors.primaryGradinatMixColor),
             const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),

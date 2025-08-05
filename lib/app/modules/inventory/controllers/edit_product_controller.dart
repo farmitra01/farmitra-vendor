@@ -25,6 +25,12 @@ class EditProductController extends GetxController {
   }
 
   RxBool showGrid = false.obs;
+  var selectedBrand = ''.obs;
+  var selectedCategory = ''.obs;
+  var selectedUnit = ''.obs;
+  var selectedSubCategory = ''.obs;
+
+  var search = TextEditingController();
   var purchasePriceTax = ''.obs;
   var product_priceTax = ''.obs; // Use RxString for reactivity
   var producName = TextEditingController();
@@ -107,4 +113,60 @@ class EditProductController extends GetxController {
         'assets/images/Null_image.png',
         'assets/images/Null_image.png',
       ].obs;
+  final List<String> brands = [
+    'FlipKart',
+    'Amazon',
+    'Meesho',
+    'BlinkIt',
+    'Zepto',
+  ];
+  final List<String> categories = [
+    'Category-1',
+    'Category-2',
+    'Category-3',
+    'Category-4',
+    'Category-5',
+  ];
+  final List<String> subCatogory = [
+    'Sub-Category-1',
+    'Sub-Category-2',
+    'Sub-Category-3',
+    'Sub-Category-4',
+    'Sub-Category-4',
+  ];
+  final List<String> productUnit = [
+    'Mili Gram',
+    'Kilo Gram',
+    'Quintal',
+    'Tonne',
+  ];
+
+  final List<String> gstRate = [
+    'Exampted  0.0',
+    'GST@0%',
+    'GST@0.25%',
+    'GST@3%',
+    'GST@12%',
+    'IGST@12%',
+    'GST@18%',
+    'GST@28%',
+  ];
+
+  var filteredSuggestions = <String>[].obs;
+
+  void updateSuggestions(List<String> list, String query) {
+    if (query.isEmpty) {
+      filteredSuggestions.clear();
+    } else {
+      filteredSuggestions.value =
+          list
+              .where((item) => item.toLowerCase().contains(query.toLowerCase()))
+              .toList();
+    }
+  }
+
+  void clearSuggestions() {
+    search.clear();
+    filteredSuggestions.clear();
+  }
 }

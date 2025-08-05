@@ -119,7 +119,7 @@ class Reply extends StatelessWidget {
                     }
                     );
                   },
-                  child: const Icon(
+                  child:  Icon(
                     Icons.arrow_forward_ios,
                     color: AppColors.primaryGradinatMixColor,
                   ),
@@ -384,7 +384,7 @@ class Reply extends StatelessWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    gradient: const LinearGradient(
+                                    gradient:  LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                       colors: [
@@ -413,7 +413,7 @@ class Reply extends StatelessWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    gradient: const LinearGradient(
+                                    gradient:  LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                       colors: [

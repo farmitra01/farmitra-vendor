@@ -1,5 +1,10 @@
 import 'dart:io';
+import 'package:farmitra/app/constants/api_endpoints.dart';
 import 'package:farmitra/app/constants/app_colors.dart';
+import 'package:farmitra/app/modules/kyc_documents/views/rental_kyc.dart';
+import 'package:farmitra/app/modules/registration/controllers/store_category_controller.dart';
+import 'package:farmitra/app/modules/registration/controllers/store_location_controller.dart';
+import 'package:farmitra/app/services/network_services.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -13,7 +18,13 @@ class StoreDetailsFormController extends GetxController {
   final TextEditingController location = TextEditingController();
   final TextEditingController email = TextEditingController();
   final TextEditingController about = TextEditingController();
+  final TextEditingController expertName = TextEditingController();
   final box = GetStorage();
+  final StoreLocationController storeLocationController = Get.put(
+    StoreLocationController(),
+  );
+  final ApiService _apiService = ApiService();
+  var isLoading = false.obs;
   var selectedItem = ''.obs;
   List<String> storeChannelList = ['Online', 'Physical', 'Both'];
 
@@ -154,6 +165,44 @@ class StoreDetailsFormController extends GetxController {
     }
   }
 
+  Future<ImageSource?> selectImageSourceDialog() async {
+    return await Get.dialog<ImageSource>(
+      AlertDialog(
+        title: Text(
+          'Select Image',
+          style: GoogleFonts.montserrat(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: AppColors.primaryGradinatMixColor,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: ImageSource.camera),
+            child: Text(
+              'Camera',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AppColors.primaryGradinatMixColor,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: ImageSource.gallery),
+            child: Text(
+              'Gallery',
+              style: GoogleFonts.montserrat(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AppColors.primaryGradinatMixColor,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   // bool validateImages() {
   //   isLogoValid.value = selectedLogoPath.value.isNotEmpty;
   //   isBannerValid.value = selectedBannerPath.value.isNotEmpty;
@@ -173,7 +222,7 @@ class StoreDetailsFormController extends GetxController {
 
   void changeGender(String value) => selectedGender.value = value;
 
-  RxList<int> selectedIndexes = <int>[].obs;
+  // RxList<int> selectedIndexes = <int>[].obs;
 
   @override
   void onInit() {
@@ -182,38 +231,19 @@ class StoreDetailsFormController extends GetxController {
     if (storedNumber != null && storedNumber is String) {
       whatsAppNumber.text = storedNumber;
     }
+
     selectedIndexes.clear();
     print('StoreDetailsFormController initialized, selectedIndexes cleared');
     final arguments = Get.arguments ?? {};
-    initializeImages(
-      arguments['logoImage'] as String?,
-      arguments['bannerImage'] as String?,
-    );
-    initializeFromData(arguments['savedIndexes'] as List<dynamic>?);
+    // initializeImages(
+    //   arguments['logoImage'] as String?,
+    //   arguments['bannerImage'] as String?,
+    // );
+    // initializeFromData(arguments['savedIndexes'] as List<dynamic>?);
   }
 
-  void toggleSelection(int index) {
-    if (index < 0 || index >= languages.length) {
-      print('Invalid index in toggleSelection: $index');
-      return;
-    }
-    print('toggleSelection called with index: $index');
-    if (selectedIndexes.contains(index)) {
-      selectedIndexes.remove(index);
-    } else {
-      selectedIndexes.add(index);
-    }
-    selectedIndexes.refresh();
-  }
-
-  bool isSelected(int index) {
-    if (index < 0 || index >= languages.length) {
-      print('Invalid index in isSelected: $index');
-      return false;
-    }
-    print('isSelected called with index: $index');
-    return selectedIndexes.contains(index);
-  }
+  var selectedIndexes = <int>[].obs;
+  var selectedLanguages = <String>[].obs;
 
   List<String> languages = [
     'Hindi',
@@ -227,6 +257,35 @@ class StoreDetailsFormController extends GetxController {
     'Panjabi',
     'Hydrabadi',
   ];
+
+  void toggleSelection(int index) {
+    if (index < 0 || index >= languages.length) {
+      print('Invalid index in toggleSelection: $index');
+      return;
+    }
+
+    final language = languages[index];
+
+    if (selectedIndexes.contains(index)) {
+      selectedIndexes.remove(index);
+      selectedLanguages.remove(language); // Remove language
+    } else {
+      selectedIndexes.add(index);
+      selectedLanguages.add(language); // Add language
+    }
+
+    selectedIndexes.refresh();
+    selectedLanguages.refresh();
+    print('Selected languages: $selectedLanguages');
+  }
+
+  bool isSelected(int index) {
+    if (index < 0 || index >= languages.length) {
+      print('Invalid index in isSelected: $index');
+      return false;
+    }
+    return selectedIndexes.contains(index);
+  }
 
   var selectedRentalItem = ''.obs;
   var isRentalDropdownValid = true.obs;
@@ -247,111 +306,230 @@ class StoreDetailsFormController extends GetxController {
     return isRentalDropdownValid.value;
   }
 
-  void initializeFromData(List<dynamic>? savedIndexes) {
-    print('initializeFromData called with savedIndexes: $savedIndexes');
-    if (savedIndexes != null) {
-      selectedIndexes.clear();
-      for (var index in savedIndexes) {
-        int? parsed;
-        if (index is String) {
-          parsed = int.tryParse(index);
-          if (parsed == null) {
-            print('Invalid index in savedIndexes: $index');
-            Get.snackbar(
-              'Warning',
-              'Invalid language selection: $index ignored',
-              backgroundColor: AppColors.error,
-              colorText: AppColors.white,
-            );
-            continue;
-          }
-        } else if (index is int) {
-          parsed = index;
-        } else {
-          print('Unexpected index type in savedIndexes: $index');
-          continue;
-        }
-        if (parsed != null && parsed >= 0 && parsed < languages.length) {
-          selectedIndexes.add(parsed);
-        } else {
-          print('Invalid or out-of-range index: $parsed');
-          Get.snackbar(
-            'Warning',
-            'Out-of-range language index: $parsed ignored',
-            backgroundColor: AppColors.error,
-            colorText: AppColors.white,
-          );
-        }
-      }
-      selectedIndexes.refresh();
-      print('selectedIndexes updated: $selectedIndexes');
-    } else {
-      print('savedIndexes is null, no changes made to selectedIndexes');
-    }
-  }
+  // void initializeFromData(List<dynamic>? savedIndexes) {
+  //   print('initializeFromData called with savedIndexes: $savedIndexes');
+  //   if (savedIndexes != null) {
+  //     selectedIndexes.clear();
+  //     for (var index in savedIndexes) {
+  //       int? parsed;
+  //       if (index is String) {
+  //         parsed = int.tryParse(index);
+  //         if (parsed == null) {
+  //           print('Invalid index in savedIndexes: $index');
+  //           Get.snackbar(
+  //             'Warning',
+  //             'Invalid language selection: $index ignored',
+  //             backgroundColor: AppColors.error,
+  //             colorText: AppColors.white,
+  //           );
+  //           continue;
+  //         }
+  //       } else if (index is int) {
+  //         parsed = index;
+  //       } else {
+  //         print('Unexpected index type in savedIndexes: $index');
+  //         continue;
+  //       }
+  //       if (parsed != null && parsed >= 0 && parsed < languages.length) {
+  //         selectedIndexes.add(parsed);
+  //       } else {
+  //         print('Invalid or out-of-range index: $parsed');
+  //         Get.snackbar(
+  //           'Warning',
+  //           'Out-of-range language index: $parsed ignored',
+  //           backgroundColor: AppColors.error,
+  //           colorText: AppColors.white,
+  //         );
+  //       }
+  //     }
+  //     selectedIndexes.refresh();
+  //     print('selectedIndexes updated: $selectedIndexes');
+  //   } else {
+  //     print('savedIndexes is null, no changes made to selectedIndexes');
+  //   }
+  // }
 
-  void initializeImages(String? logoImagePath, String? bannerImagePath) {
-    print(
-      'initializeImages: logoImagePath=$logoImagePath, bannerImagePath=$bannerImagePath',
-    );
-    // Validate logo image path
-    if (logoImagePath != null && logoImagePath.isNotEmpty) {
-      final file = File(logoImagePath);
-      if (file.existsSync()) {
-        selectedLogoPath.value = logoImagePath;
-        print('initializeImages: Logo path set to $logoImagePath');
-      } else {
-        selectedLogoPath.value = '';
-        print('initializeImages: Invalid logo path: $logoImagePath');
+  // void initializeImages(String? logoImagePath, String? bannerImagePath) {
+  //   print(
+  //     'initializeImages: logoImagePath=$logoImagePath, bannerImagePath=$bannerImagePath',
+  //   );
+  //   // Validate logo image path
+  //   if (logoImagePath != null && logoImagePath.isNotEmpty) {
+  //     final file = File(logoImagePath);
+  //     if (file.existsSync()) {
+  //       selectedLogoPath.value = logoImagePath;
+  //       print('initializeImages: Logo path set to $logoImagePath');
+  //     } else {
+  //       selectedLogoPath.value = '';
+  //       print('initializeImages: Invalid logo path: $logoImagePath');
+  //       Get.snackbar(
+  //         'Error',
+  //         'Invalid logo image path',
+  //         backgroundColor: AppColors.error,
+  //         colorText: AppColors.white,
+  //       );
+  //     }
+  //   } else {
+  //     selectedLogoPath.value = '';
+  //     print('initializeImages: No logo path provided');
+  //   }
+
+  //   // Validate banner image path
+  //   if (bannerImagePath != null && bannerImagePath.isNotEmpty) {
+  //     final file = File(bannerImagePath);
+  //     if (file.existsSync()) {
+  //       selectedBannerPath.value = bannerImagePath;
+  //       isBannerValid.value = true;
+  //       print('initializeImages: Banner path set to $bannerImagePath');
+  //     } else {
+  //       selectedBannerPath.value = '';
+  //       isBannerValid.value = false;
+  //       print('initializeImages: Invalid banner path: $bannerImagePath');
+  //       Get.snackbar(
+  //         'Error',
+  //         'Invalid banner image path',
+  //         backgroundColor: AppColors.error,
+  //         colorText: AppColors.white,
+  //       );
+  //     }
+  //   } else {
+  //     selectedBannerPath.value = '';
+  //     isBannerValid.value = false;
+  //     print('initializeImages: No banner path provided');
+  //   }
+
+  //   // Force UI update
+  //   selectedLogoPath.refresh();
+  //   selectedBannerPath.refresh();
+  // }
+
+  Future<void> submitRetailerStoreDetails() async {
+    try {
+      final storeCategoryController = Get.find<StoreCategoryController>();
+      isLoading.value = true;
+      print('🔄 Starting submitRetailerStoreDetails...');
+
+      if (storeLocationController.combinedController.text.trim().isEmpty) {
+        print('❌ Address is empty.');
         Get.snackbar(
           'Error',
-          'Invalid logo image path',
+          'Address is required.',
+          backgroundColor: AppColors.error,
+          colorText: AppColors.white,
+        );
+        return;
+      }
+
+      if (storeCategoryController.subCategoriesId.isEmpty) {
+        print('❌ No subcategories selected.');
+        Get.snackbar(
+          'Error',
+          'Select at least one subcategory.',
+          backgroundColor: AppColors.error,
+          colorText: AppColors.white,
+        );
+        return;
+      }
+
+      // final token = box.read('user_token');
+      final token = box.read('user_token');
+
+      if (token == null || token.isEmpty) {
+        print('❌ Token is missing.');
+        Get.snackbar(
+          'Error',
+          'Login required try again for login.',
+          backgroundColor: AppColors.error,
+          colorText: AppColors.white,
+        );
+        return;
+      }
+
+      // ✅ Construct formData
+      final Map<String, dynamic> formData = {
+        'business_module_id': storeCategoryController.businessModuleId.value,
+        'module_category_id': storeCategoryController.moduleCategoryId.value,
+        'about': about.text.trim(),
+        'store_name': expertName.text.trim(),
+        'vendor_name': name.text.trim(),
+        'whatsapp_no': whatsAppNumber.text.trim(),
+        'email': email.text.trim(),
+        'address': storeLocationController.combinedController.text.trim(),
+        'landmark': storeLocationController.landmark.text.trim(),
+        'pincode': storeLocationController.pincode.text.trim(),
+        'language': selectedLanguages,
+        'gps_location':
+            '${storeLocationController.selectedLocation.value.latitude},${storeLocationController.selectedLocation.value.longitude}',
+        'subcategories': storeCategoryController.subCategoriesId.toList(),
+      };
+      final fileMap = <String, File>{};
+      if (selectedLogoPath.value.isNotEmpty) {
+        fileMap['logo'] = File(selectedLogoPath.value);
+      }
+      if (selectedBannerPath.value.isNotEmpty) {
+        fileMap['banner_image'] = File(selectedBannerPath.value);
+      }
+
+      print('📤 Sending to: ${ApiEndpoints.addvender}');
+      print('📨 FormData: $formData');
+      print('🖼️ Files: ${fileMap.keys}');
+      print(
+        'Selected Subcategory IDs: ${storeCategoryController.selectedItems}',
+      );
+
+      final response = await _apiService.callApi(
+        endpoint: ApiEndpoints.addvender,
+        method: 'POST',
+        formData: formData,
+        fileMap: fileMap,
+        isMultipart: true,
+        requireAuth: true,
+      );
+
+      print('✅ API Response: $response');
+
+      if (response['success'] == true) {
+        final userId = response['data']?['data']?['vendor']?['id'];
+        final receivedUserType = response['data']?['data']?['roles'];
+        box.write('data', response);
+        box.write('user_id', userId);
+        box.write('user_type', receivedUserType);
+
+        Get.snackbar(
+          'Success',
+          response['message'] ?? 'Data added successfully',
+          backgroundColor: AppColors.primaryGradinatMixColor,
+          colorText: AppColors.white,
+        );
+        Get.to(() => RentalKyc());
+      } else {
+        final errorMsg =
+            response['message'] ??
+            response['errors']?['error'] ??
+            'Failed to submit details';
+        Get.snackbar(
+          'Error',
+          errorMsg,
           backgroundColor: AppColors.error,
           colorText: AppColors.white,
         );
       }
-    } else {
-      selectedLogoPath.value = '';
-      print('initializeImages: No logo path provided');
+    } catch (e) {
+      print('❗ Exception occurred: $e');
+      Get.snackbar(
+        'Error',
+        'Exception: $e',
+        backgroundColor: AppColors.error,
+        colorText: AppColors.white,
+      );
+    } finally {
+      isLoading.value = false;
+      print('✅ Done submitRetailerStoreDetails');
     }
-
-    // Validate banner image path
-    if (bannerImagePath != null && bannerImagePath.isNotEmpty) {
-      final file = File(bannerImagePath);
-      if (file.existsSync()) {
-        selectedBannerPath.value = bannerImagePath;
-        isBannerValid.value = true;
-        print('initializeImages: Banner path set to $bannerImagePath');
-      } else {
-        selectedBannerPath.value = '';
-        isBannerValid.value = false;
-        print('initializeImages: Invalid banner path: $bannerImagePath');
-        Get.snackbar(
-          'Error',
-          'Invalid banner image path',
-          backgroundColor: AppColors.error,
-          colorText: AppColors.white,
-        );
-      }
-    } else {
-      selectedBannerPath.value = '';
-      isBannerValid.value = false;
-      print('initializeImages: No banner path provided');
-    }
-
-    // Force UI update
-    selectedLogoPath.refresh();
-    selectedBannerPath.refresh();
   }
 
   @override
   void onClose() {
-    other.dispose();
-    name.dispose();
-    whatsAppNumber.dispose();
-    location.dispose();
-    email.dispose();
-    about.dispose();
     super.onClose();
   }
 }

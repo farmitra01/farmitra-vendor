@@ -44,7 +44,7 @@ class StoreDetailsView extends GetView<StoreDetailsController> {
             const SizedBox(height: 20),
             Obx(() {
               if (controller.isLoading.value) {
-                return const Expanded(
+                return  Expanded(
                   child: Center(
                     child: CircularProgressIndicator(
                       color: AppColors.primaryGradinatMixColor,

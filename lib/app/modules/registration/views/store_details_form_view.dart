@@ -10,11 +10,13 @@ import 'package:farmitra/app/utils/global_widgets/custom_dropdown.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_text_form_field.dart';
 import 'package:farmitra/app/utils/global_widgets/custome_appBar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 
 class StoreDetailsFormView extends StatelessWidget {
   const StoreDetailsFormView({super.key});
@@ -32,20 +34,20 @@ class StoreDetailsFormView extends StatelessWidget {
       StoreCategoryController(),
     );
 
-    final arguments = Get.arguments ?? {};
-    print('StoreDetailsFormView: Arguments received: $arguments');
+    final categoryName = Get.arguments ?? {};
+    print('StoreDetailsFormView: Arguments received: $categoryName');
 
-    final String? logoImagePath = arguments['logoImage'] as String?;
-    final String? bannerImagePath = arguments['bannerImage'] as String?;
-    final StoreTemplateModel? logoTemplate =
-        arguments['logoTemplate'] as StoreTemplateModel?;
-    final StoreTemplateModel? bannerTemplate =
-        arguments['bannerTemplate'] as StoreTemplateModel?;
-    final String firstName = arguments['firstName'] as String? ?? 'Farmitra';
-    final String lastName =
-        arguments['lastName'] as String? ??
-        storeCategoryController.previousPageGridTitle ??
-        'Expert';
+    // final String? logoImagePath = arguments['logoImage'] as String?;
+    // final String? bannerImagePath = arguments['bannerImage'] as String?;
+    // final StoreTemplateModel? logoTemplate =
+    //     arguments['logoTemplate'] as StoreTemplateModel?;
+    // final StoreTemplateModel? bannerTemplate =
+    //     arguments['bannerTemplate'] as StoreTemplateModel?;
+    // final String firstName = arguments['firstName'] as String? ?? 'Farmitra';
+    // final String lastName =
+    //     arguments['lastName'] as String? ??
+    //     storeCategoryController.previousPageGridTitle ??
+    //     'Expert';
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -62,11 +64,7 @@ class StoreDetailsFormView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  storeCategoryController.previousPageGridTitle == 'Rental'
-                      ? 'Enter Rental Details'
-                      : storeCategoryController.previousPageGridTitle == 'Drone'
-                      ? 'Enter Store Drone'
-                      : 'Enter Expert Details',
+                  'Enter Expert Details',
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -80,24 +78,14 @@ class StoreDetailsFormView extends StatelessWidget {
                     Column(
                       children: [
                         Obx(() {
+                          final logoPath =
+                              storeDetailsFormController.selectedLogoPath.value;
                           return GestureDetector(
-                            onTap:
-                                () => Get.toNamed(
-                                  '/store_template',
-                                  arguments: {
-                                    'imageType': 'logo',
-                                    'firstName': firstName,
-                                    'lastName': lastName,
-                                    'category': arguments['category'],
-                                    'savedIndexes':
-                                        storeDetailsFormController
-                                            .selectedIndexes
-                                            .toList(),
-                                  },
-                                ),
+                            onTap: () {
+                              storeDetailsFormController.pickImage('logo');
+                            },
                             child: DottedBorder(
                               color: AppColors.secondary,
-
                               strokeWidth: 1,
                               dashPattern: const [6, 3],
                               borderType: BorderType.RRect,
@@ -109,125 +97,20 @@ class StoreDetailsFormView extends StatelessWidget {
                                   shape: BoxShape.circle,
                                 ),
                                 child:
-                                    storeDetailsFormController
-                                            .selectedLogoPath
-                                            .value
-                                            .isNotEmpty
+                                    logoPath.isNotEmpty
                                         ? ClipOval(
                                           child: Image.file(
-                                            File(
-                                              storeDetailsFormController
-                                                  .selectedLogoPath
-                                                  .value,
-                                            ),
+                                            File(logoPath),
                                             fit: BoxFit.cover,
-                                            height: 125,
-                                            width: 125,
-                                            errorBuilder: (
-                                              context,
-                                              error,
-                                              stackTrace,
-                                            ) {
-                                              print(
-                                                'StoreDetailsFormView: Error loading logo image: $error',
-                                              );
-                                              return ClipOval(
-                                                child: Image.asset(
+                                            errorBuilder:
+                                                (_, __, ___) => Image.asset(
                                                   'assets/images/Null_ticket.png',
-                                                  fit: BoxFit.cover,
-                                                  height: 125,
-                                                  width: 125,
                                                 ),
-                                              );
-                                            },
                                           ),
-                                        )
-                                        : logoTemplate != null
-                                        ? Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            Container(
-                                              height: 125,
-                                              width: 125,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color:
-                                                    logoTemplate
-                                                        .backgroundColor,
-                                              ),
-                                              child: Image.network(
-                                                logoTemplate.bannerImage,
-                                                fit: BoxFit.cover,
-                                                height: 125,
-                                                width: 125,
-                                                loadingBuilder: (
-                                                  context,
-                                                  child,
-                                                  loadingProgress,
-                                                ) {
-                                                  if (loadingProgress == null)
-                                                    return child;
-                                                  return const CircularProgressIndicator();
-                                                },
-                                                errorBuilder: (
-                                                  context,
-                                                  error,
-                                                  stackTrace,
-                                                ) {
-                                                  print(
-                                                    'StoreDetailsFormView: Error loading logo template: $error',
-                                                  );
-                                                  return ClipOval(
-                                                    child: Image.asset(
-                                                      'assets/images/Null_ticket.png',
-                                                      fit: BoxFit.cover,
-                                                      height: 125,
-                                                      width: 125,
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                            Positioned(
-                                              child: Center(
-                                                child: RichText(
-                                                  textAlign: TextAlign.center,
-                                                  text: TextSpan(
-                                                    children: [
-                                                      TextSpan(
-                                                        text: firstName,
-                                                        style: GoogleFonts.montserrat(
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                          color:
-                                                              logoTemplate
-                                                                  .spanTextColor,
-                                                        ),
-                                                      ),
-                                                      TextSpan(
-                                                        text: lastName,
-                                                        style: GoogleFonts.montserrat(
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                          color:
-                                                              AppColors
-                                                                  .primaryGradinatMixColor,
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
                                         )
                                         : Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
                                           children: [
                                             SvgPicture.asset(
                                               'assets/icons/uploadicon.svg',
@@ -235,19 +118,16 @@ class StoreDetailsFormView extends StatelessWidget {
                                             ),
                                             const SizedBox(height: 5),
                                             Text(
-                                              'Upload banner',
+                                              'Upload logo',
                                               style: GoogleFonts.montserrat(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w600,
-                                                color: AppColors.textPrimary,
                                               ),
                                             ),
                                             Text(
                                               'JPEG, PNG less than 5MB',
                                               style: GoogleFonts.montserrat(
                                                 fontSize: 10,
-                                                fontWeight: FontWeight.w300,
-                                                color: AppColors.textSecondary,
                                               ),
                                             ),
                                           ],
@@ -256,36 +136,44 @@ class StoreDetailsFormView extends StatelessWidget {
                             ),
                           );
                         }),
+
                         const SizedBox(height: 10),
                         Text(
                           'Upload your Profile\n       here (1:1)',
                           style: GoogleFonts.montserrat(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(width: 10),
+
                     Column(
                       children: [
                         Obx(() {
+                          final bannerPath =
+                              storeDetailsFormController
+                                  .selectedBannerPath
+                                  .value;
+
                           return GestureDetector(
-                            onTap:
-                                () => Get.toNamed(
-                                  '/store_template',
-                                  arguments: {
-                                    'imageType': 'banner',
-                                    'firstName': firstName,
-                                    'lastName': lastName,
-                                    'category': arguments['category'],
-                                    'savedIndexes':
-                                        storeDetailsFormController
-                                            .selectedIndexes
-                                            .toList(),
-                                  },
-                                ),
+                            onTap: () async {
+                              final source =
+                                  await storeDetailsFormController
+                                      .selectImageSourceDialog();
+                              if (source == null) return;
+                              final picker = ImagePicker();
+                              final pickedFile = await picker.pickImage(
+                                source: source,
+                                imageQuality: 85,
+                              );
+                              if (pickedFile != null) {
+                                storeDetailsFormController
+                                    .selectedBannerPath
+                                    .value = pickedFile.path;
+                              }
+                            },
                             child: DottedBorder(
                               color: AppColors.secondary,
                               strokeWidth: 1,
@@ -296,104 +184,14 @@ class StoreDetailsFormView extends StatelessWidget {
                                 height: 125,
                                 width: 180,
                                 child:
-                                    storeDetailsFormController
-                                            .selectedBannerPath
-                                            .value
-                                            .isNotEmpty
+                                    bannerPath.isNotEmpty
                                         ? Image.file(
-                                          File(
-                                            storeDetailsFormController
-                                                .selectedBannerPath
-                                                .value,
-                                          ),
+                                          File(bannerPath),
                                           fit: BoxFit.fill,
-                                          height: 125,
-                                          width: 180,
-                                          errorBuilder: (
-                                            context,
-                                            error,
-                                            stackTrace,
-                                          ) {
-                                            print(
-                                              'StoreDetailsFormView: Error loading banner image: $error',
-                                            );
-                                            return Image.asset(
-                                              'assets/images/Null_ticket.png',
-                                              fit: BoxFit.fill,
-                                              height: 125,
-                                              width: 180,
-                                            );
-                                          },
-                                        )
-                                        : bannerTemplate != null
-                                        ? Stack(
-                                          children: [
-                                            Image.network(
-                                              bannerTemplate.bannerImage,
-                                              fit: BoxFit.fill,
-                                              height: 125,
-                                              width: 180,
-                                              loadingBuilder: (
-                                                context,
-                                                child,
-                                                loadingProgress,
-                                              ) {
-                                                if (loadingProgress == null)
-                                                  return child;
-                                                return const Center(
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                );
-                                              },
-                                              errorBuilder: (
-                                                context,
-                                                error,
-                                                stackTrace,
-                                              ) {
-                                                print(
-                                                  'StoreDetailsFormView: Error loading banner template: $error',
-                                                );
-                                                return Image.asset(
-                                                  'assets/images/Null_ticket.png',
-                                                  fit: BoxFit.fill,
-                                                  height: 125,
-                                                  width: 180,
-                                                );
-                                              },
-                                            ),
-                                            Positioned(
-                                              top: 10,
-                                              left: 35,
-                                              child: RichText(
-                                                text: TextSpan(
-                                                  children: [
-                                                    TextSpan(
-                                                      text: firstName,
-                                                      style: GoogleFonts.montserrat(
-                                                        fontSize: 15,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color:
-                                                            bannerTemplate
-                                                                .spanTextColor,
-                                                      ),
-                                                    ),
-                                                    TextSpan(
-                                                      text: lastName,
-                                                      style: GoogleFonts.montserrat(
-                                                        fontSize: 15,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color:
-                                                            AppColors
-                                                                .primaryGradinatMixColor,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
+                                          errorBuilder:
+                                              (_, __, ___) => Image.asset(
+                                                'assets/images/Null_ticket.png',
                                               ),
-                                            ),
-                                          ],
                                         )
                                         : Column(
                                           mainAxisAlignment:
@@ -409,15 +207,12 @@ class StoreDetailsFormView extends StatelessWidget {
                                               style: GoogleFonts.montserrat(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w600,
-                                                color: AppColors.textPrimary,
                                               ),
                                             ),
                                             Text(
                                               'JPEG, PNG less than 5MB',
                                               style: GoogleFonts.montserrat(
                                                 fontSize: 10,
-                                                fontWeight: FontWeight.w300,
-                                                color: AppColors.textSecondary,
                                               ),
                                             ),
                                           ],
@@ -426,13 +221,13 @@ class StoreDetailsFormView extends StatelessWidget {
                             ),
                           );
                         }),
+
                         const SizedBox(height: 10),
                         Text(
                           'Upload your banner\n      here (2:1)',
                           style: GoogleFonts.montserrat(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
                           ),
                         ),
                       ],
@@ -481,7 +276,7 @@ class StoreDetailsFormView extends StatelessWidget {
                       () => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomDropdown<String >(
+                          CustomDropdown<String>(
                             hint: 'Choose Rental Services',
                             items: storeDetailsFormController.rentalItemList,
                             selectedItem:
@@ -519,6 +314,18 @@ class StoreDetailsFormView extends StatelessWidget {
                       ),
                     )
                     : const SizedBox.shrink(),
+                SizedBox(height: 10),
+                CustomTextFormField(
+                  hintText: 'Name',
+                  keyboardType: TextInputType.text,
+                  controller: storeDetailsFormController.expertName,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please Enter Name';
+                    }
+                    return null;
+                  },
+                ),
                 const SizedBox(height: 10),
                 CustomTextFormField(
                   hintText: 'Name',
@@ -563,6 +370,21 @@ class StoreDetailsFormView extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 CustomTextFormField(
+                  hintText: 'Enter pin code ',
+                  keyboardType: TextInputType.number,
+                  controller: storeLocationController.pincode,
+                  // retailerStoreDetailsFormController.pincode,
+                  inputFormatters: [LengthLimitingTextInputFormatter(6)],
+                  validator: (value) {
+                    if (value == null || value.isEmpty)
+                      return "Please Enter Pin Code ";
+                    if (value.length < 6) return 'Enter 6 Digit Valid Pin Code';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+
+                CustomTextFormField(
                   hintText: 'Email',
                   keyboardType: TextInputType.emailAddress,
                   controller: storeDetailsFormController.email,
@@ -570,55 +392,49 @@ class StoreDetailsFormView extends StatelessWidget {
                       (value) =>
                           storeDetailsFormController.validateEmail(value),
                 ),
-                const SizedBox(height: 10),
-                Obx(
-                  () => Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Radio<String>(
-                        activeColor: AppColors.primaryGradinatMixColor,
-                        value: 'Male',
-                        groupValue:
-                            storeDetailsFormController.selectedGender.value,
-                        onChanged:
-                            (value) =>
-                                storeDetailsFormController.changeGender(value!),
-                      ),
-                      const Text('Male'),
-                      const SizedBox(width: 20),
-                      Radio<String>(
-                        activeColor: AppColors.primaryGradinatMixColor,
-                        value: 'Female',
-                        groupValue:
-                            storeDetailsFormController.selectedGender.value,
-                        onChanged:
-                            (value) =>
-                                storeDetailsFormController.changeGender(value!),
-                      ),
-                      const Text('Female'),
-                      const SizedBox(width: 20),
-                      Radio<String>(
-                        activeColor: AppColors.primaryGradinatMixColor,
-                        value: 'Other',
-                        groupValue:
-                            storeDetailsFormController.selectedGender.value,
-                        onChanged:
-                            (value) =>
-                                storeDetailsFormController.changeGender(value!),
-                      ),
-                      const Text('Other'),
-                    ],
-                  ),
-                ),
+                // const SizedBox(height: 10),
+                // Obx(
+                //   () => Row(
+                //     mainAxisAlignment: MainAxisAlignment.center,
+                //     children: [
+                //       Radio<String>(
+                //         activeColor: AppColors.primaryGradinatMixColor,
+                //         value: 'Male',
+                //         groupValue:
+                //             storeDetailsFormController.selectedGender.value,
+                //         onChanged:
+                //             (value) =>
+                //                 storeDetailsFormController.changeGender(value!),
+                //       ),
+                //       const Text('Male'),
+                //       const SizedBox(width: 20),
+                //       Radio<String>(
+                //         activeColor: AppColors.primaryGradinatMixColor,
+                //         value: 'Female',
+                //         groupValue:
+                //             storeDetailsFormController.selectedGender.value,
+                //         onChanged:
+                //             (value) =>
+                //                 storeDetailsFormController.changeGender(value!),
+                //       ),
+                //       const Text('Female'),
+                //       const SizedBox(width: 20),
+                //       Radio<String>(
+                //         activeColor: AppColors.primaryGradinatMixColor,
+                //         value: 'Other',
+                //         groupValue:
+                //             storeDetailsFormController.selectedGender.value,
+                //         onChanged:
+                //             (value) =>
+                //                 storeDetailsFormController.changeGender(value!),
+                //       ),
+                //       const Text('Other'),
+                //     ],
+                //   ),
+                // ),
                 const SizedBox(height: 10),
                 CustomTextFormField(
-                  hintText:
-                      storeCategoryController.previousPageGridTitle == 'Expert'
-                          ? 'About Expert'
-                          : storeCategoryController.previousPageGridTitle ==
-                              'Rental'
-                          ? 'About Rental Item'
-                          : 'About Drone',
+                  hintText: 'About Expert',
                   borderRadius: 10,
                   keyboardType: TextInputType.text,
                   controller: storeDetailsFormController.about,
@@ -703,30 +519,14 @@ class StoreDetailsFormView extends StatelessWidget {
                 onPressed: () {
                   // bool isDropdownValid =
                   //     storeDetailsFormController.validateDropdown();
-                  bool isRentalDropdownValid =
-                      storeCategoryController.previousPageGridTitle == 'Rental'
-                          ? storeDetailsFormController.validateRentalDropdown()
-                          : true;
-                  if (formKey.currentState!.validate() &&
-                      // isDropdownValid &&
-                      isRentalDropdownValid) {
-                    storeCategoryController.previousPageGridTitle == 'Rental' ||
-                            storeCategoryController.previousPageGridTitle ==
-                                'Drone'
-                        ? Get.to(
-                          () => RentalKyc(),
-                          arguments:
-                              storeCategoryController.previousPageGridTitle,
-                        )
-                        : Get.toNamed(
-                          '/kyc-documents',
-                          arguments:
-                              storeCategoryController.previousPageGridTitle,
-                        );
+                  if (formKey.currentState!.validate()) {
+                    storeDetailsFormController.submitRetailerStoreDetails();
+                    Get.to(() => RentalKyc(), arguments: categoryName);
+                    // print('Retailer Next Button Tapped');
                   } else {
                     Get.snackbar(
                       'Notice',
-                      'All required fields must be filled',
+                      "All fields are required & mandatory ",
                       backgroundColor: AppColors.appBarColor,
                       colorText: AppColors.white,
                     );

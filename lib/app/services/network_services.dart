@@ -175,13 +175,14 @@ class ApiService {
           //   colorText: AppColors.white,
           // );
         } else {
-          Get.snackbar(
-            'Notice',
-            responseBody['message'] ?? 'API request failed',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: AppColors.error,
-            colorText: AppColors.white,
-          );
+          debugPrint('Notice ${responseBody['message']}');
+          // Get.snackbar(
+          //   'Noticess',
+          //   responseBody['message'] ?? '',
+          //   snackPosition: SnackPosition.BOTTOM,
+          //   backgroundColor: AppColors.error,
+          //   colorText: AppColors.white,
+          // );
         }
 
         return {

@@ -53,7 +53,7 @@ class VehicalList extends StatelessWidget {
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
-                      gradient: const LinearGradient(
+                      gradient:  LinearGradient(
                         colors: [
                           AppColors.primaryFirstGradiant,
                           AppColors.primarySecondGradiant,

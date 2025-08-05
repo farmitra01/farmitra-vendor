@@ -19,7 +19,7 @@ class TicketView extends GetView<MyTicketController> {
       appBar: VendorAppBar(title: 'My Ticket'),
       body: Obx(() {
         if (controller.isLoading.value) {
-          return const Center(
+          return  Center(
             child: CircularProgressIndicator(
               color: AppColors.primaryGradinatMixColor,
             ),

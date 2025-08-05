@@ -18,7 +18,7 @@ class RentalKyc extends StatelessWidget {
     final RentalKycController rentalKycController = Get.put(
       RentalKycController(),
     );
-    var previousPageGridTitle = Get.arguments;
+    var categoryName = Get.arguments;
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -62,7 +62,10 @@ class RentalKyc extends StatelessWidget {
                       SizedBox(height: 10),
                       GestureDetector(
                         onTap: () {
-                          Get.toNamed('/select_document');
+                          Get.toNamed(
+                            '/select_document',
+                            arguments: categoryName,
+                          );
                         },
                         child: Container(
                           height: 50,
@@ -73,12 +76,20 @@ class RentalKyc extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('     Select a document'),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 16.0),
+                                child: Text(
+                                  categoryName == 'Expert'
+                                      ? 'Select Qualification'
+                                      : 'Select a document',
+                                ),
+                              ),
                               Icon(Icons.arrow_right_sharp, size: 30),
                             ],
                           ),
                         ),
                       ),
+
                       SizedBox(height: 15),
                       Container(
                         decoration: BoxDecoration(
@@ -769,7 +780,10 @@ class RentalKyc extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                Get.toNamed('/bank-details', arguments: previousPageGridTitle);
+                Get.toNamed(
+                  '/bank-details',
+                  // arguments: previousPageGridTitle
+                );
               },
               child: Text(
                 'Skip for now!',

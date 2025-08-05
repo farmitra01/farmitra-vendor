@@ -251,7 +251,7 @@ class CustomerDetail extends StatelessWidget {
                       const SizedBox(width: 10),
                       Column(
                         children: [
-                          const Icon(
+                           Icon(
                             Icons.picture_as_pdf,
                             color: AppColors.primaryGradinatMixColor,
                           ),
@@ -301,7 +301,7 @@ class CustomerDetail extends StatelessWidget {
                         },
                         child: Column(
                           children: [
-                            const Icon(
+                             Icon(
                               Icons.send,
                               color: AppColors.primaryGradinatMixColor,
                             ),

@@ -14,7 +14,7 @@ class StoreSearchLocationController extends GetxController {
   final RxList<Map<String, dynamic>> searchResults =
       <Map<String, dynamic>>[].obs;
   final RxString searchedSelectedLocation = ''.obs;
-
+  final latLng = ''.obs;
   late final MapController mapController;
 
   @override
@@ -136,8 +136,6 @@ class StoreSearchLocationController extends GetxController {
 
   /// 🔙 Return selected address to previous page
   void confirmSelection() {
-    Get.closeAllSnackbars();
-    Get.back(closeOverlays: true);
-    (result: searchedSelectedLocation.value);
+    Get.back(result: searchedSelectedLocation.value);
   }
 }

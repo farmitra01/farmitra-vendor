@@ -14,6 +14,7 @@ class StoreLocationController extends GetxController {
   var additionalAddress = TextEditingController();
   var combinedController = TextEditingController();
   late final MapController mapController = MapController();
+  // final latLng = ''.obs;
 
   @override
   void onInit() {
@@ -76,7 +77,7 @@ class StoreLocationController extends GetxController {
 
   void CombinController() {
     combinedController.text =
-        '${additionalAddress.text}  ${address.text}, ${landmark.text} - ${pincode.text}';
+        '${additionalAddress.text}  ${address.text}, ${landmark.text} - ${pincode.text} ';
   }
 
   void setAddressFromSearch(String addressStr, LatLng latLng) async {

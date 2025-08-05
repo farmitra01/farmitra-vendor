@@ -31,53 +31,30 @@ class VendorAppBar extends StatelessWidget implements PreferredSizeWidget {
             : 0;
 
     return AppBar(
-      leadingWidth:
-          showTitle
-              ? titleWidth + 75
-              : 50, // Adjust leading width based on title visibility
+      // leadingWidth:
+      //     showTitle
+      //         ? titleWidth + 75
+      //         : 50, // Adjust leading width based on title visibility
       backgroundColor: AppColors.appBarColor,
-      automaticallyImplyLeading: false,
-      leading: GestureDetector(
-        onTap: () {
-          // closeSnackbarSafely();
-          Get.closeAllSnackbars();
-          Get.back(closeOverlays: true);
-        },
-        child: Container(
-          width: 50, // Fixed width to ensure proper alignment
-          height: 35,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          margin: const EdgeInsets.only(left: 15, top: 8, bottom: 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(35),
-            border: Border.all(color: AppColors.white),
-          ),
-          alignment:
-              Alignment.center, // Ensures icon is centered when title is hidden
-          child:
-              showTitle
-                  ? Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Icon(
-                        Icons.keyboard_backspace_sharp,
-                        color: AppColors.white,
-                        size: 18,
-                      ),
-                      Text(title, style: titleStyle),
-                    ],
-                  )
-                  : const Icon(
-                    Icons.arrow_back, // Use arrow_back when title is hidden
-                    color: AppColors.white,
-                    size: 18,
-                  ),
+      automaticallyImplyLeading: true,
+      iconTheme: const IconThemeData(color: AppColors.white),
+      leadingWidth: 35,
+      title: Container(
+        padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.white),
+        ),
+        child: Text(
+          title,
+          style: GoogleFonts.montserrat(fontSize: 13, color: AppColors.white),
         ),
       ),
       centerTitle: false,
       actions: actions,
     );
   }
+
   void closeSnackbarSafely() {
     try {
       // Check if snackbar is open before attempting to close
@@ -95,6 +72,7 @@ class VendorAppBar extends StatelessWidget implements PreferredSizeWidget {
       debugPrint('❌ Outer error in closeSnackbarSafely: $e');
     }
   }
+
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

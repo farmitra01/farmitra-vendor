@@ -66,7 +66,7 @@ class ReviewUploadFile extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
                     color: AppColors.white,
-                    boxShadow: const [
+                    boxShadow:  [
                       BoxShadow(
                         blurRadius: 1,
                         color: AppColors.containerShadowColor,

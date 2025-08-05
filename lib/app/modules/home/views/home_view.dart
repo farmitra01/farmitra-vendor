@@ -2,6 +2,9 @@ import 'package:farmitra/app/constants/app_colors.dart';
 import 'package:farmitra/app/data/models/store_select_model/store_select_model.dart';
 import 'package:farmitra/app/modules/POS/views/filter.dart';
 import 'package:farmitra/app/modules/Wallet/views/wallet_view.dart';
+import 'package:farmitra/app/modules/home/views/AppColorSetting.dart';
+import 'package:farmitra/app/modules/home/views/Appointment.dart';
+import 'package:farmitra/app/modules/home/views/feed.dart';
 import 'package:farmitra/app/modules/home/views/home_appbar_view.dart';
 import 'package:farmitra/app/modules/home/views/manage_appointmant.dart';
 import 'package:farmitra/app/modules/home/views/manage_services.dart';
@@ -9,6 +12,8 @@ import 'package:farmitra/app/modules/home/views/vehical_list.dart';
 import 'package:farmitra/app/modules/my_subscription/views/my_subscription_view.dart';
 import 'package:farmitra/app/modules/registration/controllers/store_category_controller.dart';
 import 'package:farmitra/app/modules/registration/controllers/store_selected_module_controller.dart';
+import 'package:farmitra/app/modules/storeProfile/views/refer&earn.dart';
+import 'package:farmitra/app/modules/storeProfile/views/reward.dart';
 import 'package:farmitra/app/utils/global_widgets/custom_gradiant_button.dart';
 import 'package:farmitra/app/utils/global_widgets/gradiant_svgIcons.dart';
 import 'package:farmitra/app/utils/global_widgets/gradiant_text.dart';
@@ -58,8 +63,22 @@ class HomeView extends GetView<HomeController> {
       final isRetailer = box.read('user_role') == 'Vendor';
 
       switch (index) {
+        case 0:
+          if (isRetailer) {
+            Get.toNamed('/pos');
+          }
+          if (category == 'Expert') {
+            Get.to(() => Appointment());
+          }
+        case 1:
+          if (isRetailer) {
+            // Get.toNamed('/pos');
+          }
+          if (category == 'Expert') {
+            Get.to(() => Feed());
+          }
         case 2:
-          if (isRetailer || category == 'Expert') Get.toNamed("/khata-book");
+          if (category == 'Expert') Get.toNamed("/khata-book");
           break;
         case 4:
           if (isRetailer || category == 'Expert') Get.to(() => WalletView());
@@ -90,7 +109,20 @@ class HomeView extends GetView<HomeController> {
           if (category == 'Expert') Get.toNamed("/advertisement");
 
         case 17: // Combined cases for inventory (noting typo in "/inventry")
-          if (isRetailer) Get.toNamed("/inventory"); // Corrected typo
+          if (isRetailer)
+            Get.toNamed("/inventory");
+          else if (category == 'Expert') {
+            // Get.toNamed('/help-center');
+            Get.to(() => RewardView());
+          } // Corrected typo
+        case 19: // Combined cases for inventory (noting typo in "/inventry")
+          if (isRetailer)
+          // Get.toNamed("/inventory");
+          {
+          } else if (category == 'Expert') {
+            // Get.toNamed('/help-center');
+            Get.toNamed('/help-center');
+          }
           break;
         default:
           break;
@@ -109,13 +141,11 @@ class HomeView extends GetView<HomeController> {
                     content: const Text('Do you want to close the app?'),
                     actions: [
                       TextButton(
-                        onPressed:
-                            () => Get.back(closeOverlays: true, result: false),
+                        onPressed: () => Get.back(result: false),
                         child: const Text('Cancel'),
                       ),
                       TextButton(
-                        onPressed:
-                            () => Get.back(closeOverlays: true, result: true),
+                        onPressed: () => Get.back(result: true),
                         child: const Text('Yes'),
                       ),
                     ],
@@ -137,6 +167,7 @@ class HomeView extends GetView<HomeController> {
           child: HomeAppbarView(),
         ),
         body: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
             child: Column(
@@ -387,19 +418,27 @@ class HomeView extends GetView<HomeController> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    Row(
-                      children: [
-                        SvgPicture.asset('assets/icons/home_icons/Edit.svg'),
-                        SizedBox(width: 5),
-                        Text(
-                          'Edit',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textSecondary,
+                    InkWell(
+                      onTap: () {
+                        Get.bottomSheet(
+                          AppColorSetting(),
+                          isScrollControlled: true,
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          SvgPicture.asset('assets/icons/home_icons/Edit.svg'),
+                          SizedBox(width: 5),
+                          Text(
+                            'Edit',
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -409,10 +448,10 @@ class HomeView extends GetView<HomeController> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
-                      BoxShadow(
-                        blurRadius: 5,
-                        color: AppColors.containerShadowColor,
-                      ),
+                      // BoxShadow(
+                      //   blurRadius: 5,
+                      //   color: AppColors.containerShadowColor,
+                      // ),
                     ],
                     color: AppColors.white,
                   ),
@@ -439,7 +478,7 @@ class HomeView extends GetView<HomeController> {
                                 color: AppColors.primaryGradinatMixColor,
                               ),
                               size: 30,
-                              gradient: const LinearGradient(
+                              gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [

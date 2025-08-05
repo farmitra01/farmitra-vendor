@@ -175,6 +175,7 @@ class OrderDetails extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
+        physics: BouncingScrollPhysics(),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
           child: Column(

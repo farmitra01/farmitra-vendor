@@ -11,8 +11,11 @@ class SelectDocumentView extends GetView {
   final SelectDocumentController selectDocumentController = Get.put(
     SelectDocumentController(),
   );
+  var categoryName = Get.arguments;
+
   @override
   Widget build(BuildContext context) {
+    print('Category Name : $categoryName');
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -39,8 +42,7 @@ class SelectDocumentView extends GetView {
         actions: [
           GestureDetector(
             onTap: () {
-              Get.closeAllSnackbars();
-              Get.back(closeOverlays: true);
+              Get.back();
               ();
             },
             child: Padding(
@@ -59,12 +61,22 @@ class SelectDocumentView extends GetView {
             SizedBox(height: 15),
             Expanded(
               child: ListView.builder(
-                itemCount: selectDocumentController.documentsList.length,
+                itemCount:
+                    categoryName == 'Expert'
+                        ? selectDocumentController.qualificationsList.length
+                        : selectDocumentController.documentsList.length,
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      final docName =
-                          selectDocumentController.documentsList[index];
+                      String docName;
+
+                      if (categoryName == 'Expert') {
+                        docName =
+                            selectDocumentController.qualificationsList[index];
+                      } else {
+                        docName = selectDocumentController.documentsList[index];
+                      }
+
                       Get.toNamed('/kyc_upload_document', arguments: docName);
                       print('Selected value = $docName');
                     },
@@ -78,7 +90,10 @@ class SelectDocumentView extends GetView {
                       ),
                       child: Center(
                         child: Text(
-                          selectDocumentController.documentsList[index],
+                          categoryName == 'Expert'
+                              ? selectDocumentController
+                                  .qualificationsList[index]
+                              : selectDocumentController.documentsList[index],
                         ),
                       ),
                     ),

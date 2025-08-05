@@ -203,7 +203,7 @@ Widget buildTabContainer(String title, String iconPath, String count) {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(5),
           color: AppColors.background,
-          boxShadow: const [
+          boxShadow:  [
             BoxShadow(
               spreadRadius: 1,
               blurRadius: 2.5,
@@ -365,7 +365,7 @@ Widget buildPendingTab(int tabIndex) {
             decoration: BoxDecoration(
               color: AppColors.background,
               borderRadius: BorderRadius.circular(10),
-              boxShadow: const [
+              boxShadow:  [
                 BoxShadow(
                   spreadRadius: 1,
                   blurRadius: 2.5,
@@ -448,7 +448,7 @@ Widget buildPendingTab(int tabIndex) {
                     ),
                   ],
                 ),
-                const Divider(color: AppColors.primaryGradinatMixColor),
+                 Divider(color: AppColors.primaryGradinatMixColor),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -716,7 +716,7 @@ Widget buildAcceptedTab(int tabIndex) {
             decoration: BoxDecoration(
               color: AppColors.background,
               borderRadius: BorderRadius.circular(10),
-              boxShadow: const [
+              boxShadow:  [
                 BoxShadow(
                   spreadRadius: 1,
                   blurRadius: 2.5,
@@ -794,7 +794,7 @@ Widget buildAcceptedTab(int tabIndex) {
                     ),
                   ],
                 ),
-                const Divider(color: AppColors.primaryGradinatMixColor),
+                 Divider(color: AppColors.primaryGradinatMixColor),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1010,7 +1010,7 @@ Widget buildConfirmedTab(int tabIndex) {
             decoration: BoxDecoration(
               color: AppColors.background,
               borderRadius: BorderRadius.circular(10),
-              boxShadow: const [
+              boxShadow:  [
                 BoxShadow(
                   spreadRadius: 1,
                   blurRadius: 2.5,
@@ -1088,7 +1088,7 @@ Widget buildConfirmedTab(int tabIndex) {
                     ),
                   ],
                 ),
-                const Divider(color: AppColors.primaryGradinatMixColor),
+                 Divider(color: AppColors.primaryGradinatMixColor),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

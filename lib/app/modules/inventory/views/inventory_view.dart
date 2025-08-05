@@ -144,7 +144,7 @@ class InventoryView extends GetView<InventoryController> {
                               color:
                                   // inventoryController.isTabActiev == true ?
                                   AppColors.textPrimary,
-                              // : AppColors.textSecondary,
+                              // : ApepColors.textSecondary,
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
                             ),
@@ -186,7 +186,7 @@ class InventoryView extends GetView<InventoryController> {
                     child: TabBarView(
                       controller: inventoryController.tabController,
                       // physics: NeverScrollableScrollPhysics(),
-                      children: [MyLibrary(context), FirstFindLibrary(context)],
+                      children: [MyLibrary(context), FarmitraLibrary(context)],
                     ),
                   ),
                 ],
@@ -238,6 +238,7 @@ Widget MyLibrary(BuildContext context) {
   );
 
   return CustomScrollView(
+    physics: BouncingScrollPhysics(),
     slivers: [
       // GridView for MyLibrary
       SliverPadding(
@@ -358,7 +359,7 @@ Widget MyLibrary(BuildContext context) {
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
-                  gradient: const LinearGradient(
+                  gradient: LinearGradient(
                     colors: [
                       AppColors.primaryFirstGradiant,
                       AppColors.primarySecondGradiant,
@@ -440,9 +441,6 @@ Widget MyLibrary(BuildContext context) {
       SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) => GestureDetector(
-            onTap: () {
-              // showBottomsheet(context);
-            },
             child: Column(
               children: [
                 Padding(
@@ -452,55 +450,48 @@ Widget MyLibrary(BuildContext context) {
                   ),
                   child: GestureDetector(
                     onLongPress: () {
+                      inventoryController.showCheckBox();
+                    },
+                    onTap: () {
                       seeOptionBottomsheet(context);
                     },
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(width: 10),
-                        Obx(
-                          () =>
-                              inventoryController.isCheck.value == true
-                                  ? SizedBox(
-                                    height: 5,
-                                    width: 10,
-                                    child: Obx(() {
-                                      return Checkbox(
-                                        activeColor:
-                                            AppColors.primaryGradinatMixColor,
-                                        value:
-                                            inventoryController
-                                                .productSelections[index],
-                                        onChanged: (value) {
-                                          if (value != null) {
-                                            inventoryController
-                                                .toggleProductSelection(
-                                                  index,
-                                                  value,
-                                                );
-                                          }
-                                        },
-                                      );
-                                    }),
-                                  )
-                                  : inventoryController.selectedIndex == index
-                                  ? SizedBox(
-                                    height: 5,
-                                    width: 10,
-                                    child: Obx(
-                                      () => Checkbox(
-                                        value:
-                                            inventoryController
-                                                .selectedItems[index],
-                                        onChanged: (value) {
-                                          inventoryController.toggleSelection(
-                                            index,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  )
-                                  : SizedBox(),
-                        ),
+                        // Checkbox logic (as previously corrected)
+                        Obx(() {
+                          if (inventoryController.isCheck.value == true) {
+                            return Obx(() {
+                              return Checkbox(
+                                activeColor: AppColors.primaryGradinatMixColor,
+                                value:
+                                    inventoryController
+                                        .productSelections[index],
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    inventoryController.toggleProductSelection(
+                                      index,
+                                      value,
+                                    );
+                                  }
+                                },
+                              );
+                            });
+                          } else if (inventoryController.selectedIndex ==
+                              index) {
+                            return Obx(() {
+                              return Checkbox(
+                                value: inventoryController.selectedItems[index],
+                                onChanged: (value) {
+                                  inventoryController.toggleSelection(index);
+                                },
+                              );
+                            });
+                          } else {
+                            return SizedBox();
+                          }
+                        }),
                         SizedBox(width: 10),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -516,97 +507,100 @@ Widget MyLibrary(BuildContext context) {
                           ),
                         ),
                         const SizedBox(width: 5),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Green Capsicum (Shimla Mirch)',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.textPrimary,
+
+                        /// 🔧 MAKE THIS FLEXIBLE!
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Green Capsicum (Shimla Mirch)',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Text(
-                                  '250g',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                    color: const Color(0xff8a8a8a),
-                                  ),
-                                ),
-                                const SizedBox(width: 35),
-                                Text(
-                                  'SKUs 25',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 5),
-                            RichText(
-                              text: TextSpan(
+                              const SizedBox(height: 5),
+                              Row(
                                 children: [
-                                  TextSpan(
-                                    text: "₹40   ",
+                                  Text(
+                                    '250g',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xff8a8a8a),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 35),
+                                  Text(
+                                    'SKUs 25',
                                     style: GoogleFonts.montserrat(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                       color: AppColors.textPrimary,
                                     ),
                                   ),
-                                  TextSpan(
-                                    text: "₹50",
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: "₹40   ",
+                                      style: GoogleFonts.montserrat(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.textPrimary,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: "₹50",
+                                      style: GoogleFonts.montserrat(
+                                        decoration: TextDecoration.lineThrough,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  GradientText(
+                                    text: "Available For Gift",
                                     style: GoogleFonts.montserrat(
-                                      decoration: TextDecoration.lineThrough,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      color: AppColors.textSecondary,
+                                    ),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        AppColors.primaryFirstGradiant,
+                                        AppColors.primarySecondGradiant,
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(width: 5),
+                                  GradientSvgIcon(
+                                    assetName: 'assets/svgs/gift_bw.svg',
+                                    size: 12,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        AppColors.primaryFirstGradiant,
+                                        AppColors.primarySecondGradiant,
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                GradientText(
-                                  text: "Available For Gift",
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      AppColors.primaryFirstGradiant,
-                                      AppColors.primarySecondGradiant,
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(width: 5),
-                                GradientSvgIcon(
-                                  assetName: 'assets/svgs/gift_bw.svg',
-                                  size: 12,
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      AppColors.primaryFirstGradiant,
-                                      AppColors.primarySecondGradiant,
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                        // SizedBox(
-                        //   width: 10,
-                        // ),
+
+                        /// The switch column stays
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -716,19 +710,18 @@ class _StickyTextHeaderDelegate extends SliverPersistentHeaderDelegate {
       true;
 }
 
-Widget FirstFindLibrary(BuildContext context) {
+Widget FarmitraLibrary(BuildContext context) {
   final InventoryController inventoryController = Get.put(
     InventoryController(),
   );
   return CustomScrollView(
+    physics: BouncingScrollPhysics(),
     slivers: [
-      // SliverPersistentHeader for the fixed horizontal list
       SliverPersistentHeader(
         pinned: true,
         floating: true,
         delegate: _StickyTextHeaderDelegate(),
       ),
-      // SliverList for vertical scrolling items
       SliverToBoxAdapter(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -793,9 +786,6 @@ Widget FirstFindLibrary(BuildContext context) {
       SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) => GestureDetector(
-            onTap: () {
-              // showBottomsheet(context);
-            },
             child: Column(
               children: [
                 Padding(
@@ -807,53 +797,47 @@ Widget FirstFindLibrary(BuildContext context) {
                     onLongPress: () {
                       inventoryController.showCheckBox();
                     },
+                    onTap: () {
+                      seeOptionBottomsheet(context);
+                    },
                     child: Row(
                       children: [
                         SizedBox(width: 10),
-                        Obx(
-                          () =>
-                              inventoryController.isCheck.value == true
-                                  ? SizedBox(
-                                    height: 5,
-                                    width: 10,
-                                    child: Obx(() {
-                                      return Checkbox(
-                                        activeColor:
-                                            AppColors.primaryGradinatMixColor,
-                                        value:
-                                            inventoryController
-                                                .productSelections[index],
-                                        onChanged: (value) {
-                                          if (value != null) {
-                                            inventoryController
-                                                .toggleProductSelection(
-                                                  index,
-                                                  value,
-                                                );
-                                          }
-                                        },
-                                      );
-                                    }),
-                                  )
-                                  : inventoryController.selectedIndex == index
-                                  ? SizedBox(
-                                    height: 5,
-                                    width: 10,
-                                    child: Obx(
-                                      () => Checkbox(
-                                        value:
-                                            inventoryController
-                                                .selectedItems[index],
-                                        onChanged: (value) {
-                                          inventoryController.toggleSelection(
-                                            index,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  )
-                                  : SizedBox(),
-                        ),
+
+                        /// ✅ FIXED CHECKBOX (removed sizing wrapper)
+                        Obx(() {
+                          if (inventoryController.isCheck.value == true) {
+                            return Obx(() {
+                              return Checkbox(
+                                activeColor: AppColors.primaryGradinatMixColor,
+                                value:
+                                    inventoryController
+                                        .productSelections[index],
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    inventoryController.toggleProductSelection(
+                                      index,
+                                      value,
+                                    );
+                                  }
+                                },
+                              );
+                            });
+                          } else if (inventoryController.selectedIndex ==
+                              index) {
+                            return Obx(() {
+                              return Checkbox(
+                                value: inventoryController.selectedItems[index],
+                                onChanged: (value) {
+                                  inventoryController.toggleSelection(index);
+                                },
+                              );
+                            });
+                          } else {
+                            return SizedBox();
+                          }
+                        }),
+
                         SizedBox(width: 10),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -869,127 +853,132 @@ Widget FirstFindLibrary(BuildContext context) {
                           ),
                         ),
                         const SizedBox(width: 5),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Treactor',
-                              style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.textPrimary,
+                        Expanded(
+                          // ✅ Wrap main Column to avoid overflow
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Treactor',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Text(
-                                  '250g',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textSecondary,
+                              const SizedBox(height: 5),
+                              Row(
+                                children: [
+                                  Text(
+                                    '250g',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textSecondary,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 35),
-                                Text(
-                                  'SKUs 25',
-                                  style: GoogleFonts.montserrat(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.textSecondary,
+                                  const SizedBox(width: 35),
+                                  Text(
+                                    'SKUs 25',
+                                    style: GoogleFonts.montserrat(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.textSecondary,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            // const SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        RichText(
-                                          text: TextSpan(
-                                            children: [
-                                              TextSpan(
-                                                text: "₹40   ",
-                                                style: GoogleFonts.montserrat(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                  color:
-                                                      AppColors.textSecondary,
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          RichText(
+                                            text: TextSpan(
+                                              children: [
+                                                TextSpan(
+                                                  text: "₹40   ",
+                                                  style: GoogleFonts.montserrat(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500,
+                                                    color:
+                                                        AppColors.textSecondary,
+                                                  ),
                                                 ),
-                                              ),
-                                              TextSpan(
-                                                text: "₹50",
-                                                style: GoogleFonts.montserrat(
-                                                  decoration:
-                                                      TextDecoration
-                                                          .lineThrough,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                  color:
-                                                      AppColors.textSecondary,
+                                                TextSpan(
+                                                  text: "₹50",
+                                                  style: GoogleFonts.montserrat(
+                                                    decoration:
+                                                        TextDecoration
+                                                            .lineThrough,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w500,
+                                                    color:
+                                                        AppColors.textSecondary,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        GradientText(
-                                          text: "Available For Gift",
-                                          style: GoogleFonts.montserrat(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          GradientText(
+                                            text: "Available For Gift",
+                                            style: GoogleFonts.montserrat(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                AppColors.primaryFirstGradiant,
+                                                AppColors.primarySecondGradiant,
+                                              ],
+                                            ),
                                           ),
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              AppColors.primaryFirstGradiant,
-                                              AppColors.primarySecondGradiant,
-                                            ],
+                                          SizedBox(width: 5),
+                                          GradientSvgIcon(
+                                            assetName:
+                                                'assets/svgs/gift_bw.svg',
+                                            size: 12,
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                AppColors.primaryFirstGradiant,
+                                                AppColors.primarySecondGradiant,
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(width: 5),
-                                        GradientSvgIcon(
-                                          assetName: 'assets/svgs/gift_bw.svg',
-                                          size: 12,
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              AppColors.primaryFirstGradiant,
-                                              AppColors.primarySecondGradiant,
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(width: 50),
-                                SizedBox(
-                                  height: 35,
-                                  width: 80,
-                                  child: GradientOutlinedButton(
-                                    text: 'ADD',
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        AppColors.primaryFirstGradiant,
-                                        AppColors.primarySecondGradiant,
-                                      ],
-                                    ),
-                                    onPressed: () {
-                                      Get.dialog(buildOfflineAlertBox());
-                                    },
-                                    borderRadius: BorderRadius.circular(5),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+
+                                  // SizedBox(width: 50),
+                                  Spacer(),
+                                  SizedBox(
+                                    height: 35,
+                                    width: 80,
+                                    child: GradientOutlinedButton(
+                                      text: 'ADD',
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          AppColors.primaryFirstGradiant,
+                                          AppColors.primarySecondGradiant,
+                                        ],
+                                      ),
+                                      onPressed: buildOfflineAlertBox,
+
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -1132,76 +1121,186 @@ Widget buildCategoriesTabbar() {
   );
 }
 
-Widget buildOfflineAlertBox() {
-  return AlertDialog(
-    content: SingleChildScrollView(
-      // Prevent overflow issues
-      child: Column(
-        mainAxisSize: MainAxisSize.min, // Prevent unnecessary height expansion
-        children: [
-          SvgPicture.asset(
-            'assets/svgs/alert_triangel.svg',
-            fit: BoxFit.contain,
-            height: 50, // Set a fixed size
-          ),
-          SizedBox(height: 10),
-          Text(
-            'We are adding the product to your inventory.',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.montserrat(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+void buildOfflineAlertBox() {
+  Get.dialog(
+    AlertDialog(
+      content: SingleChildScrollView(
+        // Prevent overflow issues
+        child: Column(
+          mainAxisSize:
+              MainAxisSize.min, // Prevent unnecessary height expansion
+          children: [
+            SvgPicture.asset(
+              'assets/svgs/alert_triangel.svg',
+              fit: BoxFit.contain,
+              height: 50, // Set a fixed size
             ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            'or edit it before adding?',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.montserrat(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    ),
-    actions: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Expanded(
-            child: CustomOutlinedButton(
-              onPressed: () {
-                Get.to(EditProduct());
-              },
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: AppColors.secondary),
+            SizedBox(height: 10),
+            Text(
+              'We are adding the product to your inventory.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.montserrat(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary,
               ),
-              text: '   Edit & Add',
-              textStyle: GoogleFonts.montserrat(
+            ),
+            SizedBox(height: 10),
+            Text(
+              'or edit it before adding?',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.montserrat(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: AppColors.secondary,
+                color: AppColors.textSecondary,
               ),
             ),
-          ),
-          SizedBox(width: 5),
-          Expanded(
-            child: CustomGradientButton(
-              text: 'Add Now',
-              onPressed: () {
-                Get.closeAllSnackbars();
-                Get.back(closeOverlays: true);
-                ();
-              },
-              height: 35,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ],
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Expanded(
+              child: CustomOutlinedButton(
+                onPressed: () {
+                  if (Get.isDialogOpen == true) {
+                    Get.back();
+                  }
+                  Get.to(EditProduct());
+                },
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: AppColors.secondary),
+                ),
+                text: '   Edit & Add',
+                textStyle: GoogleFonts.montserrat(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.secondary,
+                ),
+              ),
+            ),
+            SizedBox(width: 5),
+            Expanded(
+              child: CustomGradientButton(
+                text: 'Add Now',
+                onPressed: () {
+                  if (Get.isDialogOpen ?? false) {
+                    Get.back(); // Closes the dialog
+                  }
+                },
+                height: 35,
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+void seeOptionBottomsheet(BuildContext context) {
+  final InventoryController inventoryController = Get.put(
+    InventoryController(),
+  );
+  showModalBottomSheet(
+    shape: ContinuousRectangleBorder(borderRadius: BorderRadius.circular(35)),
+    context: context,
+    builder: (BuildContext context) {
+      return Container(
+        height: 100,
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(width: 10),
+            Column(
+              children: [
+                // SizedBox(
+                //   height: 8,
+                // ),
+                SvgPicture.asset(
+                  'assets/svgs/gift_bw.svg',
+                  color: AppColors.black,
+                  height: 20,
+                ),
+                SizedBox(height: 15),
+                Text(
+                  'Available\nfor gift',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 10),
+              ],
+            ),
+            SizedBox(width: 5),
+            Expanded(
+              child: Obx(() {
+                final selectedCount =
+                    inventoryController.productSelections
+                        .where((selected) => selected == true)
+                        .length;
+
+                final List<Map<String, dynamic>> filteredOptions =
+                    selectedCount <= 1
+                        ? [
+                          {'text': 'Edit', 'icon': Icons.edit_outlined},
+                          {
+                            'text': 'Out of\nStock',
+                            'icon': Icons.shopping_cart_checkout,
+                          },
+                          {
+                            'text': 'Add to\nCollection',
+                            'icon': Icons.dataset_outlined,
+                          },
+                          {
+                            'text': 'Delete\nProduct',
+                            'icon': Icons.delete_outline,
+                          },
+                          {'text': 'Print', 'icon': Icons.print_rounded},
+                        ]
+                        : inventoryController.seeOptionList
+                            .where((item) => item['text'] != 'Edit')
+                            .toList();
+
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: filteredOptions.length,
+                  itemBuilder: (context, index) {
+                    final data = filteredOptions[index];
+                    return Container(
+                      margin: EdgeInsets.symmetric(horizontal: 15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            data['icon'] as IconData,
+                            size: 24,
+                            color: AppColors.black,
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            data['text'],
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }),
+            ),
+          ],
+        ),
+      );
+    },
   );
 }

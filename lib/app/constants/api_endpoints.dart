@@ -1,7 +1,7 @@
 class ApiEndpoints {
   // Base URL for the API
-  static const String baseUrl = 'http://192.168.1.9:8000/api'; // Local base URL
-  // static const String baseUrl = 'https://api.farmitra.in/api';
+  // static const String baseUrl = 'http://192.168.1.9:8000/api'; // Local base URL
+  static const String baseUrl = 'https://api.farmitra.in/api';
   static const String stagingBaseUrl = 'https://staging.farmitra.in/api';
   static const bool isProduction = true;
   static String get effectiveBaseUrl => isProduction ? baseUrl : stagingBaseUrl;

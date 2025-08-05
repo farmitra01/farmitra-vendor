@@ -35,7 +35,7 @@ class StoreTemplateView extends StatelessWidget {
         child: Obx(
           () =>
               storeTemplateController.isLoading.value
-                  ? const Center(
+                  ?  Center(
                     child: CircularProgressIndicator(
                       color: AppColors.primaryGradinatMixColor,
                     ),
@@ -228,7 +228,7 @@ class _CloseDialogButton extends StatelessWidget {
         Get.back(closeOverlays: true);
         ();
       },
-      child: const Icon(
+      child:  Icon(
         Icons.close_sharp,
         color: AppColors.primaryGradinatMixColor,
       ),
@@ -246,7 +246,7 @@ class _SelectedIndicator extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(color: AppColors.primaryGradinatMixColor, width: 2),
       ),
-      child: const CircleAvatar(
+      child:  CircleAvatar(
         radius: 13,
         backgroundColor: AppColors.white,
         child: Icon(

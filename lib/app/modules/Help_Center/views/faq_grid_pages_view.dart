@@ -72,7 +72,7 @@ class FaqGridPagesView extends GetView {
             Expanded(
               child: Obx(() {
                 if (faqController.isLoading.value) {
-                  return const Center(
+                  return  Center(
                     child: CircularProgressIndicator(
                       color: AppColors.primaryFirstGradiant,
                     ),

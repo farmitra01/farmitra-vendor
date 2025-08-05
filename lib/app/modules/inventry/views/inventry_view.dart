@@ -29,6 +29,7 @@ class InventryView extends GetView<InventryController> {
       StoreCategoryController(),
     );
     return Scaffold(
+      backgroundColor: AppColors.lightGrey,
       body: Stack(
         children: [
           Positioned(
@@ -96,8 +97,8 @@ class InventryView extends GetView<InventryController> {
           Positioned.fill(
             top: kToolbarHeight + 100,
             child: CustomScrollView(
+              physics: BouncingScrollPhysics(),
               slivers: [
-                // SliverPersistentHeader for the fixed horizontal list
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -124,7 +125,7 @@ class InventryView extends GetView<InventryController> {
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
-                            gradient: const LinearGradient(
+                            gradient: LinearGradient(
                               colors: [
                                 AppColors.primaryFirstGradiant,
                                 AppColors.primarySecondGradiant,
@@ -141,68 +142,9 @@ class InventryView extends GetView<InventryController> {
                   floating: true,
                   delegate: _StickyTextHeaderDelegate(),
                 ),
-                // SliverList for vertical scrolling items
-                SliverToBoxAdapter(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Obx(() {
-                        return Checkbox(
-                          value: inventryController.isAllSelected.value,
-                          activeColor: AppColors.primaryGradinatMixColor,
-                          onChanged: (bool? value) {
-                            if (value != null) {
-                              inventryController.toggleSelectAll(value);
-                              inventryController.showCheckBox();
-                            }
-                          },
-                        );
-                      }),
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: "All Products ",
-                              style: GoogleFonts.montserrat(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
-                              ),
-                            ),
-                            TextSpan(
-                              text: "(15 Products)",
-                              style: GoogleFonts.montserrat(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: const Color(0xff8a8a8a),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Spacer(),
-                      GestureDetector(
-                        onTap: () {
-                          seeOptionBottomsheet(context);
-                        },
-                        child: Obx(
-                          () => Text(
-                            "See Options",
-                            style: GoogleFonts.montserrat(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color:
-                                  inventryController.isCheck == true
-                                      ? AppColors.primaryGradinatMixColor
-                                      : AppColors.secondary,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                    ],
-                  ),
-                ),
+                // SliverToBoxAdapter(
+                //   child:
+                // ),
                 SliverList(delegate: buildSliverList()),
               ],
             ),
@@ -246,9 +188,9 @@ class InventryView extends GetView<InventryController> {
 
 class _StickyTextHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
-  double get minExtent => 100;
+  double get minExtent => 150;
   @override
-  double get maxExtent => 100;
+  double get maxExtent => 150;
 
   @override
   Widget build(
@@ -259,6 +201,8 @@ class _StickyTextHeaderDelegate extends SliverPersistentHeaderDelegate {
     final InventoryController inventoryController = Get.put(
       InventoryController(),
     );
+    final InventryController inventryController = Get.put(InventryController());
+
     return Column(
       children: [
         Container(
@@ -266,6 +210,7 @@ class _StickyTextHeaderDelegate extends SliverPersistentHeaderDelegate {
           padding: const EdgeInsets.symmetric(vertical: 5),
           alignment: Alignment.center,
           child: TabBar(
+            physics: BouncingScrollPhysics(),
             isScrollable: true,
             tabAlignment: TabAlignment.start,
             controller: inventoryController.categoryTabController,
@@ -280,6 +225,68 @@ class _StickyTextHeaderDelegate extends SliverPersistentHeaderDelegate {
               buildCategoriesTabbar(),
               buildCategoriesTabbar(),
               buildCategoriesTabbar(),
+            ],
+          ),
+        ),
+        Container(
+          color: AppColors.white,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Obx(() {
+                return Checkbox(
+                  value: inventryController.isAllSelected.value,
+                  activeColor: AppColors.primaryGradinatMixColor,
+                  onChanged: (bool? value) {
+                    if (value != null) {
+                      inventryController.toggleSelectAll(value);
+                      inventryController.showCheckBox();
+                    }
+                  },
+                );
+              }),
+              RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "All Products ",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    TextSpan(
+                      text: "(15 Products)",
+                      style: GoogleFonts.montserrat(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xff8a8a8a),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Spacer(),
+              GestureDetector(
+                onTap: () {
+                  seeOptionBottomsheet(context);
+                },
+                child: Obx(
+                  () => Text(
+                    "See Options",
+                    style: GoogleFonts.montserrat(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color:
+                          inventryController.isCheck == true
+                              ? AppColors.primaryGradinatMixColor
+                              : AppColors.secondary,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 10),
             ],
           ),
         ),
@@ -342,37 +349,66 @@ void seeOptionBottomsheet(BuildContext context) {
             ),
             SizedBox(width: 5),
             Expanded(
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                // physics: NeverScrollableScrollPhysics(),
-                itemCount: inventryController.seeOptionList.length,
-                itemBuilder: (context, index) {
-                  var data = inventryController.seeOptionList[index];
+              child: Obx(() {
+                final selectedCount =
+                    inventryController.productSelections
+                        .where((selected) => selected == true)
+                        .length;
 
-                  return Container(
-                    margin: EdgeInsets.symmetric(horizontal: 15),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          data['icon'] as IconData, // ✅ Ensure correct type
-                          size: 24,
-                          color: AppColors.black,
-                        ),
-                        SizedBox(height: 10),
-                        Text(
-                          data['text'],
-                          textAlign: TextAlign.center,
-                          style: GoogleFonts.montserrat(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                // Filter list based on selected count
+                final List<Map<String, dynamic>> filteredOptions =
+                    selectedCount <= 1
+                        ? [
+                          {'text': 'Edit', 'icon': Icons.edit_outlined},
+                          {
+                            'text': 'Out of\nStock',
+                            'icon': Icons.shopping_cart_checkout,
+                          }, // ✅ Fixed key
+                          {
+                            'text': 'Add to\nCollection',
+                            'icon': Icons.dataset_outlined,
+                          }, // ✅ Fixed key
+                          {
+                            'text': 'Delete\nProduct',
+                            'icon': Icons.delete_outline,
+                          },
+                          {'text': 'Print', 'icon': Icons.print_rounded},
+                        ]
+                        : inventryController.seeOptionList
+                            .where((item) => item['text'] != 'Edit')
+                            .toList();
+
+                return ListView.builder(
+                  physics: BouncingScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: filteredOptions.length,
+                  itemBuilder: (context, index) {
+                    final data = filteredOptions[index];
+                    return Container(
+                      margin: EdgeInsets.symmetric(horizontal: 15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            data['icon'] as IconData,
+                            size: 24,
+                            color: AppColors.black,
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                          SizedBox(height: 10),
+                          Text(
+                            data['text'],
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.montserrat(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              }),
             ),
           ],
         ),
@@ -405,7 +441,12 @@ SliverChildBuilderDelegate buildSliverList() {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 8),
             child: GestureDetector(
-              onLongPress: () => seeOptionBottomsheet(context),
+              onLongPress: () {
+                inventryController.showCheckBox();
+              },
+              onTap: () {
+                seeOptionBottomsheet(context);
+              },
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

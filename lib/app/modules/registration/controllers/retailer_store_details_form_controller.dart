@@ -22,13 +22,13 @@ class RetailerStoreDetailsFormController extends GetxController {
   );
 
   @override
-void onInit() {
-  super.onInit();
-  final storedNumber = box.read('login_mobileNumber'); 
-  if (storedNumber != null && storedNumber is String) {
-    whatsAppNumber.text = storedNumber;
+  void onInit() {
+    super.onInit();
+    final storedNumber = box.read('login_mobileNumber');
+    if (storedNumber != null && storedNumber is String) {
+      whatsAppNumber.text = storedNumber;
+    }
   }
-}
 
   // TextEditingControllers
   final box = GetStorage();
@@ -232,7 +232,7 @@ void onInit() {
         print('❌ Token is missing.');
         Get.snackbar(
           'Error',
-          'Login required.',
+          'Login required try again for login.',
           backgroundColor: AppColors.error,
           colorText: AppColors.white,
         );
@@ -248,13 +248,13 @@ void onInit() {
         'whatsapp_no': whatsAppNumber.text.trim(),
         'email': email.text.trim(),
         'address': storeLocationController.combinedController.text.trim(),
-        'landmark': ' ',
+        'landmark': storeLocationController.landmark.text.trim(),
         'pincode': storeLocationController.pincode.text.trim(),
-        'gps_location': ' ',
-        'subcategories':
-            storeCategoryController.subCategoriesId.toList(), // ✅ send as array
-      };
+        'gps_location':
+            '${storeLocationController.selectedLocation.value.latitude},${storeLocationController.selectedLocation.value.longitude}',
 
+        'subcategories': storeCategoryController.subCategoriesId.toList(),
+      };
       final fileMap = <String, File>{};
       if (selectedLogoPath.value.isNotEmpty) {
         fileMap['logo'] = File(selectedLogoPath.value);
@@ -267,7 +267,7 @@ void onInit() {
       print('📨 FormData: $formData');
       print('🖼️ Files: ${fileMap.keys}');
       print(
-        'Selected Subcategory IDs: ${storeCategoryController.subCategoriesId}',
+        'Selected Subcategory IDs: ${storeCategoryController.selectedItems}',
       );
 
       final response = await _apiService.callApi(

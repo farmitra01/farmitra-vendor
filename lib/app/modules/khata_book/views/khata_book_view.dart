@@ -228,7 +228,7 @@ class KhataBookView extends GetView<KhataBookController> {
                         color: AppColors.primaryGradinatMixColor,
                       ),
                     ),
-                    const Icon(
+                     Icon(
                       Icons.arrow_forward_ios,
                       color: AppColors.primaryGradinatMixColor,
                       size: 10,
@@ -363,7 +363,7 @@ class KhataBookView extends GetView<KhataBookController> {
       children: [
         Expanded(
           child: CustomTextFormField(
-            prefixIcon: const Icon(
+            prefixIcon:  Icon(
               Icons.search,
               color: AppColors.primaryGradinatMixColor,
             ),
@@ -376,7 +376,7 @@ class KhataBookView extends GetView<KhataBookController> {
         const SizedBox(width: 10),
         Column(
           children: [
-            const Icon(
+             Icon(
               Icons.filter_alt_outlined,
               color: AppColors.primaryGradinatMixColor,
             ),
@@ -394,7 +394,7 @@ class KhataBookView extends GetView<KhataBookController> {
         const SizedBox(width: 10),
         Column(
           children: [
-            const Icon(
+             Icon(
               Icons.picture_as_pdf,
               color: AppColors.primaryGradinatMixColor,
             ),
@@ -412,7 +412,7 @@ class KhataBookView extends GetView<KhataBookController> {
         const SizedBox(width: 10),
         Column(
           children: [
-            const Icon(Icons.send, color: AppColors.primaryGradinatMixColor),
+             Icon(Icons.send, color: AppColors.primaryGradinatMixColor),
             const SizedBox(height: 10),
             Text(
               'Reminder',
@@ -605,7 +605,7 @@ class KhataBookView extends GetView<KhataBookController> {
                               color: AppColors.primaryGradinatMixColor,
                             ),
                           ),
-                          const Icon(
+                           Icon(
                             Icons.arrow_forward_ios,
                             color: AppColors.primaryGradinatMixColor,
                             size: 10,

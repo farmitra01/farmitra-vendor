@@ -218,7 +218,7 @@ class RechargePlan extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(15),
                   color: AppColors.background,
-                  boxShadow: const [
+                  boxShadow:  [
                     BoxShadow(
                       blurRadius: 1,
                       color: AppColors.containerShadowColor,
